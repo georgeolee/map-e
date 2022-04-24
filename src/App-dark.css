@@ -1,13 +1,8 @@
 :root{
   box-sizing: border-box;
-  background-color: #fafafa;
-  color: #f44;
-}
-
-:root .dark{
   background-color: #222;
   color: #f44;
-  /* color: #fd4; */
+
 }
 
 .App {
@@ -122,11 +117,6 @@
   line-height: 1em;
 }
 
-.dark .bindings code{
-  /* background-color: #fd4; */
-  color: #222;
-}
-
 .angle-display-text{
   color: #000;
   font-size: 14px;
@@ -147,11 +137,6 @@
   /* text-shadow: 0 0 10px #0008; */
 }
 
-.dark .angle-display-text{
-  color: #fff;
-  background-color: #7778;
-}
-
 #p5-container {
   margin: 0 auto;
   grid-column: 2;
@@ -164,69 +149,7 @@ canvas{
 div.hr{
   padding: 0.5px 0;
   margin: 2em 0;
-  background-color: #bbb;
+  background-color: #444;
   width: 100%;
 
-}
-
-.dark div.hr{
-  background-color: #444;
-}
-
-.modal{
-  position: fixed;
-  inset: 0 0 0 0;
-  background-color: #8884;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal-window{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #fafafa;
-  padding: 30px;
-  max-width: 40vw;
-  max-height: 50vh;
-  overflow-y: auto;
-  font-size: 14px;
-  line-height: 1.7em;
-
-  border-radius: 10px;
-  box-shadow: 0 0 5px #8888;
-}
-
-.modal-title{
-  text-align: center;
-  /* font-weight: bold; */
-  font-size: 16px;
-  color: #000;
-  color: #222;
-  margin-bottom: 1em;
-}
-.modal-content{
-  color: #222;
-  /* color: #444; */
-}
-
-.modal-button{
-  /* background-color: #df4;
-  color: #222; */
-  padding: 5px 10px;
-}
-
-.modal.open{
-  display: flex;
-}
-
-.modal.closed{
-  display: none;
-}
-
-body.modal-open{
-  overflow-y: hidden;
-  padding-right: 15px;
 }
