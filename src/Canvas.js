@@ -10,80 +10,84 @@ import AngleDisplay from './AngleDisplay.js'
 import Modal from './Modal.js'
 import {HR} from './HR.js'
 
+// CONSTANTS - move to external file
+//#region 
+// const ZOOM_MIN = 0.25;
+// const ZOOM_MAX = 10;
+// const ZOOM_SENSITIVITY = 0.005;
 
-const ZOOM_MIN = 0.25;
-const ZOOM_MAX = 10;
-const ZOOM_SENSITIVITY = 0.005;
+// const SCROLL_SPEED = 20;
+// const SCROLL_FAST_SPEED = 50;
 
-const SCROLL_SPEED = 20;
-const SCROLL_FAST_SPEED = 50;
+// const CANVAS_WIDTH = 600;
+// const CANVAS_HEIGHT = 600;
+//#endregion
 
-const CANVAS_WIDTH = 600;
-const CANVAS_HEIGHT = 600;
 
 //SETTINGS
 
 const now = new Date();
 const isNightTime = now.getHours() < 6 || now.getHours() > 18;
 
+
+//move to external file
 const settings = {
-  snap : {
-    enabled : false,
-    angle : 22.5,
-  },
+  // snap : {
+  //   enabled : false,
+  //   angle : 22.5,
+  // },
 
-  size : {
-    x : 16,
-    y : 16,
-  },
+  // size : {
+  //   x : 16,
+  //   y : 16,
+  // },
 
-  url: null,
-  bgUrl : null,
-  bgAlpha : 55,
-  showDirection : true,
-  showDegreesOnEdit : true,
-  showGrid : true,
-  normalMapMode : false,
+  // url: null,
+  // bgUrl : null,
+  // bgAlpha : 55,
+  // showDirection : true,
+  // showDegreesOnEdit : true,
+  // showGrid : true,
+  // normalMapMode : false,
 
-  p5IgnoreMouseDown : false,
+  // p5IgnoreMouseDown : false,
 
-  editorMode: 'light',
+  // editorMode: 'light',
 }
 
-
-
-//p5 flags
-//signals for p5 to do something inside of sketch
+//moved to external file
 const flags = {
-  export : false,
-  recolor : false,
-  loadEmpty : false,
-  loadURL : false,
-  loadBackgroundURL : false,
-  undo : false,
-  redo : false,
+//   export : false,
+//   recolor : false,
+//   loadEmpty : false,
+//   loadURL : false,
+//   loadBackgroundURL : false,
+//   undo : false,
+//   redo : false,
 
-  bakeBackgroundOpacity : false,
-  dirtyBackground : false,
+//   bakeBackgroundOpacity : false,
+//   dirtyBackground : false,
 
-  createCheckerboard : false,
+//   createCheckerboard : false,
 }
 
 //key input for scrolling w/ keyboard
+//moved to external file
 const keyScroll = {
-  up : false,
-  down : false,
-  left : false,
-  right : false,
-  shift : false,
+  // up : false,
+  // down : false,
+  // left : false,
+  // right : false,
+  // shift : false,
 }
 
+//moved to external file
 const angleDisplay = {
-  x: 0,
-  y: 0,
-  angle: 0,
-  update: undefined,  // <AngleDisplay> component will assign a callback here for triggering its next re-render ; gets called from <Canvas> p5Container via pointer events
-  visible: false,
+  // x: 0,
+  // y: 0,
+  // angle: 0,
+  // update: undefined,  // <AngleDisplay> component will assign a callback here for triggering its next re-render ; gets called from <Canvas> p5Container via pointer events
+  // visible: false,
 }
 
 const onCanvasPointerMove = evt => {

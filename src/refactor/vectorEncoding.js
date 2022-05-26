@@ -29,6 +29,7 @@ export function colorFromAngle(angle){
  * @param {number} g - green channel value from 0-255
  * @returns angle in radians
  */
+
 export function angleFromColorRG(r, g){
     const y = g - 128;
     const x = r - 128;
