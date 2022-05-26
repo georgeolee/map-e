@@ -7,49 +7,14 @@ export function sketch(p){
     let mouseDownLastFrame = false;
   
 
-  //CONSTANTS
+  //BIG TODO - > separate out image drawing functionality 
+  // some kind of virtual canvas class ? not element or p5 canvas, but the movable, scaleable canvas w/in the canvas
 
-  const N_BLUE = p.color(128,128,255,255);  //neutral blue color
-  const N_TRANSPARENT = p.color(128,128,255,0);  //neutral blue color with transparent alpha channel
+
+  //CONSTANTS & COLORS - moved to separate files ; import
 
   let neutralColor = N_TRANSPARENT;
   let checkerboard = null;
-
-  const BG_CHECKERBOARD_COUNT = 32; //# of checkerboard squares
-
-
-  const BG_COL_A = {
-    light: 250,
-    dark: 67,
-  }
-
-  const BG_COL_B = {
-    light: 245,
-    dark: 65,
-  }
-
-  const GRID_COL = {
-    light: p.color(0,0,255,64),
-    dark : p.color(128,255,255,64),
-  }
-
-  const EMAP_BOUNDS_COL = {
-    light: p.color(0,0,255,128),
-    dark : p.color(128,255,255,128),
-  }
-
-  const ACTIVE_PIXEL_COL = {
-    light: p.color(0,0,255,128),
-    dark : p.color(128,255,255,128),
-  }
-
-  const GRID_SPACING = 1;  //# of emap pixels per grid square
-
-
-
-
-  const BLUE_NORMALIZED_MAX = 0.1;
-  const ALPHA_NORMALIZED_MIN = 0.9;
 
 
 
@@ -339,7 +304,6 @@ export function sketch(p){
       if(isNeutral){
         p.fill(BG_COL_A[settings.editorMode]);
         p.rect(pix.x * pr, pix.y * pr, pr,pr);
-        // p.fill(EMAP_BOUNDS_COL[settings.editorMode]);
         p.fill(GRID_COL[settings.editorMode]);
         p.rect(pix.x * pr, pix.y * pr, pr,pr);
       }
@@ -347,9 +311,6 @@ export function sketch(p){
         p.fill(EMAP_BOUNDS_COL[settings.editorMode]);
         p.rect(pix.x * pr, pix.y * pr, pr,pr);
       }
-
-      // p.fill(EMAP_BOUNDS_COL[settings.editorMode]);
-      // p.rect(pix.x * pr, pix.y * pr, pr,pr);
       p.pop();
     }
   }
@@ -362,55 +323,6 @@ export function sketch(p){
     const bottom = top + pr;
     return (cx >= left && cx <= right && cy >= top && cy <= bottom);
   }
-
-  function recolor(pimg){
-    pimg.loadPixels();
-
-    const normalize = (val) => (val - 128) / 128;
-    const neutralColor = settings.normalMapMode ? N_BLUE : N_TRANSPARENT;
-
-    for(let i = 0; i < pimg.pixels.length; i+= 4){
-
-      //is it a neutral pixel?
-      const isNeutralPixel = ( Math.abs(normalize(pimg.pixels[i + 2])) > BLUE_NORMALIZED_MAX  || normalize(pimg.pixels[i + 3]) < ALPHA_NORMALIZED_MIN );
-
-      //color by angle, or make transparent / blue if neutral
-      const c = isNeutralPixel ? neutralColor : colorFromAngle(angleFromColorRG(pimg.pixels[i], pimg.pixels[i+1]));
-
-      pimg.pixels[i] = p.red(c);
-      pimg.pixels[i+1] = p.green(c);
-      pimg.pixels[i+2] = p.blue(c);
-      pimg.pixels[i+3] = p.alpha(c);
-    }
-    pimg.updatePixels();
-  }
-
-  function angleFromColorRG(r, g){ //angle in radians
-
-    const y = (g - 128) * (settings.normalMapMode ? -1 : 1);  //flip y for normal map mode
-    const x = r - 128;
-    return Math.atan2(y, x);
-  }
-
-  function colorFromAngle(angle, returnP5Color = true){  //angle in radians
-    const V0 = {x: 1, y: 0};    //a unit vector representing 0 rotation
-
-    let vr = { //the same vector rotated by angle
-      x: V0.x * Math.cos(angle) - V0.y * Math.sin(angle),
-      y: V0.x * Math.sin(angle) + V0.y * Math.cos(angle),
-    };
-
-    //invert y if set in editor
-    if(settings.normalMapMode === true) vr.y *= -1;
-
-    const _r = Math.min(128 + Math.round(vr.x * 128), 255);  //prevent rounding up to 256 ; probably there's a better way to do this?
-    const _g = Math.min(128 + Math.round(vr.y * 128), 255);
-    const _b = 128;                          //Z is always 0
-    const _a = 255;
-
-    return  returnP5Color ? p.color(_r,_g,_b,_a) : {r:_r, g:_g, b:_b, a:_a};
-  }
-
 
 
   function getImagePixel(canvasX, canvasY, img){  //get pixel coordinates in image dimensions of an image displayed fullscreen on the canvas
@@ -471,7 +383,6 @@ export function sketch(p){
       if(Math.abs(normalize(img.pixels[i + 2])) > BLUE_NORMALIZED_MAX) continue;
       if(normalize(img.pixels[i + 3]) < ALPHA_NORMALIZED_MIN) continue;
 
-      // let angle = LUT.get(img.pixels[i], img.pixels[i+1])
       let angle = Math.atan2(img.pixels[i+1] - 128, img.pixels[i] - 128);
       if(settings.normalMapMode === true) angle *= -1;
 
@@ -483,7 +394,6 @@ export function sketch(p){
       p.push();
 
       p.stroke(img.pixels[i], img.pixels[i+1], img.pixels[i+2], img.pixels[i+3]);
-      // p.strokeWeight(3);
       p.strokeWeight(Math.max( 1 * (128 / Math.max(emap.width, emap.height)), 0.8))
 
       const length = Math.max(pr * 1.75, p.width/16);
@@ -493,9 +403,6 @@ export function sketch(p){
 
       p.rotate(angle);
       p.line(0,0,length, 0);
-
-      // p.line(0,0, length * Math.cos(angle), length * Math.sin(angle))
-
       p.stroke(0)
       p.strokeWeight(1 * (128 / Math.max(emap.width, emap.height)))
       p.point(0,0)

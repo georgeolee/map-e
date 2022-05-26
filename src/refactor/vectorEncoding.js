@@ -1,5 +1,11 @@
 //functions for color to vector operations and vice-versa
 
+import { BLUE_NORMALIZED_MAX } from "./constants";
+
+import { N_BLUE, N_TRANSPARENT } from "./colors";
+
+import { settings } from "./globals";
+
 //radians
 /**
  * 
@@ -35,3 +41,31 @@ export function angleFromColorRG(r, g){
     const x = r - 128;
     return Math.atan2(y, x);
 }
+
+/**
+ * decodes and then re-encodes vector information from image colors, which results in a more uniform appearance
+ * 
+ * @param {p5Image} pimg p5 image to recolor
+ */
+export function recolor(pimg){
+    pimg.loadPixels();
+
+    const normalize = (val) => (val - 128) / 128;
+
+    const neutralColor = settings.normalMapMode ? N_BLUE : N_TRANSPARENT;
+
+    for(let i = 0; i < pimg.pixels.length; i+= 4){
+
+      //is it a neutral pixel?
+      const isNeutralPixel = ( Math.abs(normalize(pimg.pixels[i + 2])) > BLUE_NORMALIZED_MAX  || normalize(pimg.pixels[i + 3]) < ALPHA_NORMALIZED_MIN );
+
+      //color by angle, or make transparent / blue if neutral
+      const c = isNeutralPixel ? neutralColor : colorFromAngle(angleFromColorRG(pimg.pixels[i], pimg.pixels[i+1]));
+
+      pimg.pixels[i] = c.r;
+      pimg.pixels[i+1] = c.g;
+      pimg.pixels[i+2] = c.b;
+      pimg.pixels[i+3] = c.a;
+    }
+    pimg.updatePixels();
+  }

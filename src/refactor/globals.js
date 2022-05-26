@@ -1,3 +1,6 @@
+
+//settings, flags, and other stuff that should be visible to both p5 sketch and react components
+
 export const flags = {
     export : false,
     recolor : false,
