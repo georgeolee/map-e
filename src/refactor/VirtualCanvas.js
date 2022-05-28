@@ -7,6 +7,9 @@
 
 //BIG TODO - test transformation matrices ; do they work as expected?
 
+import * as COLOR from './colors';
+import { settings } from './globals';
+
 export class VirtualCanvas{
 
     p5;    
@@ -46,18 +49,21 @@ export class VirtualCanvas{
     setImage(pImage){
         this.image = pImage;
         this.imageScale = Math.min(this.p5.width / this.image.width, this.p5.height / this.image.height);
-        this.imageOffset.x = -this.image.width/2 * this.imageScale;
-        this.imageOffset.y = -this.image.height/2 * this.imageScale;
+        // this.imageOffset.x = -this.image.width/2 * this.imageScale;
+        // this.imageOffset.y = -this.image.height/2 * this.imageScale;
 
-        //TODO: THIS    
-        this.width = Math.min()
+        //TODO: THIS - set width & height according to image aspect & canvas size
+        //TEST: is this correct?
+        const aspect = this.image.width / this.image.height;
+        this.width = aspect > 1 ? this.p5.width : this.p5.width * aspect;
+        this.height = aspect > 1 ? this.p5.height / aspect : this.p5.height;
     }
 
     setBackground(pImage){
         this.background = pImage;
         this.backgroundScale = Math.min(this.p5.width / this.background.width, this.p5.height / this.background.height);
-        this.backgroundOffset.x = -this.background.width/2 * this.backgroundScale;
-        this.backgroundOffset.y = -this.background.height/2 * this.backgroundScale;
+        // this.backgroundOffset.x = -this.background.width/2 * this.backgroundScale;
+        // this.backgroundOffset.y = -this.background.height/2 * this.backgroundScale;
     }
 
 
@@ -70,10 +76,7 @@ export class VirtualCanvas{
         // const scale = this.zoom * this.imageScale;          //final scale accounting for zoom level & image fullscreen size
 
         const scale = this.zoom;          //scale accounting for zoom level ; image scale applied elsewhere, wherever it gets displayed
-
-
         const [u, v] = [this.p5.width/2, this.p5.height/2]; //screen half width & height
-
 
         return [
 
@@ -99,7 +102,6 @@ export class VirtualCanvas{
         //TODO : same question as above regarding scale
         
         const scale = this.zoom;
-
         const [u, v] = [this.p5.width/2, this.p5.height/2]; //screen half width & height
 
         return [
@@ -122,11 +124,7 @@ export class VirtualCanvas{
     getWorldToLocalPoint(worldX, worldY){
         const M = this.getWorldToLocalMatrix();
 
-        /* M2 = [
-                worldX, 
-                worldY, 
-                1
-            ]*/
+        /* M2 = [ worldX, worldY, 1 ]*/
 
         return {
             x: M[0]*worldX + M[2]*worldY + M[4]*1,
@@ -138,11 +136,7 @@ export class VirtualCanvas{
     getLocalToWorldPoint(localX, localY){
         const M = this.getLocalToWorldMatrix();
 
-        /* M2 = [
-                localX, 
-                localY, 
-                1
-            ]*/
+        /* M2 = [ localX, localY, 1 ]*/
 
         return {
             x: M[0]*localX + M[2]*localY + M[4]*1,
@@ -150,6 +144,70 @@ export class VirtualCanvas{
         }
     }
 
+    //draw image fullsize (at 1x zoom) 
+    drawImage(){
+
+        //scale to image size, translate towards canvas center, translate back by half image size
+        const M = [
+            this.imageScale,
+            0,
+
+            0,
+            this.imageScale,
+
+            this.imageScale * (this.p5.width/2 - this.image.width/2),
+            this.imageScale * (this.p5.height/2 - this.image.height/2)
+        ]
+        this.p5.push();
+        this.p5.applyMatrix(...M);
+        this.p5.image(this.image, 0, 0);
+        this.p5.pop();
+    }
+
+    drawBackground(){
+
+        //scale to bg size, translate towards canvas center, translate back by half bg size
+        const M = [
+            this.backgroundScale,
+            0,
+
+            0,
+            this.backgroundScale,
+
+            this.backgroundScale * (this.p5.width/2 - this.background.width/2),
+            this.backgroundScale * (this.p5.height/2 - this.background.height/2)
+        ]
+        this.p5.push();
+        this.p5.applyMatrix(...M);
+        this.p5.image(this.background, 0, 0);
+        this.p5.pop();
+    }
+
+    drawGrid(){
+
+        const M = [
+            this.imageScale,
+            0,
+
+            0,
+            this.imageScale,
+
+            this.imageScale * (this.p5.width/2 - this.width/2),
+            this.imageScale * (this.p5.height/2 - this.height/2)
+        ]
+
+        const c = COLOR.GRID[settings.editorMode];
+        const gridColor = this.p5.color(c.r, c.g, c.b, c.a);
+        this.p5.push();
+        this.applyMatrix(...M);
+        this.p5.stroke(gridColor);
+        for(let x = 0; x < this.image.width * this.imageScale; x += this.imageScale){
+            this.p5.line(x, 0, x, this.height);
+        }
+        for(let y = 0; y < this.image.height * this.imageScale; y += this.imageScale){
+            this.p5.line(0, y, this.width, y);
+        }
+    }
 
 
     //THINGS THAT DO *NOT* GO HERE -------
