@@ -33,6 +33,7 @@ export const settings = {
     showDirection : true,
     showDegreesOnEdit : true,
     showGrid : true,
+    gridWeight : 1,
     normalMapMode : false,
 
     p5IgnoreMouseDown : false,

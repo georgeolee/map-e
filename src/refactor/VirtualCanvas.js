@@ -147,7 +147,8 @@ export class VirtualCanvas{
     //draw image fullsize (at 1x zoom) 
     drawImage(){
 
-        //scale to image size, translate towards canvas center, translate back by half image size
+        //scale to image size
+        // TEST: translate towards canvas center, translate back by half image size ?
         const M = [
             this.imageScale,
             0,
@@ -155,8 +156,11 @@ export class VirtualCanvas{
             0,
             this.imageScale,
 
-            this.imageScale * (this.p5.width/2 - this.image.width/2),
-            this.imageScale * (this.p5.height/2 - this.image.height/2)
+            // this.imageScale * (this.p5.width/2 - this.image.width/2),
+            // this.imageScale * (this.p5.height/2 - this.image.height/2)
+
+            0,
+            0
         ]
         this.p5.push();
         this.p5.applyMatrix(...M);
@@ -166,7 +170,8 @@ export class VirtualCanvas{
 
     drawBackground(){
 
-        //scale to bg size, translate towards canvas center, translate back by half bg size
+        //scale to bg size
+        // TEST: translate towards canvas center, translate back by half bg size ?
         const M = [
             this.backgroundScale,
             0,
@@ -174,8 +179,11 @@ export class VirtualCanvas{
             0,
             this.backgroundScale,
 
-            this.backgroundScale * (this.p5.width/2 - this.background.width/2),
-            this.backgroundScale * (this.p5.height/2 - this.background.height/2)
+            // this.backgroundScale * (this.p5.width/2 - this.background.width/2),
+            // this.backgroundScale * (this.p5.height/2 - this.background.height/2)
+
+            0,
+            0,
         ]
         this.p5.push();
         this.p5.applyMatrix(...M);
@@ -201,14 +209,47 @@ export class VirtualCanvas{
         this.p5.push();
         this.applyMatrix(...M);
         this.p5.stroke(gridColor);
+        this.p5.strokeWeight(settings.gridWeight/(this.zoom * this.imageScale));
         for(let x = 0; x < this.image.width * this.imageScale; x += this.imageScale){
             this.p5.line(x, 0, x, this.height);
         }
         for(let y = 0; y < this.image.height * this.imageScale; y += this.imageScale){
             this.p5.line(0, y, this.width, y);
         }
+        this.p5.pop();
     }
 
+    /**
+     * Get the image pixel corresponding to local coordinates
+     * @param {number} localX 
+     * @param {number} localY 
+     */
+    getPixelAtLocalPoint(localX, localY){
+        const [halfWidth, halfHeight] = [this.imageScale * this.image.width/2, this.imageScale * this.image.height/2];
+        
+        if(Math.abs(localX - halfWidth) > halfWidth || Math.abs(localY - halfHeight) > halfHeight) return null; //outside of image bounds
+
+        return {
+            x: Math.floor(localX / this.imageScale),
+            y: Math.floor(localY / this.imageScale),
+        }
+    }
+
+    /**
+     * 
+     * @param {number} pixelX pixel coordinate
+     * @param {number} pixelY pixel coordinate
+     * @param {object} rgba an { r: number, g: number, b: number, a: number } object
+     */
+    setPixelColor(pixelX, pixelY, rgba){
+        if(pixelX < 0 || pixelY < 0 || pixelX > this.image.width -1 || pixelY > this.image.height - 1) throw new Error('VirtualCanvas.setPixelColor(): pixel coordinates out of range');
+        this.image.loadPixels();
+        const i = 4 * (this.image.width * pixelY + pixelX);
+        this.image.pixels[i] = rgba.r;
+        this.image.pixels[i+1] = rgba.g;
+        this.image.pixels[i+2] = rgba.b;
+        this.image.pixels[i+3] = rgba.a;
+    }
 
     //THINGS THAT DO *NOT* GO HERE -------
 
@@ -242,6 +283,12 @@ export class VirtualCanvas{
     //set image pixel color
 
     //transformations from zoom / scroll
+
+
+
+    //-------
+
+
 
     //visualize pixel directions
 
