@@ -68,6 +68,7 @@ export class VirtualCanvas{
 
 
     //transformation matrix that represents this objects position & scale in world (p5 canvas element) space
+    //use this one to apply transforms when drawing virtualcanvas within the p5canvas space
     getLocalToWorldMatrix(){
         
 
@@ -96,7 +97,7 @@ export class VirtualCanvas{
     }
 
     //transform matrix that converts world (screen / p5 canvas element ) coordinates to object local coordinates ; the inverse of getLocalToWorldMatrix
-    //use this one for example to get the convert mouse coordinates from screen space to object space
+    //use this one to convert mouse coordinates from screen space to object space
     getWorldToLocalMatrix(){
 
         //TODO : same question as above regarding scale
@@ -285,8 +286,7 @@ export class VirtualCanvas{
     //transformations from zoom / scroll
 
 
-
-    //-------
+    //------- TODO  V
 
 
 
