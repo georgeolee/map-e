@@ -7,8 +7,47 @@
 
 //BIG TODO - test transformation matrices ; do they work as expected?
 
+/*
+
+outline------
+
+react components
+    inputs, etc
+
+react app
+    inputs
+    canvas
+    input handling
+
+virtual canvas
+    set image, background
+    transformations - scroll & zoom
+    access / modify image pixels
+    handle world / canvas space conversions
+
+virtual canvas visualizer - split drawing functions from virtual canvas?
+    grid
+    image
+    background
+    pixel highlight
+    pixel directions/
+
+sketch
+    apply transformations & draw virtual canvas to screen
+    virtual canvas interaction
+    pixel editing logic
+    pixel highlight / outline
+    pixel direction viz
+    image import / export logic
+
+
+*/
+
+
+
 import * as COLOR from './colors';
 import { settings } from './globals';
+
 
 export class VirtualCanvas{
 
@@ -23,10 +62,8 @@ export class VirtualCanvas{
     image;
     background;
 
-    imageOffset;
     imageScale;
 
-    backgroundOffset;
     backgroundScale;
 
     constructor(p5Instance){
@@ -39,18 +76,12 @@ export class VirtualCanvas{
         }
 
         this.imageScale = 1;
-        this.imageOffset = {
-            x:0,
-            y:0,
-        }
 
     }
 
     setImage(pImage){
         this.image = pImage;
         this.imageScale = Math.min(this.p5.width / this.image.width, this.p5.height / this.image.height);
-        // this.imageOffset.x = -this.image.width/2 * this.imageScale;
-        // this.imageOffset.y = -this.image.height/2 * this.imageScale;
 
         //TODO: THIS - set width & height according to image aspect & canvas size
         //TEST: is this correct?
@@ -62,8 +93,6 @@ export class VirtualCanvas{
     setBackground(pImage){
         this.background = pImage;
         this.backgroundScale = Math.min(this.p5.width / this.background.width, this.p5.height / this.background.height);
-        // this.backgroundOffset.x = -this.background.width/2 * this.backgroundScale;
-        // this.backgroundOffset.y = -this.background.height/2 * this.backgroundScale;
     }
 
 
