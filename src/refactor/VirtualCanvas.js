@@ -7,6 +7,10 @@
 
 //BIG TODO - test transformation matrices ; do they work as expected?
 
+
+//
+
+
 /*
 
 outline------
@@ -63,7 +67,6 @@ export class VirtualCanvas{
     background;
 
     imageScale;
-
     backgroundScale;
 
     constructor(p5Instance){
@@ -76,25 +79,34 @@ export class VirtualCanvas{
         }
 
         this.imageScale = 1;
+        this.backgroundScale = 1;
 
     }
 
     setImage(pImage){
         this.image = pImage;
-        this.imageScale = Math.min(this.p5.width / this.image.width, this.p5.height / this.image.height);
+
+        const aspect = this.image.width / this.image.height;
+
+        this.imageScale = this.getPixelRatio(this.image);
 
         //TODO: THIS - set width & height according to image aspect & canvas size
         //TEST: is this correct?
-        const aspect = this.image.width / this.image.height;
+        
         this.width = aspect > 1 ? this.p5.width : this.p5.width * aspect;
         this.height = aspect > 1 ? this.p5.height / aspect : this.p5.height;
     }
 
     setBackground(pImage){
         this.background = pImage;
-        this.backgroundScale = Math.min(this.p5.width / this.background.width, this.p5.height / this.background.height);
+        
+        this.backgroundScale = this.getPixelRatio(this.background);
+        // this.backgroundScale = Math.min(this.p5.width / this.background.width, this.p5.height / this.background.height);
     }
 
+    getPixelRatio(pImage){
+        return pImage.width / pImage.height >= this.p5.width / this.p5.height ? this.p5.width / pImage.width : this.p5.height / pImage.height;
+    }
 
     //transformation matrix that represents this objects position & scale in world (p5 canvas element) space
     //use this one to apply transforms when drawing virtualcanvas within the p5canvas space
@@ -174,80 +186,6 @@ export class VirtualCanvas{
         }
     }
 
-    //draw image fullsize (at 1x zoom) 
-    drawImage(){
-
-        //scale to image size
-        // TEST: translate towards canvas center, translate back by half image size ?
-        const M = [
-            this.imageScale,
-            0,
-
-            0,
-            this.imageScale,
-
-            // this.imageScale * (this.p5.width/2 - this.image.width/2),
-            // this.imageScale * (this.p5.height/2 - this.image.height/2)
-
-            0,
-            0
-        ]
-        this.p5.push();
-        this.p5.applyMatrix(...M);
-        this.p5.image(this.image, 0, 0);
-        this.p5.pop();
-    }
-
-    drawBackground(){
-
-        //scale to bg size
-        // TEST: translate towards canvas center, translate back by half bg size ?
-        const M = [
-            this.backgroundScale,
-            0,
-
-            0,
-            this.backgroundScale,
-
-            // this.backgroundScale * (this.p5.width/2 - this.background.width/2),
-            // this.backgroundScale * (this.p5.height/2 - this.background.height/2)
-
-            0,
-            0,
-        ]
-        this.p5.push();
-        this.p5.applyMatrix(...M);
-        this.p5.image(this.background, 0, 0);
-        this.p5.pop();
-    }
-
-    drawGrid(){
-
-        const M = [
-            this.imageScale,
-            0,
-
-            0,
-            this.imageScale,
-
-            this.imageScale * (this.p5.width/2 - this.width/2),
-            this.imageScale * (this.p5.height/2 - this.height/2)
-        ]
-
-        const c = COLOR.GRID[settings.editorMode];
-        const gridColor = this.p5.color(c.r, c.g, c.b, c.a);
-        this.p5.push();
-        this.applyMatrix(...M);
-        this.p5.stroke(gridColor);
-        this.p5.strokeWeight(settings.gridWeight/(this.zoom * this.imageScale));
-        for(let x = 0; x < this.image.width * this.imageScale; x += this.imageScale){
-            this.p5.line(x, 0, x, this.height);
-        }
-        for(let y = 0; y < this.image.height * this.imageScale; y += this.imageScale){
-            this.p5.line(0, y, this.width, y);
-        }
-        this.p5.pop();
-    }
 
     /**
      * Get the image pixel corresponding to local coordinates
@@ -287,6 +225,7 @@ export class VirtualCanvas{
     // export
     // background opacity bake
     // checkerboard background for whole p5 canvas
+    // actually apply zoom scroll transformations
 
 
     //-----------------------------------
@@ -297,26 +236,28 @@ export class VirtualCanvas{
     //NOTE : provide p5 images to setter functions ; handle loading elsewhere outside of class
 
 
+    
+
+    //definitions: 
+    
+        //how to handle zoom/scroll transformations
+
+        //get mouse virtual position 
+        // i.e - canvas element space >> virtual canvas space
+
+        //detect if mouse is over virtual canvas or not
+
+        //get image pixel from coords, mouse
+
+        //set image pixel color
+
+
+
+    //------- VCV
+
     //draw image
 
     //draw grid
-
-    //handle transformations
-
-    //get mouse virtual position 
-    // i.e - canvas element space >> virtual canvas space
-
-    //detect if mouse is over virtual canvas or not
-
-    //get image pixel from coords, mouse
-
-    //set image pixel color
-
-    //transformations from zoom / scroll
-
-
-    //------- TODO  V
-
 
 
     //visualize pixel directions

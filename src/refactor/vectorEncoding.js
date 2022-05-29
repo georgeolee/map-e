@@ -1,6 +1,6 @@
 //functions for color to vector operations and vice-versa
 
-import { BLUE_NORMALIZED_MAX } from "./constants";
+import { BLUE_NORMALIZED_MAX, ALPHA_NORMALIZED_MIN } from "./constants";
 
 import { N_BLUE, N_TRANSPARENT } from "./colors";
 
@@ -50,14 +50,12 @@ export function angleFromColorRG(r, g){
 export function recolor(pimg){
     pimg.loadPixels();
 
-    const normalize = (val) => (val - 128) / 128;
-
     const neutralColor = settings.normalMapMode ? N_BLUE : N_TRANSPARENT;
 
     for(let i = 0; i < pimg.pixels.length; i+= 4){
 
       //is it a neutral pixel?
-      const isNeutralPixel = ( Math.abs(normalize(pimg.pixels[i + 2])) > BLUE_NORMALIZED_MAX  || normalize(pimg.pixels[i + 3]) < ALPHA_NORMALIZED_MIN );
+      const isNeutralPixel = isNeutralColor(pimg.pixels[i+2], pimg.pixels[i+3]);
 
       //color by angle, or make transparent / blue if neutral
       const c = isNeutralPixel ? neutralColor : colorFromAngle(angleFromColorRG(pimg.pixels[i], pimg.pixels[i+1]));
@@ -69,3 +67,19 @@ export function recolor(pimg){
     }
     pimg.updatePixels();
   }
+
+
+/**
+ * 
+ * @param  {number|object} args 2 numbers or an rgba object
+ */
+export function isNeutralColor(...args){
+    const [blue, alpha] = {
+        1: [args.b, args.a],
+        2: [args[0], args[1]]
+    }[args.length];
+
+    if(typeof blue !== 'number' || typeof alpha !== 'number') throw new Error('isNeutral(): blue or alpha not a number');
+
+    return Math.abs(blue - 128) / 128 > BLUE_NORMALIZED_MAX || alpha / 255 < ALPHA_NORMALIZED_MIN;
+}
