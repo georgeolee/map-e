@@ -108,8 +108,14 @@ export class VirtualCanvas{
         return pImage.width / pImage.height >= this.p5.width / this.p5.height ? this.p5.width / pImage.width : this.p5.height / pImage.height;
     }
 
-    //transformation matrix that represents this objects position & scale in world (p5 canvas element) space
-    //use this one to apply transforms when drawing virtualcanvas within the p5canvas space
+
+    /**
+     * get the transformation matrix that represents this object's position & scale in world (ie p5 canvas) space
+     * 
+     * use this one to apply transforms when drawing VirtualCanvas within the p5canvas space
+     * 
+     * @returns the matrix as a number array 
+     */
     getLocalToWorldMatrix(){
         
 
@@ -137,8 +143,15 @@ export class VirtualCanvas{
         ];
     }
 
-    //transform matrix that converts world (screen / p5 canvas element ) coordinates to object local coordinates ; the inverse of getLocalToWorldMatrix
-    //use this one to convert mouse coordinates from screen space to object space
+    
+
+    /**
+     * get the transform matrix that converts world (screen / p5 canvas element ) coordinates to object local coordinates ; the inverse of getLocalToWorldMatrix
+     * 
+     * use this one to convert mouse coordinates from screen space to object space
+     * 
+     * @returns the matrix as a number array
+     */
     getWorldToLocalMatrix(){
 
         //TODO : same question as above regarding scale

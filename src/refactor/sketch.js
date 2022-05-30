@@ -70,7 +70,7 @@ export function sketch(p){
   }
 
 
-  const getPixelRatio = (pimg) => pimg.width/pimg.height >= p.width/p.height ? p.width/pimg.width : p.height/pimg.height; //gets the number of canvas pixels per pimg pixel when pimg is scaled to fill the canvas as much as possible without stretching or cropping
+
 
 
   //EDIT STATE
@@ -79,7 +79,6 @@ export function sketch(p){
 
 
 
-  const isCanvasPoint = (x, y) => x >= 0 && x <= p.width && y >= 0 && y <= p.height;
 
   //SETUP FUNCTION
   p.setup = function(){

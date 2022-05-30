@@ -76,7 +76,7 @@ export function recolor(pimg){
 export function isNeutralColor(...args){
     const [blue, alpha] = {
         1: [args.b, args.a],
-        2: [args[0], args[1]]
+        2: [args[0], args[1]],
     }[args.length];
 
     if(typeof blue !== 'number' || typeof alpha !== 'number') throw new Error('isNeutral(): blue or alpha not a number');
