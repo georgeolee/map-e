@@ -71,7 +71,7 @@ export function recolor(pimg){
 
 /**
  * 
- * @param  {number|object} args 2 numbers or an rgba object
+ * @param  {number|object} args 2 numbers (blue, alpha) or an rgba object
  */
 export function isNeutralColor(...args){
     const [blue, alpha] = {

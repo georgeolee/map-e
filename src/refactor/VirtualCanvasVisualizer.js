@@ -1,6 +1,8 @@
 
 import * as COLOR from './colors';
 import { settings } from './globals';
+import { angleFromColorRG, isNeutralColor } from './vectorEncoding';
+import { PIXEL_OUTLINE_WIDTH, PIXEL_VECTOR_LENGTH, PIXEL_VECTOR_THICKNESS } from './constants';
 
 //class to handle drawing operations for virtual canvas
 export class VirtualCanvasVisualizer{
@@ -46,11 +48,69 @@ export class VirtualCanvasVisualizer{
     }
 
     highlightPixel(pimg, px, py){
+        const p5 = this.vc.p5;
+        const i = 4 * (py * pimg.width + px); //first pixel array index
+        pimg.loadPixels();
+        
+        p5.push();
+        p5.applyMatrix(...this.#getScaleMatrix(this.vc.getPixelRatio(pimg)));
+        p5.noStroke();
 
+        let c = COLOR.ACTIVE_PIXEL[settings.editorMode];
+        if(isNeutralColor(pimg.pixels[i+2], pimg.pixels[i+3])){
+            const bg = COLOR.BG_A[settings.editorMode];
+            p5.fill(bg.r, bg.g, bg.b, bg.a);
+            p5.rect(px, py, 1, 1);
+            c = COLOR.GRID[settings.editorMode];
+        }
+        
+        p5.fill(c.r, c.g, c.b, c.a);
+        p5.rect(px, py, 1, 1);
+        p5.pop();
     }
 
     outlinePixel(pimg, px, py){
+        const p5 = this.vc.p5;
+        p5.push();
+        p5.applyMatrix(...this.#getScaleMatrix(this.vc.getPixelRatio(pimg)));
+        const c = COLOR.ACTIVE_PIXEL[settings.editorMode];
+        p5.noFill();
+        p5.stroke(c.r, c.g, c.b, c.a);
+        const thickness = PIXEL_OUTLINE_WIDTH / (this.vc.zoom * this.vc.getPixelRatio(pimg));   // divide outline width by scale for constant thickness at different zoom levels
+        const size = Math.max(0, 1 - thickness); // width & height of outline rect ; don't run into negative values if thickness is really big for some reason
+        p5.strokeWeight(thickness);
+        p5.rect(px + thickness/2, py + thickness/2, size, size);
+        p5.pop();
+    }
 
+    drawPixelDirections(pimg){
+        const p5 = this.vc.p5;
+        p5.push();
+        p5.applyMatrix(...this.#getScaleMatrix(this.vc.getPixelRatio(pimg)));
+
+        //THICKNESS - WHICH?
+        // const thickness = PIXEL_VECTOR_THICKNESS / (this.vc.zoom * this.vc.getPixelRatio(pimg));
+        const thickness = PIXEL_VECTOR_THICKNESS / this.vc.getPixelRatio(pimg);
+        p5.strokeWeight(thickness);
+
+        pimg.loadPixels();
+        for(let i = 0; i < pimg.pixels.length; i+= 4){
+            
+            //skip neutral pixels (as defined in vectorEncoding.js)
+            if(isNeutralColor(pimg.pixels[i+2], pimg.pixels[i+3])) continue;
+
+            //draw pixel vector
+            const [px, py] = [(i / 4) % pimg.width, (i / 4) / pimg.width];      // pixel x and y
+            const angle = angleFromColorRG(pimg.pixels[i], pimg.pixels[i+1]);   // encoded angle
+            const [vx, vy] = [PIXEL_VECTOR_LENGTH * Math.cos(angle), PIXEL_VECTOR_LENGTH * Math.sin(angle)];    //x & y components of a vector w PIXEL_VECTOR_LENGTH rotated towards angle
+            p5.stroke(pimg.pixels[i], pimg.pixels[i+1], pimg.pixels[i+2]);
+            p5.line(px, py, px + vx, py + vy);
+
+            //draw dot at pixel center
+            p5.stroke(COLOR.PIXEL_CENTER.r, COLOR.PIXEL_CENTER.g, COLOR.PIXEL_CENTER.b);
+            p5.point(px + 0.5, py + 0.5);
+        }
+        p5.pop();
     }
 
 }

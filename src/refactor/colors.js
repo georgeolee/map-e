@@ -28,3 +28,4 @@ export const ACTIVE_PIXEL = {
     DARK: rgba(128,255,255,128),
 };
 
+export const PIXEL_CENTER = rgba(0);

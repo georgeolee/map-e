@@ -14,6 +14,10 @@ export const CANVAS_WIDTH = 600;
 export const CANVAS_HEIGHT = 600;
 
 export const GRID_SPACING = 1;
+export const PIXEL_OUTLINE_WIDTH = 3;
+
+export const PIXEL_VECTOR_LENGTH = 1.75;
+export const PIXEL_VECTOR_THICKNESS = 0.2;
 
 export const BLUE_NORMALIZED_MAX = 0.1;
 export const ALPHA_NORMALIZED_MIN = 0.9;

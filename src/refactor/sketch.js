@@ -78,22 +78,6 @@ export function sketch(p){
   let activePixel = null;
 
 
-  //MOUSE POS GETTER FUNCTIONS - return 'real' mouse position within the canvas, accounting for zoom & scrolling
-  const mouseTransformedY = () => (p.mouseY - p.height/2) / zoomAmount + p.height/2 - translation.y
-  const mouseTransformedX = () => (p.mouseX - p.width/2) / zoomAmount  + p.width/2   - translation.x
-
-
-  function applyTransformations(){
-
-    //SCROLL
-    p.translate(translation.x * zoomAmount , translation.y * zoomAmount);
-
-    //ZOOM
-    p.translate(p.width/2, p.height/2)
-    p.scale(zoomAmount)
-    p.translate(-p.width/2, -p.height/2)
-
-  }
 
   const isCanvasPoint = (x, y) => x >= 0 && x <= p.width && y >= 0 && y <= p.height;
 
@@ -282,38 +266,6 @@ export function sketch(p){
   }
 
 
-  function highlightHoverPixel(){
-    const mx = mouseTransformedX();
-    const my = mouseTransformedY();
-    const pr = getPixelRatio(emap);
-
-    if( mx >= 0 &&
-        mx <= emap.width * pr &&
-        my >= 0 &&
-        my <= emap.height * pr ){
-
-      const pix = getImagePixel(mx, my, emap);
-      const pixelIndex = getPixelIndexFromCoords(pix.x, pix.y, emap);
-
-      p.push();
-      p.noStroke();
-
-      emap.loadPixels();
-      const isNeutral = Math.abs(emap.pixels[pixelIndex + 2] - 128) / 128 > BLUE_NORMALIZED_MAX || (emap.pixels[pixelIndex + 3] - 128) / 128 < ALPHA_NORMALIZED_MIN;
-
-      if(isNeutral){
-        p.fill(BG_COL_A[settings.editorMode]);
-        p.rect(pix.x * pr, pix.y * pr, pr,pr);
-        p.fill(GRID_COL[settings.editorMode]);
-        p.rect(pix.x * pr, pix.y * pr, pr,pr);
-      }
-      else{
-        p.fill(EMAP_BOUNDS_COL[settings.editorMode]);
-        p.rect(pix.x * pr, pix.y * pr, pr,pr);
-      }
-      p.pop();
-    }
-  }
 
   function isImagePixel(cx, cy, px, py, img){ // returns true if canvas pixel (cx,cy) displays pixel (px, py) of img ; false otherwise
     const pr = getPixelRatio(img);
@@ -357,59 +309,7 @@ export function sketch(p){
     img.updatePixels();
   }
 
-
-  function drawImageFullscreen(img, drawBorder=true){  //draws image as big as possible while still fitting inside canvas (at 100% zoom)
-    const pr = getPixelRatio(img);
-    p.push();
-    p.scale(pr);
-    p.image(img, 0, 0);  //draw the image
-
-    if(drawBorder){
-      p.stroke(EMAP_BOUNDS_COL[settings.editorMode]);
-      p.strokeWeight(1/(pr * zoomAmount));
-      p.noFill();
-      p.rect(0,0,img.width,img.height);  //draw border around image bounds
-    }
-
-    p.pop();
-  }
-
-  function visualizeDirections(img){
-    for(let i = 0; i < img.pixels.length; i+=4){
-
-      const normalize = (val) => (val - 128) / 128;
-
-      //skip pixels that are transparent or have a strong (very low or very high) blue component
-      if(Math.abs(normalize(img.pixels[i + 2])) > BLUE_NORMALIZED_MAX) continue;
-      if(normalize(img.pixels[i + 3]) < ALPHA_NORMALIZED_MIN) continue;
-
-      let angle = Math.atan2(img.pixels[i+1] - 128, img.pixels[i] - 128);
-      if(settings.normalMapMode === true) angle *= -1;
-
-
-      const px = (i/4) % img.width;
-      const py = Math.floor((i/4) / img.width);
-      const pr = getPixelRatio(img); //pixel ratio
-
-      p.push();
-
-      p.stroke(img.pixels[i], img.pixels[i+1], img.pixels[i+2], img.pixels[i+3]);
-      p.strokeWeight(Math.max( 1 * (128 / Math.max(emap.width, emap.height)), 0.8))
-
-      const length = Math.max(pr * 1.75, p.width/16);
-
-
-      p.translate(px * pr + pr/2, py * pr + pr/2);  //move to the center of the pixel
-
-      p.rotate(angle);
-      p.line(0,0,length, 0);
-      p.stroke(0)
-      p.strokeWeight(1 * (128 / Math.max(emap.width, emap.height)))
-      p.point(0,0)
-
-      p.pop();
-    }
-  }
+ 
 
   //CREATE BACKGROUND CHECKERBOARD
 
@@ -429,38 +329,6 @@ export function sketch(p){
     checkerboard = g;
   }
 
-  //DRAW GRID
-  function drawGrid(){
-    const size = getPixelRatio(emap) * GRID_SPACING;
-    p.push();
-    p.stroke(GRID_COL[settings.editorMode]);
-    p.strokeWeight(Math.min(1,1/zoomAmount));
-
-    const ewidth = emap.width * getPixelRatio(emap); //emap canvas width
-    const eheight = emap.height * getPixelRatio(emap); //emap canvas height
-    for(let i = 0; i < ewidth; i+= size){
-      p.line(i, 0, i, eheight);
-    }
-    for(let i = 0; i < eheight; i+= size){
-      p.line(0, i, ewidth, i);
-    }
-    p.pop();
-  }
-
-
-  function drawActivePixelBounds(){
-    if(activePixel === null) return;
-    p.push()
-    p.noFill();
-    p.stroke(ACTIVE_PIXEL_COL[settings.editorMode]);
-
-    const pr = getPixelRatio(emap);
-    const thickness = 3/zoomAmount;
-
-    p.strokeWeight(thickness);
-    p.rect(activePixel.x * pr + thickness/2, activePixel.y * pr + thickness/2, pr - thickness, pr - thickness);
-    p.pop()
-  }
 
 
   function exportEMap(){
