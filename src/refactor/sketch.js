@@ -82,7 +82,7 @@ export function sketch(p){
 
   //SETUP FUNCTION
   p.setup = function(){
-    p.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+    p.createCanvas(CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT);
     p.noSmooth();
     loadEmptyEmap(settings.size.x,settings.size.y);
 

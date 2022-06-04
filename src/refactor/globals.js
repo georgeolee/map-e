@@ -1,6 +1,22 @@
 
 //settings, flags, and other stuff that should be visible to both p5 sketch and react components
 
+export const pointerState = {
+    clientX : 0,
+    clientY : 0,
+
+    p5X : 0,
+    p5Y : 0,
+
+    isDown : false,
+    wasDown : false,
+
+    isDownP5 : false,
+    wasDownP5 : false,
+
+    p5Ignore : false,
+}
+
 export const flags = {
     export : false,
     recolor : false,
@@ -34,9 +50,7 @@ export const settings = {
     showDegreesOnEdit : true,
     showGrid : true,
     gridWeight : 1,
-    normalMapMode : false,
-
-    p5IgnoreMouseDown : false,
+    normalMapMode : false, 
 
     editorMode: 'light',
 }

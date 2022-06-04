@@ -19,8 +19,8 @@ import {HR} from './HR.js'
 // const SCROLL_SPEED = 20;
 // const SCROLL_FAST_SPEED = 50;
 
-// const CANVAS_WIDTH = 600;
-// const CANVAS_HEIGHT = 600;
+// const CANVAS_DEFAULT_WIDTH = 600;
+// const CANVAS_DEFAULT_HEIGHT = 600;
 //#endregion
 
 
@@ -127,8 +127,8 @@ const zoom2 = (amount) => { //use this one instead of zoom() ; takes current lev
 }
 
 const scroll = (x, y) => {
-  translation.x = Math.min(CANVAS_WIDTH, Math.max(-CANVAS_WIDTH, translation.x + x/zoomAmount));
-  translation.y = Math.min(CANVAS_HEIGHT, Math.max(-CANVAS_HEIGHT, translation.y + y/zoomAmount));
+  translation.x = Math.min(CANVAS_DEFAULT_WIDTH, Math.max(-CANVAS_DEFAULT_WIDTH, translation.x + x/zoomAmount));
+  translation.y = Math.min(CANVAS_DEFAULT_HEIGHT, Math.max(-CANVAS_DEFAULT_HEIGHT, translation.y + y/zoomAmount));
 }
 
 const setNormalMapMode = (b) => { settings.normalMapMode = !!b ; flags.recolor = true};
@@ -386,7 +386,7 @@ function sketch(p){
 
   //SETUP FUNCTION
   p.setup = function(){
-    p.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+    p.createCanvas(CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT);
     p.noSmooth();
     loadEmptyEmap(settings.size.x,settings.size.y);
 

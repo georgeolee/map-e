@@ -94,7 +94,7 @@ export class History{
      * erases current history stack and sets tracking to a new p5 image
      * @param {p5Image} p5Image the new p5 image to track
      */
-    track(p5Image){
+    trackImage(p5Image){
         this.erase();
         this.image = p5Image;
     }
