@@ -25,16 +25,14 @@ export function sketch(p){
 
     //TODO 
 
-    //pointer up / down handling
-    //  p5 down
-    //  p5 click
-    //  p5 x, y
-    //  
-    //  down / up / x / y
+    //canvas element resize handling
+
+    //how to detect canvas resize ? resizeobserver?
+
+    //handle flags
+
 
     //history management
-
-    //editing logic
 
     vc.setImage(emap);
 
@@ -44,22 +42,44 @@ export function sketch(p){
         drawCheckerboard();
         drawEmap();
         history.push();
+
+        const resizeObserver = new ResizeObserver(handleCanvasResize);
+        resizeObserver.observe(p.canvas); //p5 canvas element
     }
 
     p.draw = function(){
         handleFlags();
 
-        //handle resize
+        //get zoom & scroll amounts
+        vc.scroll = settings.scroll;
+        vc.zoom = settings.zoom;
 
-        handlePointerInput();
-        editPixelColor();
+        if(/* canvas element resize check */){
+            handleCanvasResize();
+        }
+
+        //use this check to ignore pointer actions during scroll, zoom, etc
+        if(!pointerState.p5Ignore){
+
+            //pointer down / up change since last frame
+            if(pointerState.isDownP5 !== pointerState.wasDownP5){
+                handlePointerStateChange();
+            }
+
+            //currently editing a pixel
+            if(editPixel){
+                editPixelColor();
+            }
+        }        
 
         drawCheckerboard();
         drawEmap();
     }
 
     function handleFlags(){
+        //emap create / load / export
 
+        //background load
     }
 
     function drawEmap(){
@@ -132,10 +152,11 @@ export function sketch(p){
     }
 
     function exportEmap(){
-        
+        const now = new Date();
+        p.save(emap, `emission-map_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.png`);
     }
 
-    function handleResize(){
+    function handleCanvasResize(){
         //resize canvas
 
         //create new checkerboard
@@ -143,21 +164,18 @@ export function sketch(p){
         //rescale emap / VC?
     }
 
-    function handlePointerInput(){
-        if(pointerState.isDownP5 === pointerState.wasDownP5 || pointerState.p5Ignore){
-            //pointer state not changed since last frame, or forcing p5 to ignore pointer (eg during scroll / zoom)
-            return;
-        }
+    function handlePointerStateChange(){        
 
         if(pointerState.isDownP5){
             //on pointer down
             const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
-            editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);
+            editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);    //get pixel (if any) under pointer
         }
         else{            
-            //on pointer up
 
+            //on pointer up
             if(editPixel){
+                //stop editing and update history
                 history.push();
                 editPixel = null;
             }            
@@ -166,22 +184,21 @@ export function sketch(p){
         pointerState.wasDownP5 = pointerState.isDownP5;
     }
 
-    function editPixelColor(){
-        //no active pixel, or else forcing p5 to ignore pointer changes
-        if(!editPixel || pointerState.p5Ignore) return;
+    function editPixelColor(){        
 
         //pixel center coordinates in vc space
         const pixelX = editPixel.x + vc.imageScale / 2;
         const pixelY = editPixel.y + vc.imageScale / 2;
 
         //pointer location in vc space
-        const {pointerX:x, pointerY:y} = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
+        const {x:pointerX, y:pointerY} = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
 
         let angle = Math.atan2(pointerY - pixelY, pointerX - pixelX);
         
         //handle snap behavior
-        if(/* snap enabled */){
+        if(settings.snap.enabled){
             //round to nearest interval
+            angle = Math.round(angle / settings.snap.angle) * settings.snap.angle;
         }
 
         const vectorColor = colorFromAngle(angle);
