@@ -1,383 +1,231 @@
-//sketch to be run by the p5 instance
+import { VirtualCanvas } from "./VirtualCanvas";
+import { VirtualCanvasVisualizer } from "./VirtualCanvasVisualizer";
+import * as COLOR from './colors';
+import { settings } from "./globals";
+import { History } from "./History";
+
+import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT } from "./constants";
+
+import { pointerState } from "./globals";
+
+import { recolor, colorFromAngle } from "./vectorEncoding";
 
 export function sketch(p){
-    p.disableFriendlyErrors = true;
+
+    let emap = p.createImage(settings.size.x, settings.size.y);
+    let bg = null;  //background image
+    let cb = p.createImage(CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT); //checkerboard (static background)
+    
+    let editPixel = null;
+
+    const vc = new VirtualCanvas(p);
+    const viz = new VirtualCanvasVisualizer(vc);
+    
+    const history = new History(emap);
+
+    //TODO 
+
+    //canvas element resize handling
+
+    //how to detect canvas resize ? resizeobserver?
+
+    //handle flags
 
 
-    let mouseDownLastFrame = false;
-  
+    //history management
 
-  //BIG TODO - > separate out image drawing functionality 
-  // some kind of virtual canvas class ? not element or p5 canvas, but the movable, scaleable canvas w/in the canvas
+    vc.setImage(emap);
 
+    p.setup = function(){
+        p.noSmooth();
+        createCheckerboard();
+        drawCheckerboard();
+        drawEmap();
+        history.push();
 
-  //CONSTANTS & COLORS - moved to separate files ; import
+        const resizeObserver = new ResizeObserver(handleCanvasResize);
+        resizeObserver.observe(p.canvas); //p5 canvas element
+    }
 
-  let neutralColor = N_TRANSPARENT;
-  let checkerboard = null;
+    p.draw = function(){
+        handleFlags();
 
+        //get zoom & scroll amounts
+        vc.scroll = settings.scroll;
+        vc.zoom = settings.zoom;
 
+        // TEST - currently moved to resizeobserver callback
+        // if(/* canvas element resize check */){
+        //     handleCanvasResize();
+        // }
 
-  //EMISSION MAP
-  let emap = null;
-  let emapLoaded = false;
-  let backgroundImage = null;
-  let backgroundImageBaked = null;
+        //use this check to ignore pointer actions during scroll, zoom, etc
+        if(!pointerState.p5Ignore){
 
-  const loadEmapURL = (url) => {  //load an image from a url; stores the resulting p5image in emap
-    emapLoaded = false;
-    emap = null;
-    p.loadImage(url, (pimg) => {
+            //pointer down / up change since last frame
+            if(pointerState.isDownP5 !== pointerState.wasDownP5){
+                handlePointerStateChange();
+            }
 
-      emapLoaded = true;
-      emap = pimg;
+            //currently editing a pixel
+            if(editPixel){
+                editPixelColor();
+            }
+        }        
 
-      console.log(`loaded new emap from url;\t width: ${pimg.width}\theight: ${pimg.height}`)
-      /********HISTORY STUFF*********/
-      eraseHistory();
-      recolor(emap);
-      pushHistory(emap);
-      /*******************/
+        drawCheckerboard();
+        drawEmap();
+    }
 
-      const VECTOR_LIMIT = 32 * 32;
+    function handleFlags(){
+        //emap create / load / export
 
-      if(pimg.width * pimg.height > VECTOR_LIMIT){
-        pimg.loadPixels()
-        let count = 0
-        for(let i = 0; i < pimg.pixels.length; i+=4){
-          if(Math.abs(pimg.pixels[i+2] - 128) < 255 * BLUE_NORMALIZED_MAX && pimg.pixels[i+3] > 255 * ALPHA_NORMALIZED_MIN){  //gonna have to draw this one
-            count++
-          }
+        //background load
+
+        //observer disconnect?
+    }
+
+    function drawEmap(){
+        p.push();
+        p.applyMatrix(...vc.getLocalToWorldMatrix()); // apply canvas transform
+
+        //draw background & emap image
+        if(bg) viz.drawImage(bg);
+        viz.drawImage(emap);
+
+        //draw grid
+        viz.drawGrid();
+        
+        //draw pixel outline?
+        if(editPixel){ 
+            viz.outlinePixel(emap, editPixel.x, editPixel.y);
+        }
+
+        //draw pixel highlight?
+        
+        // else if(/* mouse over p5 canvas */){
+
+        else if(!pointerState.p5Ignore){
+
+            const mLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);  // mouse transformed position
+            const hoverPixel = vc.getPixelAtLocalPoint(mLocal.x, mLocal.y);
+            if(hoverPixel) viz.highlightPixel(emap, hoverPixel.x, hoverPixel.y);
         }
 
 
-        if(count > VECTOR_LIMIT){
+        //draw directions
+        viz.drawPixelDirections(emap);
 
-            const warning = (
-            `${count} pixels in your image have been mapped to 2D vectors. Vector drawing starts to slow down at around ${VECTOR_LIMIT} pixels.<br/><br/>
-            Pixel direction display has been switched OFF to maintain performance.
-            You can reenable this setting manually if you need it, but you might want to consider importing a lower-res version of your image first.<br/><br/>
-            Alternatively, you can mask out areas of your image from the mapping algorithm by making them transparent or giving them a very high / very low blue channel value. I would suggest doing this in a different image editor :-)<br/><br/>
-            `);
+        p.pop();
+    }
 
-            showVectorCountWarning(warning)
-
-            const cb = document.getElementById('checkbox-directions')
-            if(cb.checked) cb.click()
+    function createCheckerboard(){
+        cb.resize(p.width, p.height);
+        const size = Math.min(p.width, p.height) / CHECKERBOARD_COUNT;
+        const [colA, colB] = [COLOR.BG_A[settings.editorMode], COLOR.BG_B[settings.editorMode]];
+        const fillA = p.color(colA.r, colA.g, colA.b, colA.a);
+        const fillB = p.color(colB.r, colB.g, colB.b, colB.a);
+        p.push();
+        for(let x = 0; x < p.width; x += size){
+            for(let y = 0; y < p.height; y += size){
+                const fillColor = (x / size) % 2 === (y / size) % 2 ? fillA : fillB;
+                p.fill(fillColor);
+                p.rect(x,y,size,size);
+            }
         }
-      }
-    });
-  }
-
-
-
-
-
-  //EDIT STATE
-  let editing = false;
-  let activePixel = null;
-
-
-
-
-  //SETUP FUNCTION
-  p.setup = function(){
-    p.createCanvas(CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT);
-    p.noSmooth();
-    loadEmptyEmap(settings.size.x,settings.size.y);
-
-    createCheckerboard(BG_CHECKERBOARD_COUNT, BG_COL_A[settings.editorMode], BG_COL_B[settings.editorMode]);
-  }
-
-  //DRAW FUNCTION
-  p.draw = function(){
-
-    if(flags.loadEmpty === true){
-      loadEmptyEmap(settings.size.x,settings.size.y);
-      flags.loadEmpty = false;
+        cb.copy(p, 0, 0, p.width, p.height, 0, 0, p.width, p.height);
+        p.pop();
     }
 
-    if(flags.loadURL === true){
-      console.log(`p5 received loadURL flag ; url : ${settings.url}`)
-      loadEmapURL(settings.url);
-      flags.loadURL = false;
+    function drawCheckerboard(){
+        p.image(cb, 0, 0);
     }
 
-    if(flags.loadBackgroundURL === true){
-      console.log(`p5 received loadURL flag ; url : ${settings.bgUrl}`)
-      loadBackgroundURL(settings.bgUrl, () => {
-        bakeBackgroundOpacity(settings.bgUrl, settings.bgAlpha, () => flags.dirtyBackground = false);
-      });
-
-      flags.loadBackgroundURL = false;
+    function loadEmap(url){
+        p.loadImage(url, pimg => {
+            recolor(pimg);
+            emap = pimg;
+            vc.setImage(emap);
+            history.trackImage(emap);
+            history.push();
+        })
     }
 
-    if(flags.bakeBackgroundOpacity === true){
-      bakeBackgroundOpacity(settings.bgUrl, settings.bgAlpha, ()=>
-      {
-        flags.dirtyBackground = false;
-      });
-      flags.bakeBackgroundOpacity = false;
+    function createEmap(width, height){
+        emap = p.createImage(width, height);
+        vc.setImage(emap);
+        history.trackImage(emap);
+        history.push();
     }
 
-    if(flags.createCheckerboard === true){
-      createCheckerboard(BG_CHECKERBOARD_COUNT, BG_COL_A[settings.editorMode], BG_COL_B[settings.editorMode]);
-      flags.createCheckerboard = false;
+    function exportEmap(){
+        const now = new Date();
+        p.save(emap, `emission-map_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.png`);
     }
 
-    //DRAW BG CHECKERBOARD
-    if(checkerboard) p.image(checkerboard,0,0)
+    function handleCanvasResize(resizeObserverEntries){
 
-    if(!emapLoaded) return;
+        for(const entry of resizeObserverEntries){
+            if(entry.target.classList.contains('p5Canvas')){
 
+                const rect = entry.target.getBoundingClientRect();
 
-    /*****LISTENERS START*****/ //< listen for stuff happening outside of the sketch
+                //resize canvas - is this necessary to reset p5 width & height? element should already be resized at this point
+                p.resizeCanvas(rect.width,rect.height,true); //resize w/o immediate redraw
 
-    if(flags.export === true){
-      exportEMap();
-      flags.export = false;
+                createCheckerboard();
+
+                //rescale emap / VC
+                vc.setImage(emap);
+
+                p.redraw(); //redraw w new size, checkerboard, image scale
+                
+                return;
+            }
+        }        
     }
 
-    if(flags.recolor === true){
-      recolor(emap);
-      flags.recolor = false;
-    }
+    function handlePointerStateChange(){        
 
-    if(flags.undo === true){
-      stepHistory(-1);
-      flags.undo = false;
-    }
+        if(pointerState.isDownP5){
+            //on pointer down
+            const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
+            editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);    //get pixel (if any) under pointer
+        }
+        else{            
 
-    if (flags.redo === true) {
-      stepHistory(1);
-      flags.redo = false;
-    }
-
-
-
-    /******LISTENERS END******/
-
-
-    applyTransformations();     //APPLY ZOOM AND SCROLL
-
-
-    if(backgroundImage && settings.bgAlpha > 0){
-
-      if(flags.dirtyBackground){
-        p.push()
-        p.tint(255, settings.bgAlpha);
-        drawImageFullscreen(backgroundImage, false); //DRAW BACKGROUND ?
-        p.pop()
-      }
-      else{
-        drawImageFullscreen(backgroundImageBaked, false);
-      }
-
-    }
-
-
-
-    drawImageFullscreen(emap);  //DRAW IMAGE
-
-    if(settings.showGrid) drawGrid();  //DRAW GRID LINES
-    if(settings.showDirection) visualizeDirections(emap)  //DRAW DIRECTION LINES
-
-    //MOUSE PRESS
-    if(p.mouseIsPressed){
-
-      if(!editing){
-
-        if( settings.p5IgnoreMouseDown === true ||  // SHOULD IGNORE MOUSE EVENT - scrolling or something
-            !isCanvasPoint(p.mouseX, p.mouseY) ||   // OUT OF CANVAS BOUNDS
-            mouseDownLastFrame                      // not a click
-        ) return;
-
-
-        mouseDownLastFrame = true;
-
-        if( mouseTransformedX() < 0 ||
-            mouseTransformedX() > emap.width * getPixelRatio(emap) ||
-            mouseTransformedY() < 0 ||
-            mouseTransformedY() > emap.height * getPixelRatio(emap)
-        ){
-          angleDisplay.visible = false;
-          angleDisplay?.update();
-          return;  //OUT OF IMAGE BOUNDS
+            //on pointer up
+            if(editPixel){
+                //stop editing and update history
+                history.push();
+                editPixel = null;
+            }            
         }
 
-
-
-        editing = true;
-
-        activePixel = getImagePixel(mouseTransformedX(),mouseTransformedY(), emap);
-
-      }
-
-      const neutral = settings.normalMapMode ? N_BLUE : N_TRANSPARENT;
-
-      //mouse inside active pixel —> set neutral color
-      if(isImagePixel(mouseTransformedX(), mouseTransformedY(),activePixel.x,activePixel.y,emap)){
-        setPixelColor(emap, activePixel.x, activePixel.y, neutral)
-        /****display obj****/
-        angleDisplay.angle = null;
-        if(settings.showDegreesOnEdit) angleDisplay?.update();
-        /*******************/
-      }
-
-      //mouse outside of active pixel —> set color by angle
-      else{
-
-        const pr = getPixelRatio(emap);
-        const pixelCanvasX = activePixel.x * pr + pr/2;
-        const pixelCanvasY = activePixel.y * pr + pr/2;
-        let angle = Math.atan2(mouseTransformedY() - pixelCanvasY, mouseTransformedX() - pixelCanvasX);
-
-        if(settings.snap.enabled) angle = Math.round((angle * RAD_TO_DEG / settings.snap.angle)) * settings.snap.angle * DEG_TO_RAD;  //snap to nearest increment of snap angle
-
-        /****display obj****/
-        angleDisplay.angle = Math.round(angle * RAD_TO_DEG) * (settings.normalMapMode ? -1 : 1);
-        /*******************/
-
-        setPixelColorFromAngle(emap, activePixel.x, activePixel.y, angle);
-      }
-
-      drawActivePixelBounds();
+        pointerState.wasDownP5 = pointerState.isDownP5;
     }
 
-    //NO MOUSE PRESS —> stop editing
-    else if(editing){
-      editing = false;
+    function editPixelColor(){        
 
-      activePixel = null;
+        //pixel center coordinates in vc space
+        const pixelX = editPixel.x + vc.imageScale / 2;
+        const pixelY = editPixel.y + vc.imageScale / 2;
 
+        //pointer location in vc space
+        const {x:pointerX, y:pointerY} = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
 
-      /********HISTORY STUFF*********/
+        let angle = Math.atan2(pointerY - pixelY, pointerX - pixelX);
+        
+        //handle snap behavior
+        if(settings.snap.enabled){
+            //round to nearest interval
+            angle = Math.round(angle / settings.snap.angle) * settings.snap.angle;
+        }
 
-      pushHistory(emap);
+        const vectorColor = colorFromAngle(angle);
 
-      /**********END HISTORY STUFF******/
+        vc.setPixelColor(editPixel.x, editPixel.y, vectorColor);
+
     }
-
-    else{
-      if(!settings.p5IgnoreMouseDown && !p.keyIsDown(p.ALT)) highlightHoverPixel();
-    }
-    mouseDownLastFrame = p.mouseIsPressed;
-  }
-
-
-
-  function isImagePixel(cx, cy, px, py, img){ // returns true if canvas pixel (cx,cy) displays pixel (px, py) of img ; false otherwise
-    const pr = getPixelRatio(img);
-    const left = px * pr;
-    const top = py * pr;
-    const right = left + pr;
-    const bottom = top + pr;
-    return (cx >= left && cx <= right && cy >= top && cy <= bottom);
-  }
-
-
-  function getImagePixel(canvasX, canvasY, img){  //get pixel coordinates in image dimensions of an image displayed fullscreen on the canvas
-    let pr = getPixelRatio(img);  //# of canvas pixels per image pixel
-    const ix = Math.floor(canvasX / pr);
-    const iy = Math.floor(canvasY / pr);
-    return {x:ix, y:iy};
-  }
-
-
-  //returns first pixel array index (containing the red channel value) for a given pixel x,y in p5 image pimg
-  const getPixelIndexFromCoords = (x, y, pimg) => (pimg.width * y + x) * 4;
-
-  function setPixelColor(img, px, py, color){
-    img.loadPixels();
-    let i = getPixelIndexFromCoords(px, py, img);
-    img.pixels[i] = p.red(color);
-    img.pixels[i+1] = p.green(color);
-    img.pixels[i+2] = p.blue(color);
-    img.pixels[i+3] = p.alpha(color);
-    img.updatePixels();
-  }
-
-  function setPixelColorFromAngle(img,px,py,angle){
-    img.loadPixels();
-    const c = colorFromAngle(angle, false);
-    let i = getPixelIndexFromCoords(px, py, img);
-    img.pixels[i] = c.r;
-    img.pixels[i+1] = c.g;
-    img.pixels[i+2] = c.b;
-    img.pixels[i+3] = c.a;
-    img.updatePixels();
-  }
-
- 
-
-  //CREATE BACKGROUND CHECKERBOARD
-
-  function createCheckerboard(count, colA, colB){
-    const g = p.createGraphics(p.width, p.height);
-
-    const size = g.width/count; //checkerboard size
-
-    g.noStroke();
-    for(let i = 0; i < g.width; i+= size){
-      for(let j = 0; j < g.height; j+= size){
-        g.fill(i % (size*2) === j % (size*2) ? colA : colB);
-        g.rect(i, j, size, size)
-      }
-    }
-    // return g;
-    checkerboard = g;
-  }
-
-
-
-  function exportEMap(){
-    const now = new Date();
-    p.save(emap, `emission-map_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.png`);
-  }
-
-
-  function loadEmptyEmap(w, h){
-
-    const neutral = settings.normalMapMode ? N_BLUE : N_TRANSPARENT;
-
-    emap = p.createImage(w,h);
-    emapLoaded = true;
-    emap.loadPixels()
-    for(let i=0; i < emap.pixels.length; i+=4){
-      emap.pixels[i] = p.red(neutral);
-      emap.pixels[i+1] = p.green(neutral);
-      emap.pixels[i+2] = p.blue(neutral);
-      emap.pixels[i+3] = p.alpha(neutral);
-    }
-    emap.updatePixels();
-
-    /********HISTORY STUFF*********/
-    eraseHistory();
-    pushHistory(emap);
-    /*******************/
-  }
-
-
-  function loadBackgroundURL(url, callback = null){
-    p.loadImage(url, (pimg) => {
-      backgroundImage = pimg;
-      callback?.()
-    });
-  }
-
-  function bakeBackgroundOpacity(url, alpha_255, callback = null){
-    console.log(`baking background opacity`)
-    p.loadImage(url, pimg => {
-      pimg.loadPixels();
-      const a_normalized = alpha_255 / 255; //normalized alpha value
-      for(let i = 0; i < pimg.pixels.length; i+=4){
-        pimg.pixels[i + 3] *= a_normalized;
-      }
-      pimg.updatePixels();
-      backgroundImageBaked = pimg;
-      console.log(`baked background with opacity ${alpha_255}`)
-      callback?.()
-    });
-  }
 
 }
