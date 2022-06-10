@@ -56,10 +56,10 @@ export const settings = {
     showDirection : true,
     showDegreesOnEdit : true,
     showGrid : true,
-    gridWeight : 1,
+    gridWeight : 0.1,
     normalMapMode : false, 
 
-    editorMode: 'light',
+    editorMode: 'LIGHT',
 }
 
 export const angleDisplay = {

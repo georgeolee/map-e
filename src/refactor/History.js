@@ -31,7 +31,7 @@ export class History{
     //set p5 pixels array from a previously cloned array
     pixelArraySet(p5PixelsArray, arr){
         if(p5PixelsArray.length !== arr.length){
-            console.log(`warning - js array length (${arr.length}) does not match p5 pixel array length (${pixels.length})`);
+            console.log(`warning - js array length (${arr.length}) does not match p5 pixel array length (${p5PixelsArray.length})`);
         }
 
         for(let i = 0; i < p5PixelsArray.length && i < arr.length; i++){
@@ -62,9 +62,14 @@ export class History{
     push(){
         this.image.loadPixels();
 
-        const current = this.steps[this.currentIndex];
-        const changed = current.some((val, i) => val !== this.image.pixels[i]);
-        if(!changed) return;
+        const currentEntry = this.steps[this.currentIndex];
+        
+        //
+        if(currentEntry !== undefined){
+            const changed = currentEntry.some((val, i) => val !== this.image.pixels[i]);
+            if(!changed) return;
+        }
+        
 
         const pixels = this.pixelArrayClone(this.image.pixels);
 

@@ -23,7 +23,33 @@ export function sketch(p){
     
     const history = new History(emap);
 
+
+    //FIXED : 
+
+    //  vc.imageScale zero / vc.getLocalPixel NaN issue in setup / draw loop
+        //  > fix - make sure to call vc.setImage() before vcviz.drawImage() (inside of drawEmap()) so that image scale is nonzero
+
+    //  grid not drawing correctly - missing lines ; scale issue
+        //  > fix - don't scale weight or units in for loop ; already taken care of by apply matrix call (scaled to image size)
+
+    //  black ghost grid > unintented stroke from checkerboard rects
+
+    //BUGFIX / LOOK INTO:
+
+    //  what is up with the weird black grid?
+        //  maybe -> createCheckerboard - stroke from drawing rects ; would explain weird scaling inconsistencies
+
+
+
     //TODO 
+
+    // GET EDITING WORKING *****
+        //  App pointer input
+
+    // canvas sizing / resizing
+        // best approach?
+        // maybe -> size wrapper div via css, resize p5 canvas to fit inside?
+
 
     //canvas element resize handling
 
@@ -37,14 +63,72 @@ export function sketch(p){
     vc.setImage(emap);
 
     p.setup = function(){
+
+        
+
+        const parentRect = p.canvas.parentElement.getBoundingClientRect()
+        p.createCanvas(parentRect.width, parentRect.height);
+
+        console.log('initial')
+        console.log(`width: ${p.width}\theight: ${p.height}`)
+
+        // p.resizeCanvas(parentRect.width, parentRect.height)
+
         p.noSmooth();
+        p.noFill();
+        p.noStroke();
+
         createCheckerboard();
         drawCheckerboard();
-        drawEmap();
-        history.push();
+        
+        
 
+        //REVISIT THIS
         const resizeObserver = new ResizeObserver(handleCanvasResize);
         resizeObserver.observe(p.canvas); //p5 canvas element
+
+        vc.setImage(emap)
+
+        drawEmap(); 
+
+        history.push();
+        
+    }
+
+    p.keyPressed = function(){
+        
+        let amt = 5;
+
+        switch(p.key){
+            case 'z':
+                settings.zoom += 0.1;
+                break;
+
+            case 's':
+                settings.zoom -= 0.1;
+                break;
+
+            case 'o':
+                settings.scroll.x += amt;
+                break;
+
+            case 'p':
+                settings.scroll.x -= amt;
+                break;
+
+            case 'k':
+                settings.scroll.y += amt;
+                break;
+
+            case 'l':
+                settings.scroll.y -= amt;
+                break;
+
+            default:
+                break;
+        }
+        
+        
     }
 
     p.draw = function(){
@@ -74,7 +158,7 @@ export function sketch(p){
         }        
 
         drawCheckerboard();
-        drawEmap();
+        if(vc.image) drawEmap();
     }
 
     function handleFlags(){
@@ -108,7 +192,11 @@ export function sketch(p){
         else if(!pointerState.p5Ignore){
 
             const mLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);  // mouse transformed position
+            // console.log(`mlocal`)
+            // console.log(mLocal)
             const hoverPixel = vc.getPixelAtLocalPoint(mLocal.x, mLocal.y);
+            // console.log(`hoverpixel: ${hoverPixel}`)            
+            // console.log(hoverPixel)
             if(hoverPixel) viz.highlightPixel(emap, hoverPixel.x, hoverPixel.y);
         }
 
@@ -125,6 +213,11 @@ export function sketch(p){
         const [colA, colB] = [COLOR.BG_A[settings.editorMode], COLOR.BG_B[settings.editorMode]];
         const fillA = p.color(colA.r, colA.g, colA.b, colA.a);
         const fillB = p.color(colB.r, colB.g, colB.b, colB.a);
+        
+        console.log('filla')
+        console.log(fillA); 
+        console.log('fillb');
+        console.log(fillB);
         p.push();
         for(let x = 0; x < p.width; x += size){
             for(let y = 0; y < p.height; y += size){

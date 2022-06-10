@@ -19,20 +19,22 @@ export class VirtualCanvasVisualizer{
 
     drawGrid(){
         //get vc properties
-        const [p5, imageScale, image, zoom] = [this.vc.p5, this.vc.imageScale, this.vc.image, this.vc.zoom]
+        const [p5, image] = [this.vc.p5, this.vc.image]
         const c = COLOR.GRID[settings.editorMode];
-
         p5.push();
         p5.applyMatrix(...this.#getScaleMatrix(this.vc.imageScale));
-        p5.stroke(p5.color(c.r, c.g, c.b, c.a));
-        p5.strokeWeight(settings.gridWeight / (zoom * imageScale));
-        
-        for(let x = 0; x < image.width * imageScale; x += imageScale){
-            p5.line(x, 0, x, this.vc.height);
+        p5.stroke(c.r, c.g, c.b, c.a);
+
+        //weight proportional to image pixel size
+        p5.strokeWeight(settings.gridWeight)
+
+        //already scaled to image pixel size via applymatrix - just step by 1 image pixel at a time
+        for(let x = 0; x <= image.width; x ++){
+            p5.line(x, 0, x, image.height);
         }
 
-        for(let y = 0; y < image.height * imageScale; y += imageScale){
-            p5.line(0, y, this.vc.width, y);
+        for(let y = 0; y <= image.height; y ++){
+            p5.line(0, y, image.width, y);
         }
 
         p5.pop();
@@ -50,6 +52,8 @@ export class VirtualCanvasVisualizer{
     highlightPixel(pimg, px, py){
         const p5 = this.vc.p5;
         const i = 4 * (py * pimg.width + px); //first pixel array index
+        // console.log(`highlighPixel: pimg: ${pimg}`)
+        // console.log(`highlighPixel: i: ${i}`)
         pimg.loadPixels();
         
         p5.push();
@@ -57,6 +61,7 @@ export class VirtualCanvasVisualizer{
         p5.noStroke();
 
         let c = COLOR.ACTIVE_PIXEL[settings.editorMode];
+        // console.log(`highlightPixel: blue: ${pimg.pixels[i+2]}\talpha: ${pimg.pixels[i+3]}`)
         if(isNeutralColor(pimg.pixels[i+2], pimg.pixels[i+3])){
             const bg = COLOR.BG_A[settings.editorMode];
             p5.fill(bg.r, bg.g, bg.b, bg.a);

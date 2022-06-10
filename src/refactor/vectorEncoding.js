@@ -79,6 +79,10 @@ export function isNeutralColor(...args){
         2: [args[0], args[1]],
     }[args.length];
 
+    // console.log(args)
+    // console.log(`blue: ${blue}\t alpha: ${alpha}`)
+    // console.log(`args: ${args.length}`)
+
     if(typeof blue !== 'number' || typeof alpha !== 'number') throw new Error('isNeutral(): blue or alpha not a number');
 
     return Math.abs(blue - 128) / 128 > BLUE_NORMALIZED_MAX || alpha / 255 < ALPHA_NORMALIZED_MIN;

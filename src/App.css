@@ -10,6 +10,18 @@
   /* color: #fd4; */
 }
 
+#p5-container{
+  border: 1px dashed red !important;
+  height: fit-content !important;
+  width: fit-content !important;
+
+  width: 400px !important;
+  height: 400px !important;
+  
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+}
 .App {
 
   min-height: 100vh;

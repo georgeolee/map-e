@@ -210,6 +210,12 @@ export class VirtualCanvas{
         
         if(Math.abs(localX - halfWidth) > halfWidth || Math.abs(localY - halfHeight) > halfHeight) return null; //outside of image bounds
 
+        // console.log('getPxlocalpt : passed null check')
+
+        // console.log(`localx: ${localX}\tlocaly: ${localY}\timagescale: ${this.imageScale}`)
+
+        // console.log(this.getPixelRatio(this.image))
+
         return {
             x: Math.floor(localX / this.imageScale),
             y: Math.floor(localY / this.imageScale),
