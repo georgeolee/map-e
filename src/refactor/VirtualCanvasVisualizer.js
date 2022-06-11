@@ -26,7 +26,7 @@ export class VirtualCanvasVisualizer{
         p5.stroke(c.r, c.g, c.b, c.a);
 
         //weight proportional to image pixel size
-        p5.strokeWeight(settings.gridWeight)
+        p5.strokeWeight(settings.gridWeight / settings.zoom)
 
         //already scaled to image pixel size via applymatrix - just step by 1 image pixel at a time
         for(let x = 0; x <= image.width; x ++){
