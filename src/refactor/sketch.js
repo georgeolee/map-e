@@ -4,7 +4,7 @@ import * as COLOR from './colors';
 import { settings } from "./globals";
 import { History } from "./History";
 
-import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT } from "./constants";
+import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT, DEG_TO_RAD } from "./constants";
 
 import { appPointer } from "./globals";
 
@@ -44,10 +44,6 @@ export function sketch(p){
     //TODO 
 
 
-    //***THIS NEXT TIME ****/
-    // GET EDITING WORKING *****
-        //  App pointer input
-
     // canvas sizing / resizing
         // best approach?
         // maybe -> size wrapper div via css, resize p5 canvas to fit inside?
@@ -71,11 +67,6 @@ export function sketch(p){
         const parentRect = p.canvas.parentElement.getBoundingClientRect()
         p.createCanvas(parentRect.width, parentRect.height);
 
-        console.log('initial')
-        console.log(`width: ${p.width}\theight: ${p.height}`)
-
-        // p.resizeCanvas(parentRect.width, parentRect.height)
-
         p.noSmooth();
         p.noFill();
         p.noStroke();
@@ -97,18 +88,12 @@ export function sketch(p){
         
     }
 
+    //just for testing
     p.keyPressed = function(){
         
         let amt = 5;
 
         switch(p.key){
-            case 'z':
-                settings.zoom += 0.1;
-                break;
-
-            case 's':
-                settings.zoom -= 0.1;
-                break;
 
             case 'o':
                 settings.scroll.x += amt;
@@ -149,7 +134,7 @@ export function sketch(p){
         if(!appPointer.p5Ignore){
 
             //pointer down / up change since last frame
-            if(appPointer.isDownP5 !== appPointer.wasDownP5){
+            if(appPointer.isDownP5 !== appPointer.wasDownP5){                
                 handleAppPointerChange();
             }
 
@@ -188,17 +173,9 @@ export function sketch(p){
         }
 
         //draw pixel highlight?
-        
-        // else if(/* mouse over p5 canvas */){
-
-        else if(!appPointer.p5Ignore){
-
-            const mLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);  // mouse transformed position
-            // console.log(`mlocal`)
-            // console.log(mLocal)
-            const hoverPixel = vc.getPixelAtLocalPoint(mLocal.x, mLocal.y);
-            // console.log(`hoverpixel: ${hoverPixel}`)            
-            // console.log(hoverPixel)
+        else if(!appPointer.p5Ignore && appPointer.overCanvas){
+            const mLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);  // mouse transformed position            
+            const hoverPixel = vc.getPixelAtLocalPoint(mLocal.x, mLocal.y);            
             if(hoverPixel) viz.highlightPixel(emap, hoverPixel.x, hoverPixel.y);
         }
 
@@ -216,10 +193,6 @@ export function sketch(p){
         const fillA = p.color(colA.r, colA.g, colA.b, colA.a);
         const fillB = p.color(colB.r, colB.g, colB.b, colB.a);
         
-        console.log('filla')
-        console.log(fillA); 
-        console.log('fillb');
-        console.log(fillB);
         p.push();
         for(let x = 0; x < p.width; x += size){
             for(let y = 0; y < p.height; y += size){
@@ -282,9 +255,12 @@ export function sketch(p){
 
     function handleAppPointerChange(){        
 
+
         if(appPointer.isDownP5){
             //on pointer down
-            const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
+
+            const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);        
+
             editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);    //get pixel (if any) under pointer
         }
         else{            
@@ -303,18 +279,18 @@ export function sketch(p){
     function editPixelColor(){        
 
         //pixel center coordinates in vc space
-        const pixelX = editPixel.x + vc.imageScale / 2;
-        const pixelY = editPixel.y + vc.imageScale / 2;
+        const pixelX = editPixel.x * vc.imageScale + vc.imageScale / 2;
+        const pixelY = editPixel.y * vc.imageScale + vc.imageScale / 2;
 
         //pointer location in vc space
         const {x:pointerX, y:pointerY} = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
 
         let angle = Math.atan2(pointerY - pixelY, pointerX - pixelX);
         
+
         //handle snap behavior
-        if(settings.snap.enabled){
-            //round to nearest interval
-            angle = Math.round(angle / settings.snap.angle) * settings.snap.angle;
+        if(settings.snap.enabled){            
+            angle = Math.round(angle / (settings.snap.angle * DEG_TO_RAD)) * settings.snap.angle * DEG_TO_RAD;  //round to nearest interval
         }
 
         const vectorColor = colorFromAngle(angle);

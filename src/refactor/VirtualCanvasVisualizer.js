@@ -93,10 +93,7 @@ export class VirtualCanvasVisualizer{
         p5.push();
         p5.applyMatrix(...this.#getScaleMatrix(this.vc.getPixelRatio(pimg)));
 
-        //THICKNESS - WHICH?
-        // const thickness = PIXEL_VECTOR_THICKNESS / (this.vc.zoom * this.vc.getPixelRatio(pimg));
-        const thickness = PIXEL_VECTOR_THICKNESS / this.vc.getPixelRatio(pimg);
-        p5.strokeWeight(thickness);
+        p5.strokeWeight(PIXEL_VECTOR_THICKNESS);
 
         pimg.loadPixels();
         for(let i = 0; i < pimg.pixels.length; i+= 4){
@@ -105,15 +102,16 @@ export class VirtualCanvasVisualizer{
             if(isNeutralColor(pimg.pixels[i+2], pimg.pixels[i+3])) continue;
 
             //draw pixel vector
-            const [px, py] = [(i / 4) % pimg.width, (i / 4) / pimg.width];      // pixel x and y
+            const [px, py] = [(i / 4) % pimg.width, Math.floor((i / 4) / pimg.width)];      // pixel x and y
             const angle = angleFromColorRG(pimg.pixels[i], pimg.pixels[i+1]);   // encoded angle
             const [vx, vy] = [PIXEL_VECTOR_LENGTH * Math.cos(angle), PIXEL_VECTOR_LENGTH * Math.sin(angle)];    //x & y components of a vector w PIXEL_VECTOR_LENGTH rotated towards angle
             p5.stroke(pimg.pixels[i], pimg.pixels[i+1], pimg.pixels[i+2]);
-            p5.line(px, py, px + vx, py + vy);
-
-            //draw dot at pixel center
+            
+            // + 0.5 -> offset from top left towards pixel center
+            
+            p5.line(px + 0.5, py + 0.5, px + vx + 0.5, py + vy + 0.5); //draw vector
             p5.stroke(COLOR.PIXEL_CENTER.r, COLOR.PIXEL_CENTER.g, COLOR.PIXEL_CENTER.b);
-            p5.point(px + 0.5, py + 0.5);
+            p5.point(px + 0.5, py + 0.5);   //dot at center
         }
         p5.pop();
     }

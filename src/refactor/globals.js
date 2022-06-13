@@ -15,6 +15,15 @@ export const appPointer = {
     wasDownP5 : false,
 
     p5Ignore : false,
+    overCanvas : false,
+
+    scrollDragging : false,
+
+    dragLastPagePos : {
+        x : 0,
+        y : 0
+    },
+
 }
 
 export const flags = {
@@ -34,7 +43,7 @@ export const flags = {
 
 export const settings = {
     snap : {
-        enabled : false,
+        enabled : true,
         angle : 22.5,
     },
 
@@ -49,6 +58,7 @@ export const settings = {
     },
 
     zoom : 1,
+    zoomSensitivity : 0.01,
 
     url: null,
     bgUrl : null,

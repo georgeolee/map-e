@@ -236,6 +236,7 @@ export class VirtualCanvas{
         this.image.pixels[i+1] = rgba.g;
         this.image.pixels[i+2] = rgba.b;
         this.image.pixels[i+3] = rgba.a;
+        this.image.updatePixels();
     }
 
     //THINGS THAT DO *NOT* GO HERE -------
