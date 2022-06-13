@@ -1,7 +1,7 @@
 
 //settings, flags, and other stuff that should be visible to both p5 sketch and react components
 
-export const pointerState = {
+export const appPointer = {
     clientX : 0,
     clientY : 0,
 

@@ -6,7 +6,7 @@ import { History } from "./History";
 
 import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT } from "./constants";
 
-import { pointerState } from "./globals";
+import { appPointer } from "./globals";
 
 import { recolor, colorFromAngle } from "./vectorEncoding";
 
@@ -146,11 +146,11 @@ export function sketch(p){
         // }
 
         //use this check to ignore pointer actions during scroll, zoom, etc
-        if(!pointerState.p5Ignore){
+        if(!appPointer.p5Ignore){
 
             //pointer down / up change since last frame
-            if(pointerState.isDownP5 !== pointerState.wasDownP5){
-                handlePointerStateChange();
+            if(appPointer.isDownP5 !== appPointer.wasDownP5){
+                handleAppPointerChange();
             }
 
             //currently editing a pixel
@@ -191,7 +191,7 @@ export function sketch(p){
         
         // else if(/* mouse over p5 canvas */){
 
-        else if(!pointerState.p5Ignore){
+        else if(!appPointer.p5Ignore){
 
             const mLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);  // mouse transformed position
             // console.log(`mlocal`)
@@ -280,9 +280,9 @@ export function sketch(p){
         }        
     }
 
-    function handlePointerStateChange(){        
+    function handleAppPointerChange(){        
 
-        if(pointerState.isDownP5){
+        if(appPointer.isDownP5){
             //on pointer down
             const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
             editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);    //get pixel (if any) under pointer
@@ -297,7 +297,7 @@ export function sketch(p){
             }            
         }
 
-        pointerState.wasDownP5 = pointerState.isDownP5;
+        appPointer.wasDownP5 = appPointer.isDownP5;
     }
 
     function editPixelColor(){        
