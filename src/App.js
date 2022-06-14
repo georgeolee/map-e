@@ -6,20 +6,24 @@ import { useEffect, useRef } from 'react';
 
 import { sketch } from './refactor/sketch';
 
-import { settings, appPointer, flags } from './refactor/globals'
+import { settings, appPointer, flags, clip } from './refactor/globals'
+
+import { TouchHandler } from './TouchHandler';
 
 //TODO:
 
   // > smooth out zooming
   // > get undo / redo working -> flags & keyboard listeners
-  // > figure out touch interactions ***
-        //  - edit
-        //  - scroll
-        //  - zoom
+
+  // > work on touch handling ****
+      //  > this issue fixed?
+      //  > caching points correctly?
+      //  > continue testing & bugfixes
 
 function App() {
 
   const p5ContainerRef = useRef();
+  const touchHandler = useRef(new TouchHandler());
 
   //attach new p5 instance
   useEffect(()=>{
@@ -54,7 +58,7 @@ function App() {
 
       //this needs work -> make zoom behavior more smooth
        settings.zoom.raw += zoomDelta * settings.zoom.sensitivity;
-       settings.zoom.raw = Math.min(Math.max(settings.zoom.min, settings.zoom.raw), settings.zoom.max)
+       settings.zoom.raw = clip(settings.zoom.raw, settings.zoom.min, settings.zoom.max);
        settings.zoom.level = Math.sqrt(settings.zoom.raw)
 
        evt.preventDefault(); //prevent scrolling page
@@ -65,6 +69,29 @@ function App() {
       p5Container.removeEventListener('wheel', doZoom);
     }
   });
+
+
+  /*****************TOUCH STUFF TESTING */
+  useEffect(() => {
+    const th = touchHandler.current;
+    const p5Container = p5ContainerRef.current;
+    
+    th.onPinchZoom2F = delta => {
+      settings.zoom.raw = clip(settings.zoom.raw + delta * settings.zoom.sensitivity, settings.zoom.min, settings.zoom.max);
+      settings.zoom.level = Math.sqrt(settings.zoom.raw);      
+    }
+
+    th.onSwipe2F = (dx, dy) => {
+      settings.scroll.x += dx / settings.zoom.level;
+      settings.scroll.y += dy / settings.zoom.level;
+    }
+
+    th.attach(p5Container);
+
+    return () => th.detach();
+  });
+
+  /****************TOUCH STUFF TESTING END */
 
   return (
     <div 
@@ -153,7 +180,6 @@ function App() {
 
           //switch evt.targetTouches.length
 
-          evt.preventDefault()
         }}
 
         onTouchMove={evt=>{
@@ -162,6 +188,7 @@ function App() {
           // 2 touch : dot product of vectors ? 
             // greater than 0 : same direction > swipe
             // less than 0 : different directions > pinch
+
         }}
         
       ></div>

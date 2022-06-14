@@ -124,3 +124,7 @@ export function rgba(...args){
         }[args.length] ?? 255
       }
 }
+
+export function clip(val, min, max){
+    return Math.min(max, Math.max(min, val));
+}
