@@ -57,8 +57,13 @@ export const settings = {
         y : 0,
     },
 
-    zoom : 1,
-    zoomSensitivity : 0.01,
+    zoom : {
+        level : 1,
+        raw : 1,
+        min : 0.25,
+        max : 10,
+        sensitivity : 0.01,
+    },
 
     url: null,
     bgUrl : null,
@@ -67,7 +72,9 @@ export const settings = {
     showDegreesOnEdit : true,
     showGrid : true,
     gridWeight : 0.1,
+
     normalMapMode : false, 
+    neutralColor : 'TRANSPARENT',
 
     editorMode: 'LIGHT',
 }

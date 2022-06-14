@@ -3,6 +3,11 @@ import { rgba } from "./globals";
 export const N_BLUE = rgba(128,128,255,255);
 export const N_TRANSPARENT = rgba(128,128,255,0);
 
+export const NEUTRAL = {
+    TRANSPARENT : rgba(128,128,255,0),
+    BLUE : rgba(128,128,255,255),
+};
+
 export const BG_A = {
     LIGHT: rgba(250),
     DARK: rgba(67),

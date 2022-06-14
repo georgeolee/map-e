@@ -10,9 +10,9 @@ import { settings, appPointer, flags } from './refactor/globals'
 
 //TODO:
 
-  // > pixel erase
-  // > get undo / redo working
-  // > figure out touch interactions
+  // > smooth out zooming
+  // > get undo / redo working -> flags & keyboard listeners
+  // > figure out touch interactions ***
         //  - edit
         //  - scroll
         //  - zoom
@@ -46,20 +46,23 @@ function App() {
   //wheel zoom ; react onWheel handler is passive (no preventDefault() allowed), so attach here instead
   useEffect(()=>{
 
+    const p5Container = p5ContainerRef.current;
+
     const doZoom = evt => {
        //zooming
-       const zoomDelta = evt.deltaY;
-       settings.zoom += zoomDelta * settings.zoomSensitivity;
+       const zoomDelta = evt.deltaY * -1;
 
-       //clip it here
-       //exp behavior here or in vcv? leaning towards second, and just set raw number here
+      //this needs work -> make zoom behavior more smooth
+       settings.zoom.raw += zoomDelta * settings.zoom.sensitivity;
+       settings.zoom.raw = Math.min(Math.max(settings.zoom.min, settings.zoom.raw), settings.zoom.max)
+       settings.zoom.level = Math.sqrt(settings.zoom.raw)
 
        evt.preventDefault(); //prevent scrolling page
     }
-    p5ContainerRef.current.addEventListener('wheel', doZoom);
+    p5Container.addEventListener('wheel', doZoom);
 
     return () => {
-      p5ContainerRef.current.removeEventListener('wheel', doZoom);
+      p5Container.removeEventListener('wheel', doZoom);
     }
   });
 
@@ -89,8 +92,8 @@ function App() {
           const dx = evt.pageX - appPointer.dragLastPagePos.x;
           const dy = evt.pageY - appPointer.dragLastPagePos.y;
 
-          settings.scroll.x += dx / settings.zoom;
-          settings.scroll.y += dy / settings.zoom;
+          settings.scroll.x += dx / settings.zoom.level;
+          settings.scroll.y += dy / settings.zoom.level;
 
           appPointer.dragLastPagePos.x = evt.pageX;
           appPointer.dragLastPagePos.y = evt.pageY;
@@ -137,6 +140,29 @@ function App() {
             appPointer.scrollDragging = false;
             evt.target.releasePointerCapture(evt.pointerId);
           }}
+
+        onTouchStart={evt=>{
+          // edit : 1 touch, same as pointer edit
+          // zoom : 2 touch pinch
+          // scroll : 2 touch swipe
+
+          // if currently doing edit / zoom / scroll > ignore additional touches
+
+          //  >>>> if editPixel (1touch edit) or
+          //  >>>> registered 2 touches
+
+          //switch evt.targetTouches.length
+
+          evt.preventDefault()
+        }}
+
+        onTouchMove={evt=>{
+          // 1 touch : edit
+
+          // 2 touch : dot product of vectors ? 
+            // greater than 0 : same direction > swipe
+            // less than 0 : different directions > pinch
+        }}
         
       ></div>
 

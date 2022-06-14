@@ -105,7 +105,9 @@ export class VirtualCanvas{
     }
 
     getPixelRatio(pImage){
-        return pImage.width / pImage.height >= this.p5.width / this.p5.height ? this.p5.width / pImage.width : this.p5.height / pImage.height;
+        return pImage.width / pImage.height >= this.p5.width / this.p5.height ? //compare image & canvas aspect ratios
+            this.p5.width / pImage.width :  // image AR greater / equal : fit image width in canvas
+            this.p5.height / pImage.height; // canvas AR greater : fit image height in canvas
     }
 
 
@@ -175,7 +177,7 @@ export class VirtualCanvas{
         ];
     }
 
-    //convert from world to local coordinates
+    //convert from world to local coordinates (multiplies [x, y] by world to local matrix)
     getWorldToLocalPoint(worldX, worldY){
         const M = this.getWorldToLocalMatrix();
 
@@ -187,7 +189,7 @@ export class VirtualCanvas{
         }
     }
 
-    //convert from local to world coordinates
+    //convert from local to world coordinates (multiplies [x,y] by local to world matrix)
     getLocalToWorldPoint(localX, localY){
         const M = this.getLocalToWorldMatrix();
 

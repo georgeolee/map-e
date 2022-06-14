@@ -123,7 +123,7 @@ export function sketch(p){
 
         //get zoom & scroll amounts
         vc.scroll = settings.scroll;
-        vc.zoom = settings.zoom;
+        vc.zoom = settings.zoom.level;
 
         // TEST - currently moved to resizeobserver callback
         // if(/* canvas element resize check */){
@@ -285,6 +285,15 @@ export function sketch(p){
         //pointer location in vc space
         const {x:pointerX, y:pointerY} = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
 
+        //image pixel at pointer location
+        const pointerPixel = vc.getPixelAtLocalPoint(pointerX,pointerY);
+
+        //pointer over edit pixel?
+        if(pointerPixel?.x === editPixel.x && pointerPixel?.y === editPixel.y){
+            vc.setPixelColor(editPixel.x, editPixel.y, COLOR.NEUTRAL[settings.neutralColor]);
+            return;
+        }
+        
         let angle = Math.atan2(pointerY - pixelY, pointerX - pixelX);
         
 
