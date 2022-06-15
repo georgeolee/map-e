@@ -82,10 +82,20 @@ export class TouchHandler{
             default:
                 break;
         }
-        
+        console.log(`ct: ${e.changedTouches.length}`)
         //add touch point to cache 
         for(const t of e.changedTouches){
-            this.tpCache[t.identifier] = {...t};    // shallow copy of original obj, so can compare old position after move
+
+            // shallow copy of original touch obj, so can compare old position after move
+            // using for...in bc seems like property spread ({...t}) only works for object literals ?
+            const cp = {};
+            for(const p in t){  
+                cp[p] = t[p];       
+            }
+
+            // console.log(cp)
+            this.tpCache[t.identifier] = cp;    
+                                                
         }
     }
 
@@ -93,8 +103,8 @@ export class TouchHandler{
         switch(e.changedTouches.length){
             case 1:
                 if(!this.emulatePointer) e.preventDefault();
-                console.log('this')
-                console.log(this)
+                // console.log('this')
+                // console.log(this)
                 this.process1TouchMove(e);                
                 break;
 
@@ -108,9 +118,22 @@ export class TouchHandler{
 
         //update cached touch pos
         for(const t of e.changedTouches){
+            // console.log(t.identifier)
             if(this.tpCache[t.identifier]) Object.assign(this.tpCache[t.identifier], t);    //  overwrite position values
-            else this.tpCache[t.identifier] = {...t};   //  shouldn't be necessary, but just in case
+            // else this.tpCache[t.identifier] = {...t};   //  shouldn't be necessary, but just in case
+
+            else{
+                const cp = {};
+                for(const p in t){
+                    cp[p] = t[p];
+                }
+                this.tpCache[t.identifier] = cp;
+            }
+
+            // console.log(t)
         }
+
+        
 
     }
 
@@ -201,7 +224,7 @@ export class TouchHandler{
     }
 
     handle2TouchPinchZoom(sqDistDelta){     
-
+        console.log('pinch zoom');
         //  crosses threshold?
         if(Math.abs(sqDistDelta) < this.threshold.pinch) return;
 
