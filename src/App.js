@@ -91,6 +91,25 @@ function App() {
     return () => th.detach();
   });
 
+
+
+  //print to screen for mobile testing
+  useEffect(()=>{
+    const th = touchHandler.current;
+
+    const status = document.getElementById('touch-status');
+
+    const updateStatus = () => status.textContent = th.log;
+
+    const interval = 100;
+
+    const updateInterval = setInterval(updateStatus, interval);
+
+    return () => clearInterval(updateInterval);
+  })
+
+
+
   /****************TOUCH STUFF TESTING END */
 
   return (
@@ -191,6 +210,11 @@ function App() {
 
         }}
         
+      ></div>
+
+      <div
+        id='touch-status'
+        style={{backgroundColor:'black',color:'white',minHeight:'2em',width:'100%'}}
       ></div>
 
 

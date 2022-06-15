@@ -13,6 +13,8 @@ export class TouchHandler{
 
     cleanup;
 
+    log;    // print stuff for debug on mobile
+
     constructor(){
 
         this.tpCache = {};
@@ -26,6 +28,8 @@ export class TouchHandler{
         }
 
         this.cleanup = [];
+
+        this.log = '';
     }
 
     attach(element){
@@ -103,8 +107,7 @@ export class TouchHandler{
         switch(e.changedTouches.length){
             case 1:
                 if(!this.emulatePointer) e.preventDefault();
-                // console.log('this')
-                // console.log(this)
+
                 this.process1TouchMove(e);                
                 break;
 
@@ -116,21 +119,17 @@ export class TouchHandler{
                 break;
         }
 
-        //update cached touch pos
+        //update cached touch points
         for(const t of e.changedTouches){
-            // console.log(t.identifier)
-            if(this.tpCache[t.identifier]) Object.assign(this.tpCache[t.identifier], t);    //  overwrite position values
-            // else this.tpCache[t.identifier] = {...t};   //  shouldn't be necessary, but just in case
-
-            else{
-                const cp = {};
-                for(const p in t){
-                    cp[p] = t[p];
-                }
-                this.tpCache[t.identifier] = cp;
+            
+            //get the cached point (or add it if it was missed somehow)
+            const cp = this.tpCache[t.identifier] ?? {};
+            this.tpCache[t.identifier] ??= cp
+                            
+            //update it
+            for(const p in t){
+                cp[p] = t[p];
             }
-
-            // console.log(t)
         }
 
         
@@ -158,6 +157,7 @@ export class TouchHandler{
 
     process1TouchMove(e){
         //just leave 1 touch handling to pointer events for now
+        this.log = '1touch'
     }
 
     process2TouchMove(e){        
@@ -192,7 +192,7 @@ export class TouchHandler{
             //  >   need this bc dot product alone doesn't say if points are moving closer together or further apart, only that directions are opposite each other
             const sqDistDelta = (dist.x**2 + dist.y**2) - (distPrev.x**2 + distPrev.y**2);
 
-            this.handle2TouchPinchZoom(dot, sqDistDelta);
+            this.handle2TouchPinchZoom(sqDistDelta);
         }
 
         // moving in same direction (ish, diff <= 90º )
@@ -232,6 +232,8 @@ export class TouchHandler{
         const zoomDelta = sqDistDelta;
 
         this?.onPinchZoom2F(zoomDelta);
+
+        this.log = `2pinch\tdelta: ${zoomDelta}`
     }
 
     /**
@@ -251,9 +253,11 @@ export class TouchHandler{
         //do some kind of threshold check
 
         this?.onSwipe2F(meanDelta.x, meanDelta.y);
+
+        this.log = `2swipe\tx: ${meanDelta.x}\ty: ${meanDelta.y}`
     }
 
     handle2TouchRotate(e){
-
+        this.log = '2rotate'
     }
 }
