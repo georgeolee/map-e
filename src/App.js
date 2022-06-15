@@ -15,8 +15,7 @@ import { TouchHandler } from './TouchHandler';
   // > get undo / redo working -> flags & keyboard listeners
 
   // > work on touch handling ****
-      //  > pinch zoom
-      //  > input delay for distinguishing 1F vs 2F gestures?
+      //  > pinch zoom - make proportional, add some kind of distance tracking
 
 function App() {
 
@@ -55,9 +54,19 @@ function App() {
        const zoomDelta = evt.deltaY * -1;
 
       //this needs work -> make zoom behavior more smooth
-       settings.zoom.raw += zoomDelta * settings.zoom.sensitivity;
-       settings.zoom.raw = clip(settings.zoom.raw, settings.zoom.min, settings.zoom.max);
-       settings.zoom.level = Math.sqrt(settings.zoom.raw)
+      //  settings.zoom.raw += zoomDelta * settings.zoom.sensitivity;
+      //  settings.zoom.raw = clip(settings.zoom.raw, settings.zoom.min, settings.zoom.max);
+      //  settings.zoom.level = Math.sqrt(settings.zoom.raw)
+
+
+      //TEST
+
+      //this feels better
+      settings.zoom.raw = clip(settings.zoom.raw + settings.zoom.raw*zoomDelta * settings.zoom.sensitivity, settings.zoom.min, settings.zoom.max);
+      // settings.zoom.level = Math.sqrt(settings.zoom.raw);    
+      settings.zoom.level = settings.zoom.raw
+
+      //END TEST
 
        evt.preventDefault(); //prevent scrolling page
     }
@@ -82,8 +91,9 @@ function App() {
     }
 
     th.onPinchZoom2F = delta => {
-      settings.zoom.raw = clip(settings.zoom.raw + delta * settings.zoom.sensitivity, settings.zoom.min, settings.zoom.max);
-      settings.zoom.level = Math.sqrt(settings.zoom.raw);      
+      settings.zoom.raw = clip(settings.zoom.raw + settings.zoom.raw*delta * settings.zoom.sensitivity, settings.zoom.min, settings.zoom.max);
+      // settings.zoom.level = Math.sqrt(settings.zoom.raw);    
+      settings.zoom.level = settings.zoom.raw  
     }
 
     th.onSwipe2F = (dx, dy) => {

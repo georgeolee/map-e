@@ -19,6 +19,8 @@ export class TouchHandler{
     log;    // print stuff for debugging on mobile
 
 
+    //work on this
+    zoomStartDist;
 
     constructor(){
 
@@ -93,6 +95,11 @@ export class TouchHandler{
                 break;
 
             case 2:       
+                
+                //initial touch point dist ; for pinch zoom
+                const [t1, t2] = e.targetTouches;
+                this.zoomStartDist = Math.sqrt((t1.clientX-t2.clientX)**2 + (t1.clientY-t2.clientY)**2);
+
                 this.log='2222222222222222222 START'         
                 break;
 
@@ -237,20 +244,28 @@ export class TouchHandler{
         }
     }
 
+
     getSqDist(x0, y0, x1, y1){
         return (x0 - x1)**2 + (y0 - y1)**2;
     }
 
+    //TODO - change this ; instead of delta dist between movement events,  do current touch dist / touch dist at pinch start
     handle2TouchPinchZoom(sqDistDelta){     
 
         //  crosses threshold?
         if(Math.abs(sqDistDelta) < this.threshold.pinch) return;
 
         //  TODO: apply some kind of scaling here
+
         // const zoomDelta = sqDistDelta;
+
+        //  get initial dist (from 2 touch start)
+        //  zoom -> current dist / initial dist
 
         const zoomDelta = Math.sign(sqDistDelta)*Math.sqrt(Math.abs(sqDistDelta));
 
+
+        
         this?.onPinchZoom2F(zoomDelta);
 
         this.log = `2pinch\tdelta: ${zoomDelta}`
