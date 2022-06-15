@@ -39,6 +39,8 @@ export const flags = {
     dirtyBackground : false,
 
     createCheckerboard : false,
+
+    isTouch : false,
 }
 
 export const settings = {
@@ -62,7 +64,7 @@ export const settings = {
         raw : 1,
         min : 0.25,
         max : 10,
-        sensitivity : 0.01,
+        sensitivity : 0.005,
     },
 
     url: null,

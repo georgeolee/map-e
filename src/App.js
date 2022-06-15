@@ -1,5 +1,4 @@
 import './App.css';
-// import Canvas from './Canvas.js';
 import p5 from 'p5';
 
 import { useEffect, useRef } from 'react';
@@ -16,9 +15,8 @@ import { TouchHandler } from './TouchHandler';
   // > get undo / redo working -> flags & keyboard listeners
 
   // > work on touch handling ****
-      //  > this issue fixed?
-      //  > caching points correctly?
-      //  > continue testing & bugfixes
+      //  > pinch zoom
+      //  > input delay for distinguishing 1F vs 2F gestures?
 
 function App() {
 
@@ -76,6 +74,13 @@ function App() {
     const th = touchHandler.current;
     const p5Container = p5ContainerRef.current;
     
+    th.onTouchCountChange = n => {
+      if(n > 1) appPointer.p5Ignore = true;
+
+      //flag touch device
+      flags.isTouch = true;
+    }
+
     th.onPinchZoom2F = delta => {
       settings.zoom.raw = clip(settings.zoom.raw + delta * settings.zoom.sensitivity, settings.zoom.min, settings.zoom.max);
       settings.zoom.level = Math.sqrt(settings.zoom.raw);      
@@ -99,7 +104,7 @@ function App() {
 
     const status = document.getElementById('touch-status');
 
-    const updateStatus = () => status.textContent = th.log;
+    const updateStatus = () => status.textContent = th.log + '\t:::::\t' + th.touches;
 
     const interval = 100;
 
@@ -178,7 +183,7 @@ function App() {
 
             handleButtonDown?.();
 
-            evt.stopPropagation(); //  stop the event from bubbling up to parent event handler
+            evt.stopPropagation(); //  stop the event from bubbling up to parent pointerdown handler
           }}
 
         onPointerUp={evt=>{
@@ -194,10 +199,6 @@ function App() {
 
           // if currently doing edit / zoom / scroll > ignore additional touches
 
-          //  >>>> if editPixel (1touch edit) or
-          //  >>>> registered 2 touches
-
-          //switch evt.targetTouches.length
 
         }}
 

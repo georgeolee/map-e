@@ -2,6 +2,7 @@ export class TouchHandler{
 
 
     tpCache;
+    touches;
 
     
     emulatePointer;
@@ -11,13 +12,19 @@ export class TouchHandler{
     onPinchZoom2F;
     onSwipe2F;
 
+    onTouchCountChange;
+
     cleanup;
 
-    log;    // print stuff for debug on mobile
+    log;    // print stuff for debugging on mobile
+
+
 
     constructor(){
 
         this.tpCache = {};
+        this.touches = 0;
+
 
         this.emulatePointer = true;
 
@@ -30,6 +37,7 @@ export class TouchHandler{
         this.cleanup = [];
 
         this.log = '';
+
     }
 
     attach(element){
@@ -75,18 +83,23 @@ export class TouchHandler{
     }
 
     handleTouchStart(e){
+
+        this.touches += e.changedTouches.length;
+        this?.onTouchCountChange(this.touches);
+
         switch(e.targetTouches.length){
             case 1:
                 if(!this.emulatePointer) e.preventDefault();
                 break;
 
-            case 2:                
+            case 2:       
+                this.log='2222222222222222222 START'         
                 break;
 
             default:
                 break;
         }
-        console.log(`ct: ${e.changedTouches.length}`)
+
         //add touch point to cache 
         for(const t of e.changedTouches){
 
@@ -137,12 +150,17 @@ export class TouchHandler{
     }
 
     handleTouchEnd(e){
+
+        this.touches -= e.changedTouches.length;
+        this?.onTouchCountChange(this.touches);
+
         switch(e.changedTouches.length){
             case 1:
                 if(!this.emulatePointer) e.preventDefault();
                 break;
 
-            case 2:                
+            case 2:     
+                this.log='222222ENDDDDDDDDO'           
                 break;
 
             default:
@@ -224,12 +242,14 @@ export class TouchHandler{
     }
 
     handle2TouchPinchZoom(sqDistDelta){     
-        console.log('pinch zoom');
+
         //  crosses threshold?
         if(Math.abs(sqDistDelta) < this.threshold.pinch) return;
 
-        //  apply some kind of scaling here
-        const zoomDelta = sqDistDelta;
+        //  TODO: apply some kind of scaling here
+        // const zoomDelta = sqDistDelta;
+
+        const zoomDelta = Math.sign(sqDistDelta)*Math.sqrt(Math.abs(sqDistDelta));
 
         this?.onPinchZoom2F(zoomDelta);
 

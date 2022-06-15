@@ -1,7 +1,7 @@
 import { VirtualCanvas } from "./VirtualCanvas";
 import { VirtualCanvasVisualizer } from "./VirtualCanvasVisualizer";
 import * as COLOR from './colors';
-import { settings } from "./globals";
+import { flags, settings } from "./globals";
 import { History } from "./History";
 
 import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT, DEG_TO_RAD } from "./constants";
@@ -168,12 +168,12 @@ export function sketch(p){
         viz.drawGrid();
         
         //draw pixel outline?
-        if(editPixel){ 
+        if(!appPointer.p5Ignore && editPixel){ 
             viz.outlinePixel(emap, editPixel.x, editPixel.y);
         }
 
         //draw pixel highlight?
-        else if(!appPointer.p5Ignore && appPointer.overCanvas){
+        else if(!appPointer.p5Ignore && appPointer.overCanvas && !flags.isTouch){
             const mLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);  // mouse transformed position            
             const hoverPixel = vc.getPixelAtLocalPoint(mLocal.x, mLocal.y);            
             if(hoverPixel) viz.highlightPixel(emap, hoverPixel.x, hoverPixel.y);
