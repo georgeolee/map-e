@@ -26,21 +26,40 @@ export const appPointer = {
 
 }
 
+class Flag{
+
+    raised;
+    sticky;
+
+    constructor(isRaised, isSticky = false){
+        this.raised = isRaised;
+        this.sticky = isSticky;
+    }
+
+    raise(){
+        this.raised = true;
+    }
+
+    lower(){
+        this.raised = false;
+    }
+}
+
 export const flags = {
-    export : false,
-    recolor : false,
-    loadEmpty : false,
-    loadURL : false,
-    loadBackgroundURL : false,
-    undo : false,
-    redo : false,
+    export : new Flag(false),
+    recolor : new Flag(false),
+    loadEmpty : new Flag(false),
+    loadURL : new Flag(false),
+    loadBackgroundURL : new Flag(false),
+    undo : new Flag(false),
+    redo : new Flag(false),
 
-    bakeBackgroundOpacity : false,
-    dirtyBackground : false,
+    bakeBackgroundOpacity : new Flag(false),
+    dirtyBackground : new Flag(false),
 
-    createCheckerboard : false,
+    createCheckerboard : new Flag(false),
 
-    isTouch : false,
+    isTouch : new Flag(false, true),
 }
 
 export const settings = {

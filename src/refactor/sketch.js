@@ -88,35 +88,6 @@ export function sketch(p){
         
     }
 
-    //just for testing
-    p.keyPressed = function(){
-        
-        let amt = 5;
-
-        switch(p.key){
-
-            case 'o':
-                settings.scroll.x += amt;
-                break;
-
-            case 'p':
-                settings.scroll.x -= amt;
-                break;
-
-            case 'k':
-                settings.scroll.y += amt;
-                break;
-
-            case 'l':
-                settings.scroll.y -= amt;
-                break;
-
-            default:
-                break;
-        }
-        
-        
-    }
 
     p.draw = function(){
         handleFlags();
@@ -149,11 +120,22 @@ export function sketch(p){
     }
 
     function handleFlags(){
+
+        if(flags.undo.raised){
+            history.step(-1);            
+        }
+        if(flags.redo.raised){
+            history.step(1);
+        }
         //emap create / load / export
 
         //background load
 
         //observer disconnect?
+
+        for(const f in flags){
+            if(!flags[f].sticky) flags[f].lower();
+        }
     }
 
     function drawEmap(){

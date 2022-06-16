@@ -1,3 +1,4 @@
+import { clip } from "./globals";
 
 export class History{
 
@@ -44,9 +45,11 @@ export class History{
      * @param {number} n number of steps to traverse
      */
     step(n){
-        this.currentIndex = Math.min(this.steps.length - 1, Math.max(this.currentIndex + n));
+
+        this.currentIndex = clip(this.currentIndex + n, 0, this.steps.length - 1);
+        console.log(this.currentIndex)
         this.image.loadPixels();
-        this.pixelArraySet(this.pImage.pixels, this.steps[this.currentIndex]);
+        this.pixelArraySet(this.image.pixels, this.steps[this.currentIndex]);
         this.image.updatePixels();
         
         // recolor

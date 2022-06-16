@@ -7,11 +7,10 @@ export class TouchHandler{
     
     emulatePointer;
 
-    threshold;
-
+    //gesture events
     onPinchZoom2F;
+    onPinchZoomFinish2F
     onSwipe2F;
-
     onTouchCountChange;
 
     cleanup;
@@ -19,12 +18,10 @@ export class TouchHandler{
     log;    // print stuff for debugging on mobile
 
 
-    //work on this
     zoomStartDist;
     zoomStarted;
-    onPinchZoomFinish2F
+    
 
-    zoomPoints;
 
     constructor(){
 
@@ -33,12 +30,6 @@ export class TouchHandler{
 
 
         this.emulatePointer = true;
-
-        this.threshold = {
-            pinch : 0,
-            swipe : 0,
-            rotate : 0,
-        }
 
         this.cleanup = [];
 
@@ -51,6 +42,7 @@ export class TouchHandler{
 
     attach(element){
 
+        //create bound version of handler function so 'this' refers to TH instance instead of element that the event listener is attached to
 
         const boundStart = this.handleTouchStart.bind(this);
         const boundMove = this.handleTouchMove.bind(this);
@@ -62,13 +54,6 @@ export class TouchHandler{
         element.addEventListener('touchend', boundEnd);
         element.addEventListener('touchcancel', boundEnd);
 
-        //WEIRD THIS STUFF GOING ON - use bound function?
-
-        // element.addEventListener('touchstart', this.handleTouchStart);
-        // element.addEventListener('touchmove', this.handleTouchMove);
-        // element.addEventListener('touchend', this.handleTouchEnd);
-        // element.addEventListener('touchcancel', this.handleTouchEnd);
-
         this.cleanup.push(
             () => element.removeEventListener('touchstart', boundStart),
             () => element.removeEventListener('touchmove', boundMove),
@@ -77,12 +62,8 @@ export class TouchHandler{
         );
     }
 
-    // detach(element){
+    //remove all registered event listeners
     detach(){
-        // element.removeEventListener('touchstart', this.handleTouchStart);
-        // element.removeEventListener('touchmove', this.handleTouchMove);
-        // element.removeEventListener('touchend', this.handleTouchEnd);
-        // element.removeEventListener('touchcancel', this.handleTouchEnd);
 
         for(const fn of this.cleanup){
             fn?.();
@@ -102,10 +83,6 @@ export class TouchHandler{
                 break;
 
             case 2:       
-                
-                //zoom start dist MOVED to process2TouchMove
-
-                this.log='2222222222222222222 START'         
                 break;
 
             default:
@@ -115,8 +92,7 @@ export class TouchHandler{
         //add touch point to cache 
         for(const t of e.changedTouches){
 
-            // shallow copy of original touch obj, so can compare old position after move
-            // using for...in bc seems like property spread ({...t}) only works for object literals ?
+            // shallow copy of original touch obj, for comparing position pre & post move
             const cp = {};
             for(const p in t){  
                 cp[p] = t[p];       
@@ -192,7 +168,7 @@ export class TouchHandler{
     }
 
     process1TouchMove(e){
-        //just leave 1 touch handling to pointer events for now
+        //if 1 touch handling isn't managed by pointer events, do it here
         this.log = '1touch'
     }
 
@@ -215,53 +191,28 @@ export class TouchHandler{
         //dot product of motion vectors
         const dot = d1.x * d2.x + d1.y * d2.y;
 
-        // moving in opposite directions (ish, diff > 90º )
-        if(dot < 0){
-            
-
-            ///TEST
+        // moving in opposite directions (ish, diff >= 90º )
+        if(dot <= 0){
 
             //initial touch point dist ; for pinch zoom
             
+            const touchPointDist = Math.sqrt((t1.clientX - t2.clientX)**2 + (t1.clientY - t2.clientY)**2);
+
             if(!this.zoomStarted){
-                this.zoomStartDist = Math.sqrt((t1.clientX - t2.clientX)**2 + (t1.clientY - t2.clientY)**2);
+                this.zoomStartDist = touchPointDist
             
                 //flag zoom start
                 this.zoomStarted = true;
             } 
 
             else{
-                //distance between touch points
-                const currentTouchDist = Math.sqrt((t1.clientX - t2.clientX)**2 + (t1.clientY - t2.clientY)**2);
-                            
-
-                const zoomFactor = currentTouchDist / this.zoomStartDist;
-
+                const zoomFactor = touchPointDist / this.zoomStartDist;
                 this.handle2TouchPinchZoom(zoomFactor);
             }
-                        
 
-            
-
-            ///END TEST
-
-
-
-
-            //current x, y dist between points
-            // const dist = this.getClientDelta(t1, t2);
-
-            //cached x, y dist between points
-            // const distPrev = this.getClientDelta(t1Prev, t2Prev);
-            
-            //change in (squared) straight line dist between points 
-            //  >   need this bc dot product alone doesn't say if points are moving closer together or further apart, only that directions are opposite each other
-            // const sqDistDelta = (dist.x**2 + dist.y**2) - (distPrev.x**2 + distPrev.y**2);
-
-            // this.handle2TouchPinchZoom(sqDistDelta);
         }
 
-        // moving in same direction (ish, diff <= 90º )
+        // moving in same direction (ish, diff < 90º )
         else{
             this.handle2TouchSwipe(d1, d2);
         }
@@ -285,25 +236,10 @@ export class TouchHandler{
         }
     }
 
-
-    getSqDist(x0, y0, x1, y1){
-        return (x0 - x1)**2 + (y0 - y1)**2;
-    }
-
-    //TODO - change this ; instead of delta dist between movement events,  do current touch dist / touch dist at pinch start
+    
     handle2TouchPinchZoom(zoomFactor){     
 
-        //  crosses threshold?
-        // if(Math.abs(zoomFactor) < this.threshold.pinch) return;
-
-
         this?.onPinchZoom2F(zoomFactor);
-
-        // const zoomDelta = Math.sign(sqDistDelta)*Math.sqrt(Math.abs(sqDistDelta));
-
-
-        
-        // this?.onPinchZoom2F(zoomDelta);
 
         this.log = `2pinch\tfactor: ${zoomFactor}`
     }
@@ -322,14 +258,10 @@ export class TouchHandler{
         }
         
 
-        //do some kind of threshold check
+        //do some kind of threshold check?
 
         this?.onSwipe2F(meanDelta.x, meanDelta.y);
 
         this.log = `2swipe\tx: ${meanDelta.x}\ty: ${meanDelta.y}`
-    }
-
-    handle2TouchRotate(e){
-        this.log = '2rotate'
     }
 }

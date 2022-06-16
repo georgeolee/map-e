@@ -84,7 +84,7 @@ function App() {
       if(count > 1) appPointer.p5Ignore = true;
 
       //flag touch device, for ignoring hover etc.
-      flags.isTouch = true;   // for p5
+      flags.isTouch.raise();   // for p5
       document.documentElement.classList.add('touch-device'); //  for css
     }
 
@@ -161,6 +161,33 @@ function App() {
         }
 
       }}
+
+      onKeyDown={e=>{
+
+        if(!(e.ctrlKey || e.metaKey)) return;
+
+        let action;
+
+        const actions = {
+          undo : () => flags.undo.raise(),
+          redo : () => flags.redo.raise(),
+        }
+
+        if(e.key === 'z'){
+          action = e.shiftKey ? actions.redo : actions.undo;
+        }
+
+        else if(e.key === 'y'){
+          action = actions.redo;
+        }
+
+        if(action){
+          action?.();
+          e.preventDefault();
+        }        
+      }}
+
+      tabIndex={0}
       >
 
 
@@ -204,6 +231,13 @@ function App() {
         
       ></div>
 
+      <button
+        onClick={()=>flags.undo.raise()}
+      >undo</button>
+
+      <button
+        onClick={()=>flags.redo.raise()}
+      >redo</button>
       <div
         id='touch-status'
         style={{backgroundColor:'black',color:'white',minHeight:'2em',width:'100%'}}
