@@ -11,11 +11,17 @@ import { TouchHandler } from './TouchHandler';
 
 //TODO:
 
-  // > smooth out zooming
-  // > get undo / redo working -> flags & keyboard listeners
+  // > general tidy up of newly added stuff
 
-  // > work on touch handling ****
-      //  > pinch zoom - make proportional, add some kind of distance tracking
+  // > get undo / redo working 
+      //  - flags
+      //  - keyboard listeners
+      //  - buttons
+
+  // image import / export
+
+  // > work on touch handling
+      //  > pinch zoom - orient around pinch center? would prob require changes to vc matrix handling and rethinking zoom setting structure; something like a vc.zoomFromLocalPoint function
 
 function App() {
 
@@ -50,23 +56,12 @@ function App() {
     const p5Container = p5ContainerRef.current;
 
     const doZoom = evt => {
-       //zooming
        const zoomDelta = evt.deltaY * -1;
 
-      //this needs work -> make zoom behavior more smooth
-      //  settings.zoom.raw += zoomDelta * settings.zoom.sensitivity;
-      //  settings.zoom.raw = clip(settings.zoom.raw, settings.zoom.min, settings.zoom.max);
-      //  settings.zoom.level = Math.sqrt(settings.zoom.raw)
-
-
-      //TEST
-
-      //this feels better
       settings.zoom.raw = clip(settings.zoom.raw + settings.zoom.raw*zoomDelta * settings.zoom.sensitivity, settings.zoom.min, settings.zoom.max);
       // settings.zoom.level = Math.sqrt(settings.zoom.raw);    
       settings.zoom.level = settings.zoom.raw
 
-      //END TEST
 
        evt.preventDefault(); //prevent scrolling page
     }
@@ -78,22 +73,27 @@ function App() {
   });
 
 
-  /*****************TOUCH STUFF TESTING */
+  /*touch input handling */
   useEffect(() => {
     const th = touchHandler.current;
     const p5Container = p5ContainerRef.current;
     
-    th.onTouchCountChange = n => {
-      if(n > 1) appPointer.p5Ignore = true;
+    th.onTouchCountChange = count => {
+      
+      //prevent accidental editing during multi-touch gestures
+      if(count > 1) appPointer.p5Ignore = true;
 
-      //flag touch device
-      flags.isTouch = true;
+      //flag touch device, for ignoring hover etc.
+      flags.isTouch = true;   // for p5
+      document.documentElement.classList.add('touch-device'); //  for css
     }
 
-    th.onPinchZoom2F = delta => {
-      settings.zoom.raw = clip(settings.zoom.raw + settings.zoom.raw*delta * settings.zoom.sensitivity, settings.zoom.min, settings.zoom.max);
-      // settings.zoom.level = Math.sqrt(settings.zoom.raw);    
-      settings.zoom.level = settings.zoom.raw  
+    th.onPinchZoom2F = zoomFactor => {
+      settings.zoom.level = clip( settings.zoom.raw * zoomFactor, settings.zoom.min, settings.zoom.max);
+    }
+
+    th.onPinchZoomFinish2F = () => {
+      settings.zoom.raw = settings.zoom.level;  //bake the new zoom level in to use as starting point for next pinch gesture
     }
 
     th.onSwipe2F = (dx, dy) => {
@@ -201,25 +201,6 @@ function App() {
             appPointer.scrollDragging = false;
             evt.target.releasePointerCapture(evt.pointerId);
           }}
-
-        onTouchStart={evt=>{
-          // edit : 1 touch, same as pointer edit
-          // zoom : 2 touch pinch
-          // scroll : 2 touch swipe
-
-          // if currently doing edit / zoom / scroll > ignore additional touches
-
-
-        }}
-
-        onTouchMove={evt=>{
-          // 1 touch : edit
-
-          // 2 touch : dot product of vectors ? 
-            // greater than 0 : same direction > swipe
-            // less than 0 : different directions > pinch
-
-        }}
         
       ></div>
 

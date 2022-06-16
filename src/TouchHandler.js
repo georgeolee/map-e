@@ -21,6 +21,10 @@ export class TouchHandler{
 
     //work on this
     zoomStartDist;
+    zoomStarted;
+    onPinchZoomFinish2F
+
+    zoomPoints;
 
     constructor(){
 
@@ -39,6 +43,9 @@ export class TouchHandler{
         this.cleanup = [];
 
         this.log = '';
+
+        this.zoomStarted = false;
+
 
     }
 
@@ -96,9 +103,7 @@ export class TouchHandler{
 
             case 2:       
                 
-                //initial touch point dist ; for pinch zoom
-                const [t1, t2] = e.targetTouches;
-                this.zoomStartDist = Math.sqrt((t1.clientX-t2.clientX)**2 + (t1.clientY-t2.clientY)**2);
+                //zoom start dist MOVED to process2TouchMove
 
                 this.log='2222222222222222222 START'         
                 break;
@@ -161,6 +166,12 @@ export class TouchHandler{
         this.touches -= e.changedTouches.length;
         this?.onTouchCountChange(this.touches);
 
+        //finished pinch zoom?
+        if(this.zoomStarted){
+            this.zoomStarted = false;
+            this?.onPinchZoomFinish2F();
+        }
+
         switch(e.changedTouches.length){
             case 1:
                 if(!this.emulatePointer) e.preventDefault();
@@ -207,17 +218,47 @@ export class TouchHandler{
         // moving in opposite directions (ish, diff > 90º )
         if(dot < 0){
             
+
+            ///TEST
+
+            //initial touch point dist ; for pinch zoom
+            
+            if(!this.zoomStarted){
+                this.zoomStartDist = Math.sqrt((t1.clientX - t2.clientX)**2 + (t1.clientY - t2.clientY)**2);
+            
+                //flag zoom start
+                this.zoomStarted = true;
+            } 
+
+            else{
+                //distance between touch points
+                const currentTouchDist = Math.sqrt((t1.clientX - t2.clientX)**2 + (t1.clientY - t2.clientY)**2);
+                            
+
+                const zoomFactor = currentTouchDist / this.zoomStartDist;
+
+                this.handle2TouchPinchZoom(zoomFactor);
+            }
+                        
+
+            
+
+            ///END TEST
+
+
+
+
             //current x, y dist between points
-            const dist = this.getClientDelta(t1, t2);
+            // const dist = this.getClientDelta(t1, t2);
 
             //cached x, y dist between points
-            const distPrev = this.getClientDelta(t1Prev, t2Prev);
+            // const distPrev = this.getClientDelta(t1Prev, t2Prev);
             
             //change in (squared) straight line dist between points 
             //  >   need this bc dot product alone doesn't say if points are moving closer together or further apart, only that directions are opposite each other
-            const sqDistDelta = (dist.x**2 + dist.y**2) - (distPrev.x**2 + distPrev.y**2);
+            // const sqDistDelta = (dist.x**2 + dist.y**2) - (distPrev.x**2 + distPrev.y**2);
 
-            this.handle2TouchPinchZoom(sqDistDelta);
+            // this.handle2TouchPinchZoom(sqDistDelta);
         }
 
         // moving in same direction (ish, diff <= 90º )
@@ -250,25 +291,21 @@ export class TouchHandler{
     }
 
     //TODO - change this ; instead of delta dist between movement events,  do current touch dist / touch dist at pinch start
-    handle2TouchPinchZoom(sqDistDelta){     
+    handle2TouchPinchZoom(zoomFactor){     
 
         //  crosses threshold?
-        if(Math.abs(sqDistDelta) < this.threshold.pinch) return;
+        // if(Math.abs(zoomFactor) < this.threshold.pinch) return;
 
-        //  TODO: apply some kind of scaling here
 
-        // const zoomDelta = sqDistDelta;
+        this?.onPinchZoom2F(zoomFactor);
 
-        //  get initial dist (from 2 touch start)
-        //  zoom -> current dist / initial dist
-
-        const zoomDelta = Math.sign(sqDistDelta)*Math.sqrt(Math.abs(sqDistDelta));
+        // const zoomDelta = Math.sign(sqDistDelta)*Math.sqrt(Math.abs(sqDistDelta));
 
 
         
-        this?.onPinchZoom2F(zoomDelta);
+        // this?.onPinchZoom2F(zoomDelta);
 
-        this.log = `2pinch\tdelta: ${zoomDelta}`
+        this.log = `2pinch\tfactor: ${zoomFactor}`
     }
 
     /**
