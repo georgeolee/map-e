@@ -1,36 +1,46 @@
 import {useEffect, useRef} from 'react';
 
-  function NumberInput(props){
+  export function NumberInput(props){
 
       //props
-      const label = props.label || 'number input';
-      const min = props.min || 0;
-      const max = props.max || 100;
-      const step = props.step || 1;
-      const onChange = props.onChange ? props.onChange : (n) => console.log(`value: ${n}`);
-      const value = typeof props.value === 'number' ? props.value : min;
-      const int = !!props.int;
-      
 
-      const constrain = (_val, _min, _max) => Math.max(_min, Math.min(_max, _val));
+      const {
+        label = 'number input',
+        min = 0,
+        max = 100,
+        step = 1,
+        defaultValue = (min + max) / 2,
+        func,
+        id,
+        className,
+        init = true,        
+      } = props;
+      
 
       const inputRef = useRef();
 
 
       useEffect( () =>
         {
-          inputRef.current.value = value;     //set initial value
-          onChange(value);
+          // inputRef.current.value = value;     //set initial value
+          if(init) func?.(Number(inputRef.current.value));
         },
         []
       )
 
       return(
-        <label className='number'>
-          <input ref={inputRef} type='number' min={min} max={max} step={step} onChange={(evt)=> onChange(int ? constrain(Math.round(evt.target.value), min, max) : constrain(evt.target.value, min, max))}/>
+        <label 
+          className={'number-input' + className ? ' ' + className : ''} 
+          id={id}>
+          <input 
+            ref={inputRef} 
+            defaultValue={defaultValue}
+            type='number' 
+            min={min} 
+            max={max} 
+            step={step} 
+            onChange={(e)=> func?.(Number(e.target.value))}/>
           {label}
         </label>
       );
   }
-
-export default NumberInput;

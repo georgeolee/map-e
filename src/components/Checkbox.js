@@ -1,26 +1,28 @@
-import {useEffect, useRef} from 'react';
+import { useEffect, useRef } from "react";
 
-function Checkbox(props){
-  const id = props.id;
-  const labelText = props.label || 'checkbox';
-  const onChange = props.onChange ? props.onChange : (b) => console.log('checked: ' + b);
+export function Checkbox(props){
 
-  const inputRef = useRef();
+    const inputRef = useRef();
 
-  useEffect( () =>
-    {
-      inputRef.current.checked = !!props.checked;
-      onChange(!!props.checked);
-    },
-    []
-  );
+    const {
+        checked = false,
+        label = 'Checkbox',
+        init = true,
+        func = b => console.log(`checkbox value: ${b}`),
+        tooltip,
+    } = props;
 
-  return(
-    <label className='checkbox'>
-      <input id={id} type='checkbox' onChange={(evt) => onChange(evt.target.checked)} ref={inputRef}/>
-      {labelText}
-    </label>
-  );
+    const onChange = e => func(e.target.checked);
+
+    useEffect(()=>{
+        inputRef.current.checked = checked;
+        if(init) func(inputRef.current.checked)
+    })
+
+    return(
+        <div className="checkbox">            
+            <input type="checkbox" ref={inputRef} onChange={onChange} data-tooltip={tooltip}/>
+            <div className="checkbox-label">{label}</div>
+        </div>
+    );
 }
-
-export default Checkbox

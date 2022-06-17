@@ -1,0 +1,88 @@
+.slider{
+    box-shadow: none;
+    -webkit-appearance: none;
+    background: transparent;
+    cursor: pointer;
+    
+    --slider-progress-percent: 50%;
+    
+    --slider-track-height: 12px;    
+    --slider-thumb-width: 16px;
+    --slider-thumb-height: var(--slider-thumb-width);
+    
+    --slider-progress-color: #f44;
+    --slider-progress-color-hover:#f66;
+  
+    --slider-track-color: #aaa;
+    --slider-track-color-hover: #bbb;
+  
+    --slider-thumb-color: var(--slider-progress-color);
+    --slider-thumb-color-hover: var(--slider-progress-color-hover);
+  
+    border-radius: calc(var(--slider-track-height)/2);
+  }
+  
+  .slider::-webkit-slider-runnable-track{
+    box-shadow: none;
+    -webkit-appearance: none;
+
+    background: var(--slider-track-color);
+    height: var(--slider-track-height);
+    border-radius: calc(var(--slider-track-height) / 2);
+
+
+
+    background-image: linear-gradient(
+        90deg,
+        var(--slider-progress-color) var(--slider-progress-percent),
+        var(--slider-track-color) var(--slider-progress-percent)
+    );
+
+  }
+
+  .slider::-webkit-slider-thumb{    
+    box-shadow: none;
+    -webkit-appearance: none;
+
+    height: var(--slider-thumb-height);
+    width: var(--slider-thumb-width);
+    border-radius: calc(var(--slider-thumb-height)/2);
+    background-color: var(--slider-thumb-color);
+    margin-top: calc(var(--slider-track-height)/2 - var(--slider-thumb-height)/2);  
+  }
+
+/* MOZ */
+
+  .slider::-moz-range-track{
+    box-shadow: none;
+    -webkit-appearance: none;
+
+    height: var(--slider-track-height);
+    border-radius: calc(var(--slider-track-height) / 2);
+  
+    background-image: linear-gradient(
+        90deg,
+        var(--slider-progress-color) var(--slider-progress-percent),
+        var(--slider-track-color) var(--slider-progress-percent)
+    );
+  }
+  
+  .slider::-moz-range-thumb{
+    box-shadow: none;
+    -webkit-appearance: none;
+
+    margin-top: calc(var(--slider-track-height/2) - var(--slider-thumb-height)/2);
+    height: var(--slider-thumb-height);
+    width: var(--slider-thumb-width);
+    border-radius: calc(var(--slider-thumb-height)/2);
+    background-color: var(--slider-thumb-color);
+    border: none;  
+  }
+
+  @media (hover: hover) and (pointer: fine){
+    .slider:hover{
+      --slider-progress-color: var(--slider-progress-color-hover);
+      --slider-track-color: var(--slider-track-color-hover);
+      --slider-thumb-color: var(--slider-thumb-color-hover);
+    }
+  }
