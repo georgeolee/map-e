@@ -168,8 +168,7 @@ export class TouchHandler{
     }
 
     process1TouchMove(e){
-        //if 1 touch handling isn't managed by pointer events, do it here
-        this.log = '1touch'
+        //if not handling 1 touch input with pointer events, do it here
     }
 
     process2TouchMove(e){        
@@ -241,7 +240,6 @@ export class TouchHandler{
 
         this?.onPinchZoom2F(zoomFactor);
 
-        this.log = `2pinch\tfactor: ${zoomFactor}`
     }
 
     /**
@@ -262,6 +260,5 @@ export class TouchHandler{
 
         this?.onSwipe2F(meanDelta.x, meanDelta.y);
 
-        this.log = `2swipe\tx: ${meanDelta.x}\ty: ${meanDelta.y}`
     }
 }

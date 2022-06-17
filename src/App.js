@@ -1,4 +1,6 @@
 import './App.css';
+import './components/Slider/Slider.css'
+
 import p5 from 'p5';
 
 import { useEffect, useRef } from 'react';
@@ -8,17 +10,19 @@ import { sketch } from './refactor/sketch';
 import { settings, appPointer, flags, clip } from './refactor/globals'
 
 import { TouchHandler } from './TouchHandler';
+import { FileInput } from './components/FileInput';
+import { Slider} from './components/Slider/Slider.js';
 
+import { NumberInput } from './components/NumberInput';
+
+import { EMAP_MIN_SIZE, EMAP_MAX_SIZE } from './refactor/constants';
 //TODO:
 
   // > general tidy up of newly added stuff
 
-  // > get undo / redo working 
-      //  - flags
-      //  - keyboard listeners
-      //  - buttons
+  //  get image export working on mobile
 
-  // image import / export
+  // implement bg transform?
 
   // > work on touch handling
       //  > pinch zoom - orient around pinch center? would prob require changes to vc matrix handling and rethinking zoom setting structure; something like a vc.zoomFromLocalPoint function
@@ -106,22 +110,6 @@ function App() {
     return () => th.detach();
   });
 
-
-
-  //print to screen for mobile testing
-  useEffect(()=>{
-    const th = touchHandler.current;
-
-    const status = document.getElementById('touch-status');
-
-    const updateStatus = () => status.textContent = th.log + '\t:::::\t' + th.touches;
-
-    const interval = 100;
-
-    const updateInterval = setInterval(updateStatus, interval);
-
-    return () => clearInterval(updateInterval);
-  })
 
 
 
@@ -233,16 +221,69 @@ function App() {
 
       <button
         onClick={()=>flags.undo.raise()}
-      >undo</button>
+        >undo</button>
 
       <button
         onClick={()=>flags.redo.raise()}
-      >redo</button>
-      <div
-        id='touch-status'
-        style={{backgroundColor:'black',color:'white',minHeight:'2em',width:'100%'}}
-      ></div>
+        >redo</button>
 
+      <button
+        onClick={()=>flags.export.raise()}
+        >export</button>
+
+      <button
+        onClick={()=>settings.resetView()}
+        >reset view</button>
+
+
+      <FileInput
+        label = 'Open Emap PNG'
+        func = {url => {
+          settings.url = url;
+          flags.loadURL.raise();
+        }}
+        />
+
+      <FileInput
+        label='Open Background Image'
+        func = { url => {
+          settings.bgUrl = url;
+          flags.loadBackgroundURL.raise();
+        }}
+        />
+
+      <Slider
+        min={0}
+        max={255}
+        defaultValue={settings.bgAlpha}
+        func={n=>{
+          settings.bgAlpha = n;
+          flags.dirtyBackground.raise();
+        }}
+        onPointerUp={ () => {
+          flags.bakeBackgroundOpacity.raise();
+        }}
+        />
+
+      <NumberInput
+        label='width'
+        min={EMAP_MIN_SIZE}
+        max={EMAP_MAX_SIZE}
+        func={n=>settings.size.x = n}
+        defaultValue={settings.size.x}
+        />
+
+      <NumberInput
+        label='height'
+        min={EMAP_MIN_SIZE}
+        max={EMAP_MAX_SIZE}
+        func={n=>settings.size.y = n}
+        defaultValue={settings.size.y}
+        />
+
+      <button
+        onClick={()=>flags.loadEmpty.raise()}
+        >create</button>
 
     </div>
   );

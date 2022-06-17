@@ -28,20 +28,20 @@ export const appPointer = {
 
 class Flag{
 
-    raised;
-    sticky;
+    isRaised;
+    isSticky;
 
     constructor(isRaised, isSticky = false){
-        this.raised = isRaised;
-        this.sticky = isSticky;
+        this.isRaised = isRaised;
+        this.isSticky = isSticky;
     }
 
     raise(){
-        this.raised = true;
+        this.isRaised = true;
     }
 
     lower(){
-        this.raised = false;
+        this.isRaised = false;
     }
 }
 
@@ -55,7 +55,7 @@ export const flags = {
     redo : new Flag(false),
 
     bakeBackgroundOpacity : new Flag(false),
-    dirtyBackground : new Flag(false),
+    dirtyBackground : new Flag(false, true),
 
     createCheckerboard : new Flag(false),
 
@@ -86,13 +86,20 @@ export const settings = {
         sensitivity : 0.005,
     },
 
+    resetView: function(){
+        this.scroll.x = 0;
+        this.scroll.y = 0;
+        this.zoom.level = 1;
+        this.zoom.raw = 1;
+    },
+
     url: null,
     bgUrl : null,
     bgAlpha : 55,
     showDirection : true,
     showDegreesOnEdit : true,
     showGrid : true,
-    gridWeight : 0.1,
+    gridWeight : 1,
 
     normalMapMode : false, 
     neutralColor : 'TRANSPARENT',

@@ -63,11 +63,9 @@ export class VirtualCanvas{
     zoom;   // don't do here, but square the value that gets passed into this ( zoomLevel**2 ) for more linear feel
     scroll;
 
-    image;
-    background;
+    image;    
 
-    imageScale;
-    backgroundScale;
+    imageScale;    
 
     constructor(p5Instance){
         this.p5 = p5Instance;
@@ -79,7 +77,6 @@ export class VirtualCanvas{
         }
 
         this.imageScale = 1;
-        this.backgroundScale = 1;
 
     }
 
@@ -95,13 +92,6 @@ export class VirtualCanvas{
         
         this.width = aspect > 1 ? this.p5.width : this.p5.width * aspect;
         this.height = aspect > 1 ? this.p5.height / aspect : this.p5.height;
-    }
-
-    setBackground(pImage){
-        this.background = pImage;
-        
-        this.backgroundScale = this.getPixelRatio(this.background);
-        // this.backgroundScale = Math.min(this.p5.width / this.background.width, this.p5.height / this.background.height);
     }
 
     getPixelRatio(pImage){

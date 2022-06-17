@@ -13,6 +13,7 @@ export function Slider(props){
         init = true,
         id,
         className,
+        onPointerUp,
         // tooltip,
     } = props;
     
@@ -52,6 +53,7 @@ export function Slider(props){
                 id={id}
                 ref={inputRef} 
                 onChange={onChange} 
+                onPointerUp={onPointerUp}
                 defaultValue={defaultValue} 
                 min={min} 
                 max={max} 

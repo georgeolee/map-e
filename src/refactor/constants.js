@@ -23,3 +23,6 @@ export const PIXEL_VECTOR_THICKNESS = 0.2;
 
 export const BLUE_NORMALIZED_MAX = 0.1;
 export const ALPHA_NORMALIZED_MIN = 0.9;
+
+export const EMAP_MIN_SIZE = 1;
+export const EMAP_MAX_SIZE = 128;

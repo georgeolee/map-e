@@ -14,6 +14,9 @@ export function sketch(p){
 
     let emap = p.createImage(settings.size.x, settings.size.y);
     let bg = null;  //background image
+
+    let bgBaked = null;
+
     let cb = p.createImage(CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT); //checkerboard (static background)
     
     let editPixel = null;
@@ -22,23 +25,6 @@ export function sketch(p){
     const viz = new VirtualCanvasVisualizer(vc);
     
     const history = new History(emap);
-
-
-    //FIXED : 
-
-    //  vc.imageScale zero / vc.getLocalPixel NaN issue in setup / draw loop
-        //  > fix - make sure to call vc.setImage() before vcviz.drawImage() (inside of drawEmap()) so that image scale is nonzero
-
-    //  grid not drawing correctly - missing lines ; scale issue
-        //  > fix - don't scale weight or units in for loop ; already taken care of by apply matrix call (scaled to image size)
-
-    //  black ghost grid > unintented stroke from checkerboard rects
-
-    //BUGFIX / LOOK INTO:
-
-    //  what is up with the weird black grid?
-        //  maybe -> createCheckerboard - stroke from drawing rects ; would explain weird scaling inconsistencies
-
 
 
     //TODO 
@@ -121,20 +107,39 @@ export function sketch(p){
 
     function handleFlags(){
 
-        if(flags.undo.raised){
+        if(flags.undo.isRaised){
             history.step(-1);            
         }
-        if(flags.redo.raised){
+
+        if(flags.redo.isRaised){
             history.step(1);
         }
-        //emap create / load / export
 
-        //background load
+        if(flags.export.isRaised){
+            exportEmap();
+        }
+
+        if(flags.loadEmpty.isRaised){
+            createEmap(settings.size.x, settings.size.y);
+        }
+
+        if(flags.loadURL.isRaised){
+            loadEmap(settings.url);
+        }
+
+        if(flags.loadBackgroundURL.isRaised){
+            loadBackground(settings.bgUrl);
+        }
+
+        if(flags.bakeBackgroundOpacity.isRaised){
+            if(bg) bakeBackgroundOpacity(settings.bgAlpha, () => flags.dirtyBackground.lower());            
+        }
+
 
         //observer disconnect?
 
         for(const f in flags){
-            if(!flags[f].sticky) flags[f].lower();
+            if(!flags[f].isSticky) flags[f].lower();
         }
     }
 
@@ -143,7 +148,20 @@ export function sketch(p){
         p.applyMatrix(...vc.getLocalToWorldMatrix()); // apply canvas transform
 
         //draw background & emap image
-        if(bg) viz.drawImage(bg);
+        // if(bg) viz.drawImage(bg);
+
+        if(bg){
+            if(flags.dirtyBackground.isRaised){
+                p.push();
+                p.tint(255, settings.bgAlpha);
+                viz.drawImage(bg);
+                p.pop();
+
+            }
+            else{
+                viz.drawImage(bgBaked);
+            }
+        }
         viz.drawImage(emap);
 
         //draw grid
@@ -191,6 +209,25 @@ export function sketch(p){
         p.image(cb, 0, 0);
     }
 
+    function loadBackground(url){
+        p.loadImage(url, pimg => {
+            bg = pimg;
+            bgBaked = p.createImage(bg.width, bg.height);
+            bgBaked.copy(bg, 0, 0, bg.width, bg.height, 0, 0, bg.width, bg.height);
+            flags.bakeBackgroundOpacity.raise();
+        })
+    }
+
+    function bakeBackgroundOpacity(alpha, callback){
+        bg.loadPixels();
+        bgBaked.loadPixels();
+        for(let i = 0; i < bgBaked.pixels.length; i+=4){
+            bgBaked.pixels[i+3] = bg.pixels[i+3] * (alpha/255);
+        }
+        bgBaked.updatePixels();
+        callback?.();
+    }
+
     function loadEmap(url){
         p.loadImage(url, pimg => {
             recolor(pimg);
@@ -235,27 +272,24 @@ export function sketch(p){
         }        
     }
 
+    //respond to pointer up / down 
     function handleAppPointerChange(){        
-
-
+        
         if(appPointer.isDownP5){
-            //on pointer down
-
+            //get pixel (if any) under pointer
             const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);        
-
-            editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);    //get pixel (if any) under pointer
+            editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);    
         }
-        else{            
 
-            //on pointer up
-            if(editPixel){
+        else{                        
+            if(editPixel){                
                 //stop editing and update history
                 history.push();
                 editPixel = null;
             }            
         }
 
-        appPointer.wasDownP5 = appPointer.isDownP5;
+        appPointer.wasDownP5 = appPointer.isDownP5; //update last registered pointer state
     }
 
     function editPixelColor(){        

@@ -47,7 +47,6 @@ export class History{
     step(n){
 
         this.currentIndex = clip(this.currentIndex + n, 0, this.steps.length - 1);
-        console.log(this.currentIndex)
         this.image.loadPixels();
         this.pixelArraySet(this.image.pixels, this.steps[this.currentIndex]);
         this.image.updatePixels();

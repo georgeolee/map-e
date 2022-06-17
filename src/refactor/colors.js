@@ -15,7 +15,7 @@ export const BG_A = {
 
 export const BG_B = {
     // LIGHT: rgba(245),
-    LIGHT: rgba(225),
+    LIGHT: rgba(240),
     DARK: rgba(65),
 };
 
