@@ -1,14 +1,15 @@
 import { VirtualCanvas } from "./VirtualCanvas";
 import { VirtualCanvasVisualizer } from "./VirtualCanvasVisualizer";
 import * as COLOR from './colors';
-import { flags, settings } from "./globals";
+import { flags, settings, display } from "./globals";
 import { History } from "./History";
 
-import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT, DEG_TO_RAD } from "./constants";
+import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT, DEG_TO_RAD, BG_MAX_SIZE, RAD_TO_DEG } from "./constants";
 
 import { appPointer } from "./globals";
 
 import { recolor, colorFromAngle } from "./vectorEncoding";
+
 
 export function sketch(p){
 
@@ -26,6 +27,7 @@ export function sketch(p){
     
     const history = new History(emap);
 
+    const downloadAnchor = document.createElement('a');
 
     //TODO 
 
@@ -42,8 +44,6 @@ export function sketch(p){
     //handle flags
 
 
-    //history management
-
     vc.setImage(emap);
 
     p.setup = function(){
@@ -59,8 +59,7 @@ export function sketch(p){
 
         createCheckerboard();
         drawCheckerboard();
-        
-        
+                
 
         //REVISIT THIS
         const resizeObserver = new ResizeObserver(handleCanvasResize);
@@ -138,6 +137,7 @@ export function sketch(p){
 
         //observer disconnect?
 
+        //lower all flags except for ones marked sticky
         for(const f in flags){
             if(!flags[f].isSticky) flags[f].lower();
         }
@@ -212,6 +212,11 @@ export function sketch(p){
     function loadBackground(url){
         p.loadImage(url, pimg => {
             bg = pimg;
+            if(bg.width * bg.height > BG_MAX_SIZE * BG_MAX_SIZE){
+                const scale = BG_MAX_SIZE / Math.max(bg.width, bg.height);
+                bg.resize(bg.width * scale, bg.height * scale);
+            }
+
             bgBaked = p.createImage(bg.width, bg.height);
             bgBaked.copy(bg, 0, 0, bg.width, bg.height, 0, 0, bg.width, bg.height);
             flags.bakeBackgroundOpacity.raise();
@@ -247,7 +252,13 @@ export function sketch(p){
 
     function exportEmap(){
         const now = new Date();
-        p.save(emap, `emission-map_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.png`);
+        downloadAnchor.download = `emission-map_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.png`;
+
+        emap.canvas.toBlob(blob => {         
+            downloadAnchor.href = URL.createObjectURL(blob);
+            downloadAnchor.click();
+            URL.revokeObjectURL(blob);
+        }, 'image/png')
     }
 
     function handleCanvasResize(resizeObserverEntries){
@@ -322,6 +333,12 @@ export function sketch(p){
 
         vc.setPixelColor(editPixel.x, editPixel.y, vectorColor);
 
+        //update display angle?
+        const degrees = Math.round(angle * RAD_TO_DEG);
+        if(display.angle !== degrees){
+            display.angle = degrees;
+            display?.refresh();
+        }        
     }
 
 }

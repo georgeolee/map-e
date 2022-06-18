@@ -115,6 +115,12 @@ export const angleDisplay = {
     visible: false,
 }
 
+export const display = {
+    angle: 0,
+    tooltip: 'tooltip',
+    refresh: undefined,
+}
+
 export const keyScroll = {
   up : false,
   down : false,

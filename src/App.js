@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react';
 
 import { sketch } from './refactor/sketch';
 
-import { settings, appPointer, flags, clip } from './refactor/globals'
+import { settings, appPointer, flags, clip, display } from './refactor/globals'
 
 import { TouchHandler } from './TouchHandler';
 import { FileInput } from './components/FileInput';
@@ -16,16 +16,29 @@ import { Slider} from './components/Slider/Slider.js';
 import { NumberInput } from './components/NumberInput';
 
 import { EMAP_MIN_SIZE, EMAP_MAX_SIZE } from './refactor/constants';
+import { DisplayArea } from './components/DisplayArea';
 //TODO:
 
   // > general tidy up of newly added stuff
 
-  //  get image export working on mobile
+  //  snap settings
+
+  // viz toggle ? 
+
+  // angle display area
+
+  // start work on mobile layout - single col grid
+
+  // trackpad 2F swipe
 
   // implement bg transform?
 
   // > work on touch handling
       //  > pinch zoom - orient around pinch center? would prob require changes to vc matrix handling and rethinking zoom setting structure; something like a vc.zoomFromLocalPoint function
+
+//BUGFIX:
+
+  //pixel hovering is broken on desktop?
 
 function App() {
 
@@ -117,7 +130,7 @@ function App() {
 
   return (
     <div 
-      className="App"
+      className="App no-select"
       onPointerMove={evt=>{
         appPointer.clientX = evt.clientX;
         appPointer.clientY = evt.clientY;
@@ -178,7 +191,7 @@ function App() {
       tabIndex={0}
       >
 
-
+      <div className='App-header'>map-e</div>
 
       <div 
         ref={p5ContainerRef} 
@@ -219,38 +232,53 @@ function App() {
         
       ></div>
 
-      <button
-        onClick={()=>flags.undo.raise()}
-        >undo</button>
+      <div className='editor-buttons'>
+        <button
+          data-tooltip='undo'
+          id='undo-button'
+          onClick={()=>flags.undo.raise()}
+          />        
 
-      <button
-        onClick={()=>flags.redo.raise()}
-        >redo</button>
+        <button
+          data-tooltip='reset view'
+          id='reset-view-button'
+          onClick={()=>settings.resetView()}
+          />
 
-      <button
-        onClick={()=>flags.export.raise()}
-        >export</button>
+        <button
+          data-tooltip='redo'
+          id='redo-button'
+          onClick={()=>flags.redo.raise()}
+          />
 
-      <button
-        onClick={()=>settings.resetView()}
-        >reset view</button>
+        <FileInput
+          tooltip='open vector map PNG'
+          id='emap-file-input'
+          func = {url => {
+            settings.url = url;
+            flags.loadURL.raise();
+          }}
+          />
 
+        <FileInput
+          tooltip='open background PNG'
+          id='background-file-input'
+          func = { url => {
+            settings.bgUrl = url;
+            flags.loadBackgroundURL.raise();
+          }}
+          />
 
-      <FileInput
-        label = 'Open Emap PNG'
-        func = {url => {
-          settings.url = url;
-          flags.loadURL.raise();
-        }}
-        />
+        <button
+          data-tooltip='download vector map PNG'
+          id='download-button'
+          onClick={()=>flags.export.raise()}
+          />  
+      </div>
+   
 
-      <FileInput
-        label='Open Background Image'
-        func = { url => {
-          settings.bgUrl = url;
-          flags.loadBackgroundURL.raise();
-        }}
-        />
+      {/*  add snap settings */}
+      {/* add vector viz toggle */}
 
       <Slider
         min={0}
@@ -285,6 +313,9 @@ function App() {
         onClick={()=>flags.loadEmpty.raise()}
         >create</button>
 
+      <DisplayArea
+        displayData={display}
+        />
     </div>
   );
 }
