@@ -1,18 +1,49 @@
 :root{
   box-sizing: border-box;
-  background-color: #fafafa;
-  color: var(--dark-gray);
+  background-color: var(--white);
+  color: var(--black);
 
+  /* color definitions */
   --red : #f44;
   --red-lighter : #f66;
+  --red-darker: #d33;
+
+  --green: #bd2;
+  --green-lighter: #cf4;
+  --green-darker: #9b0;
+
+  --gray: #888;
+  --gray-lighter: #aaa;
+  --gray-lighter-2: #ccc;
+  --gray-darker: #666;
+
 
   --white: #fafafa;
-  --dark-gray: #222;
+  
+  --black: #222;
+  --black-lighter: #444;
+  --black-darker: #000;
 
+  /* app theme colors */
   --primary: var(--red);
   --primary-lighter: var(--red-lighter);
+  --primary-darker: var(--red-darker);
 
-  --canvas-size: 400px
+  --secondary: var(--green);
+  --secondary-lighter: var(--green-lighter);
+  --secondary-darker: var(--green-darker);
+
+  --neutral: var(--gray);
+  --neutral-lighter: var(--gray-lighter);
+  --neutral-lighter-2: var(--gray-lighter-2);
+  --neutral-darker: var(--gray-darker);
+
+
+
+
+
+  --canvas-size: 360px;
+  --bg-opacity-slider-visibility: hidden;
 }
 
 
@@ -71,6 +102,8 @@
   align-content: center;
 }
 
+/* button styling */
+
 button{
   --size: calc(32px + 2*var(--border));
   --radius: 2px;
@@ -85,6 +118,19 @@ button{
   border: 2px solid var(--color);
 }
 
+.App button:active{
+  --color: var(--primary-darker)
+}
+
+/* slider styling */
+
+.App .slider:active{
+  --slider-progress-color: var(--primary-darker);
+  --slider-thumb-color: var(--primary-darker);
+}
+
+/* file input styling */
+
 .file-input label{
   display: flex;
   flex-direction: column;
@@ -94,6 +140,115 @@ button{
   display: none;
 }
 
+/* number input styling */
+
+.number-input > :first-child{
+  margin-right: var(--col-gap);
+}
+
+/* radio styling */
+
+.radio{
+  display:  flex;
+}
+
+.radio > .radio-input{  
+}
+
+.radio > .radio-label{
+
+}
+
+/* ------------------------ */
+
+.checkbox, .radio{
+  --color: var(--neutral-lighter);  
+  --color-hover: var(--neutral-lighter-2);
+
+  --color-checked: var(--secondary);
+  --color-checked-hover: var(--secondary-lighter);
+
+  --darker: #0003;
+
+  --outline: var(--neutral-lighter);
+
+
+  --border-width: 5px;
+  --shadow-width: 4px;
+  --border-radius: var(--border-width);
+
+  --width: 32px;
+  --height: 32px;
+}
+
+.checkbox input, .radio input{
+  appearance: none; -webkit-appearance: none;
+  width: calc(var(--width) - 2*var(--shadow-width));
+  height: calc(var(--height) - 2*var(--shadow-width));
+  background-color: var(--color);  
+  border: var(--border-width) solid var(--color);
+  border-bottom-color: var(--darker);
+  border-right-color: var(--darker);
+  box-shadow: 0 0 0 var(--shadow-width) var(--outline);  
+  margin: var(--shadow-width);
+}
+
+input[type="checkbox"]:checked, input[type="radio"]:checked{
+  --color: var(--color-checked);
+  --color-hover: var(--color-checked-hover);
+
+  border-color: transparent;
+  border-top-color: var(--darker);
+  border-left-color: var(--darker);  
+}
+
+.radio+.radio{
+  margin-top: calc(-1*var(--shadow-width));
+}
+
+.checkbox input{
+  border-radius: var(--border-radius);
+}
+
+.radio input{
+  border-radius: 0;
+}
+
+:not(.radio-item)+.radio-item > input,
+.radio-item:first-child > input{
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+
+.radio-item:last-child input{
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+}
+
+
+
+/* ---------------------------------------*/
+
+
+
+
+.new-emap-inputs{
+  display: flex;
+  grid-column: span 3;
+}
+.new-emap-inputs > :nth-child(n+2){
+  margin-left: var(--col-gap);
+}
+
+.new-emap-inputs .new-emap-size-inputs{
+  display: flex;
+  flex-direction: column;
+}
+
+.new-emap-size-inputs > :nth-child(n+2){
+  margin-top: var(--row-gap);
+}
+
 #undo-button{background-image: url(./images/icons/undo-white.png);}
 #redo-button{background-image: url(./images/icons/redo-white.png);}
 #reset-view-button{background-image: url(./images/icons/reset-view-white.png);}
@@ -101,14 +256,26 @@ button{
 
 #emap-file-input button{background-image: url(./images/icons/file-open-e-white.png);}
 #background-file-input button{background-image: url(./images/icons/file-open-p-white.png);}
+#new-emap-button{background-image: url(./images/icons/file-new-white.png);}
 
 #download-button{background-image: url(./images/icons/download-white.png);}
+
+#bg-opacity-slider{
+  visibility: var(--bg-opacity-slider-visibility);  
+}
 
 /* hover styling goes here */
 @media (hover :hover) and (pointer: fine){
   button:hover{
     --color: var(--primary-lighter);
+  }
+
+  button:hover, input[type="checkbox"]:hover, input[type="radio"]:hover{
     cursor: pointer;
+  }
+
+  input[type="checkbox"]:hover, input[type="radio"]:hover{
+    --color: var(--color-hover);
   }
 }
 

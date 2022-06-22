@@ -220,6 +220,9 @@ export function sketch(p){
             bgBaked = p.createImage(bg.width, bg.height);
             bgBaked.copy(bg, 0, 0, bg.width, bg.height, 0, 0, bg.width, bg.height);
             flags.bakeBackgroundOpacity.raise();
+
+            //css prop to show slider for controlling bg opacity
+            document.documentElement.style.setProperty('--bg-opacity-slider-visibility', 'visible');
         })
     }
 
@@ -318,6 +321,12 @@ export function sketch(p){
         //pointer over edit pixel?
         if(pointerPixel?.x === editPixel.x && pointerPixel?.y === editPixel.y){
             vc.setPixelColor(editPixel.x, editPixel.y, COLOR.NEUTRAL[settings.neutralColor]);
+            
+            const noVector = 'n/a'
+            if(display.angle !== noVector){
+                display.angle = noVector;
+                display?.refresh()
+            }
             return;
         }
         

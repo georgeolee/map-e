@@ -15,9 +15,16 @@ import { Slider} from './components/Slider/Slider.js';
 
 import { NumberInput } from './components/NumberInput';
 
+import { Button } from './components/Button';
+
 import { EMAP_MIN_SIZE, EMAP_MAX_SIZE } from './refactor/constants';
 import { DisplayArea } from './components/DisplayArea';
+import { Radio } from './components/Radio';
+import { Checkbox } from './components/Checkbox';
+
 //TODO:
+
+  // **** Button.js > tooltip handling here
 
   // > general tidy up of newly added stuff
 
@@ -26,6 +33,8 @@ import { DisplayArea } from './components/DisplayArea';
   // viz toggle ? 
 
   // angle display area
+
+  // tooltip system
 
   // start work on mobile layout - single col grid
 
@@ -233,20 +242,20 @@ function App() {
       ></div>
 
       <div className='editor-buttons'>
-        <button
-          data-tooltip='undo'
+        <Button
+          tooltip='undo'
           id='undo-button'
           onClick={()=>flags.undo.raise()}
           />        
 
-        <button
-          data-tooltip='reset view'
+        <Button
+          tooltip='reset view'
           id='reset-view-button'
           onClick={()=>settings.resetView()}
           />
 
-        <button
-          data-tooltip='redo'
+        <Button
+          tooltip='redo'
           id='redo-button'
           onClick={()=>flags.redo.raise()}
           />
@@ -269,11 +278,38 @@ function App() {
           }}
           />
 
-        <button
-          data-tooltip='download vector map PNG'
+        <Button
+          tooltip='download vector map PNG'
           id='download-button'
           onClick={()=>flags.export.raise()}
           />  
+
+        <div className='new-emap-inputs'>
+          <Button
+            tooltip='create a new blank emap'
+            id='new-emap-button'
+            onClick={()=>flags.loadEmpty.raise()}
+            />
+
+          <div className='new-emap-size-inputs'>
+            <NumberInput
+              label='width'
+              min={EMAP_MIN_SIZE}
+              max={EMAP_MAX_SIZE}
+              func={n=>settings.size.x = n}
+              defaultValue={settings.size.x}
+              />
+
+            <NumberInput
+              label='height'
+              min={EMAP_MIN_SIZE}
+              max={EMAP_MAX_SIZE}
+              func={n=>settings.size.y = n}
+              defaultValue={settings.size.y}
+              />
+          </div>        
+        </div>
+
       </div>
    
 
@@ -283,6 +319,7 @@ function App() {
       <Slider
         min={0}
         max={255}
+        id='bg-opacity-slider'
         defaultValue={settings.bgAlpha}
         func={n=>{
           settings.bgAlpha = n;
@@ -293,29 +330,31 @@ function App() {
         }}
         />
 
-      <NumberInput
-        label='width'
-        min={EMAP_MIN_SIZE}
-        max={EMAP_MAX_SIZE}
-        func={n=>settings.size.x = n}
-        defaultValue={settings.size.x}
-        />
-
-      <NumberInput
-        label='height'
-        min={EMAP_MIN_SIZE}
-        max={EMAP_MAX_SIZE}
-        func={n=>settings.size.y = n}
-        defaultValue={settings.size.y}
-        />
-
-      <button
-        onClick={()=>flags.loadEmpty.raise()}
-        >create</button>
+        <div>
+          <Radio
+            label='off'
+            checked
+            func={()=>settings.snap.set(false)}
+            />    
+          <Radio
+            label='22.5º'
+            func={()=>settings.snap.set(22.5)}
+            />
+          <Radio
+            label='45º'
+            func={()=>settings.snap.set(45)}
+            />
+          <Radio
+            label='90º'
+            func={()=>settings.snap.set(90)}
+            />
+        </div>
 
       <DisplayArea
         displayData={display}
         />
+
+      <Checkbox/>
     </div>
   );
 }

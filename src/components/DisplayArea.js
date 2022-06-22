@@ -20,12 +20,13 @@ export function DisplayArea(props){
     return(
         <div
             id={id}
-            className={'display-area' + className ? ' ' + className : ''}
+            className={'display-area' + (className ? ' ' + className : '')}
             ref={displayRef}
             >
-            angle: {displayData.angle}
-
-            {displayData.tooltip}
+                <ul className="display-info">
+                    <li className="display-angle">angle: {displayData.angle}</li>
+                    <li className="display-tooltip">{displayData.tooltip}</li>
+                </ul>                        
         </div>
     )
 }

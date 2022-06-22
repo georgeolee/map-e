@@ -30,7 +30,7 @@ import {useEffect, useRef} from 'react';
 
       return(
         <label 
-          className={'number-input' + className ? ' ' + className : ''} 
+          className={'number-input' + (className ? ' ' + className : '')} 
           id={id}>
           <input 
             ref={inputRef} 

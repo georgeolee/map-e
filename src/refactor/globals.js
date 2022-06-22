@@ -66,6 +66,10 @@ export const settings = {
     snap : {
         enabled : true,
         angle : 22.5,
+        set : function(n){
+            if(typeof n === 'number') this.angle = n;
+            this.enabled = (typeof n === 'number' || !!n);
+        }
     },
 
     size : {
@@ -116,7 +120,7 @@ export const angleDisplay = {
 }
 
 export const display = {
-    angle: 0,
+    angle: 'n/a',
     tooltip: 'tooltip',
     refresh: undefined,
 }

@@ -1,7 +1,8 @@
+import * as tooltipHandler from "../tooltips";
+
 export function FileInput(props){
 
     const {
-        label = 'File Input',
         accept = '.png',
         func = url => console.log(`url: ${url}`),
         tooltip,
@@ -18,7 +19,16 @@ export function FileInput(props){
 
     return(
         <div className={'file-input app-button' + (className ? ' ' + className : '')} id={id}>   
-            <button className="file-input-button" onClick={e => e.target.nextElementSibling?.click()} data-tooltip={tooltip}/>                        
+            <button 
+                className="file-input-button" 
+                onClick={e => e.target.nextElementSibling?.click()} 
+                data-tooltip={tooltip}
+
+                onPointerEnter={tooltipHandler.pointerEnter}
+                onTouchStart={tooltipHandler.touchStart}
+                onPointerLeave={tooltipHandler.pointerLeave}
+                onTouchEnd={tooltipHandler.touchEnd}
+                />                        
             <input 
                 type="file" 
                 accept={accept} 
