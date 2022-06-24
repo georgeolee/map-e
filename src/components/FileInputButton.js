@@ -1,8 +1,6 @@
-import * as tooltipHandler from "../tooltips";
-
 import { Button } from "./Button";
 
-export function FileInput(props){
+export function FileInputButton(props){
 
     const {
         accept = '.png',

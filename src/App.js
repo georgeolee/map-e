@@ -10,7 +10,7 @@ import { sketch } from './refactor/sketch';
 import { settings, appPointer, flags, clip, display } from './refactor/globals'
 
 import { TouchHandler } from './TouchHandler';
-import { FileInput } from './components/FileInput';
+import { FileInputButton } from './components/FileInputButton';
 import { Slider} from './components/Slider/Slider.js';
 
 import { NumberInput } from './components/NumberInput';
@@ -24,9 +24,17 @@ import { Checkbox } from './components/Checkbox';
 
 //TODO:
 
+  // look through use-gesture/react docs
+
+  //  touch / trackpad gestures - move to hook?
+        // > related: wrapper component for p5 canvas
+        // > split gesture tracking etc to wrapper
+
+  //  layout
+
+  //  p5 sketch - running slow on mobile w/ high point count ; some culprit other than just mobile ? check sketch.js for bottlenecks
+
   //  useTooltip hook
-  
-  // **** Button.js > tooltip handling here
 
   // > general tidy up of newly added stuff
 
@@ -255,7 +263,7 @@ function App() {
           onClick={()=>flags.redo.raise()}
           />
 
-        <FileInput
+        <FileInputButton
           tooltip='open vector map PNG'
           id='emap-file-input'
           func = {url => {
@@ -264,7 +272,7 @@ function App() {
           }}
           />
 
-        <FileInput
+        <FileInputButton
           tooltip='open background PNG'
           id='background-file-input'
           func = { url => {

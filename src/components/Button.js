@@ -1,7 +1,8 @@
-import * as tooltipHandler from '../tooltips'
+import { useTooltip } from '../hooks/useTooltip';
 
-import { useLongPress } from '../hooks/useLongPress';
 import { useEffect } from 'react';
+
+import { display } from '../refactor/globals';
 
 export function Button(props){
 
@@ -13,9 +14,12 @@ export function Button(props){
         content,
     } = props;
 
-    const {handlers} = useLongPress(500, {onClick: onClick});
-    
-    // useEffect(()=> console.log('render'))
+    const {visible, handlers} = useTooltip(400, {onClick: onClick});
+
+    useEffect(()=>{
+        display.tooltip = visible ? tooltip : '';
+        display.refresh?.()
+    })
 
     return(
         <button
@@ -27,13 +31,6 @@ export function Button(props){
             id={id}
             className={className}
 
-            onPointerEnter={()=>console.log('enter')}
-            onPointerLeave={()=>console.log('leave')}
-            // onPointerEnter={tooltipHandler.pointerEnter}
-            onTouchStart={tooltipHandler.touchStart}
-            // onPointerLeave={tooltipHandler.pointerLeave}
-            onTouchEnd={tooltipHandler.touchEnd}
-            
         >{content}</button>
     );
 }
