@@ -24,19 +24,14 @@ import { Checkbox } from './components/Checkbox';
 
 //TODO:
 
+  //  useTooltip hook
+  
   // **** Button.js > tooltip handling here
 
   // > general tidy up of newly added stuff
 
-  //  snap settings
-
   // viz toggle ? 
 
-  // angle display area
-
-  // tooltip system
-
-  // start work on mobile layout - single col grid
 
   // trackpad 2F swipe
 
@@ -351,10 +346,12 @@ function App() {
         </div>
 
       <DisplayArea
+        id='display'
         displayData={display}
         />
 
       <Checkbox/>
+
     </div>
   );
 }

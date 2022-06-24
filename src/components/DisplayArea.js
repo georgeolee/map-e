@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
+/**
+ * Display area for showing angle info & tooltips
+ * @param {*} props 
+ * @returns 
+ */
 export function DisplayArea(props){
 
     const {
@@ -10,8 +15,10 @@ export function DisplayArea(props){
 
     const displayRef = useRef();
 
+    
     const [state, setState] = useState();
 
+    //set the global display object's refresh function to trigger a rerender of this component
     useEffect(()=>{
         displayData.refresh = () => setState(!state);
     })

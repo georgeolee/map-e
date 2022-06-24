@@ -89,6 +89,10 @@
   -ms-user-select: none;
 }
 
+input, button{
+  touch-action: none;
+}
+
 .editor-buttons{
   display: grid;
   
