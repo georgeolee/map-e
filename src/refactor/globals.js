@@ -1,30 +1,6 @@
 
 //settings, flags, and other stuff that should be visible to both p5 sketch and react components
 
-export const appPointer = {
-    clientX : 0,
-    clientY : 0,
-
-    p5X : 0,
-    p5Y : 0,
-
-    isDown : false,
-    wasDown : false,
-
-    isDownP5 : false,
-    wasDownP5 : false,
-
-    p5Ignore : false,
-    overCanvas : false,
-
-    scrollDragging : false,
-
-    dragLastPagePos : {
-        x : 0,
-        y : 0
-    },
-
-}
 
 class Flag{
 
@@ -60,6 +36,10 @@ export const flags = {
     createCheckerboard : new Flag(false),
 
     isTouch : new Flag(false, true),
+
+    pointerDown : new Flag(false),
+    pointerUp : new Flag(false),
+    pointerIgnore : new Flag(false, true),
 }
 
 export const settings = {

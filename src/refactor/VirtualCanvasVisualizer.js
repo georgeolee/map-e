@@ -59,7 +59,6 @@ export class VirtualCanvasVisualizer{
         p5.noStroke();
 
         let c = COLOR.ACTIVE_PIXEL[settings.editorMode];
-        // console.log(`highlightPixel: blue: ${pimg.pixels[i+2]}\talpha: ${pimg.pixels[i+3]}`)
         if(isNeutralColor(pimg.pixels[i+2], pimg.pixels[i+3])){
             const bg = COLOR.BG_A[settings.editorMode];
             p5.fill(bg.r, bg.g, bg.b, bg.a);
@@ -93,7 +92,7 @@ export class VirtualCanvasVisualizer{
 
         p5.strokeWeight(PIXEL_VECTOR_THICKNESS);
 
-        pimg.loadPixels();
+        // pimg.loadPixels();
         for(let i = 0; i < pimg.pixels.length; i+= 4){
             
             //skip neutral pixels (as defined in vectorEncoding.js)

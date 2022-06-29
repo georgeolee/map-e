@@ -1,56 +1,6 @@
 //represents the scrollable, zoomable image editing area that the user interacts with
 
-//leave the actual interaction in sketch – draw loop, basically
 
-//but define how stuff works / gets handled here
-
-
-//BIG TODO - test transformation matrices ; do they work as expected?
-
-
-//
-
-
-/*
-
-outline------
-
-react components
-    inputs, etc
-
-react app
-    inputs
-    canvas
-    input handling
-
-virtual canvas
-    set image, background
-    transformations - scroll & zoom
-    access / modify image pixels
-    handle world / canvas space conversions
-
-virtual canvas visualizer - split drawing functions from virtual canvas?
-    grid
-    image
-    background
-    pixel highlight
-    pixel directions/
-
-sketch
-    apply transformations & draw virtual canvas to screen
-    virtual canvas interaction
-    pixel editing logic
-    pixel highlight / outline
-    pixel direction viz
-    image import / export logic
-
-
-*/
-
-
-
-import * as COLOR from './colors';
-import { settings } from './globals';
 
 
 export class VirtualCanvas{
@@ -241,39 +191,5 @@ export class VirtualCanvas{
 
 
     //-----------------------------------
-
-    //THINGS THAT GO HERE --------
-
-
-    //NOTE : provide p5 images to setter functions ; handle loading elsewhere outside of class
-
-
-    
-
-    //definitions: 
-    
-        //how to handle zoom/scroll transformations
-
-        //get mouse virtual position 
-        // i.e - canvas element space >> virtual canvas space
-
-        //detect if mouse is over virtual canvas or not
-
-        //get image pixel from coords, mouse
-
-        //set image pixel color
-
-
-
-    //------- VCV
-
-    //draw image
-
-    //draw grid
-
-
-    //visualize pixel directions
-
-    //draw active / hover pixel
 
 }

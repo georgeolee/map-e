@@ -6,7 +6,6 @@ import { History } from "./History";
 
 import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT, DEG_TO_RAD, BG_MAX_SIZE, RAD_TO_DEG } from "./constants";
 
-import { appPointer } from "./globals";
 
 import { recolor, colorFromAngle } from "./vectorEncoding";
 
@@ -48,6 +47,7 @@ export function sketch(p){
 
     p.setup = function(){
 
+        p.frameRate(60);
         
 
         const parentRect = p.canvas.parentElement.getBoundingClientRect()
@@ -86,19 +86,9 @@ export function sketch(p){
         //     handleCanvasResize();
         // }
 
-        //use this check to ignore pointer actions during scroll, zoom, etc
-        if(!appPointer.p5Ignore){
-
-            //pointer down / up change since last frame
-            if(appPointer.isDownP5 !== appPointer.wasDownP5){                
-                handleAppPointerChange();
-            }
-
-            //currently editing a pixel
-            if(editPixel){
-                editPixelColor();
-            }
-        }        
+        if(editPixel){
+            editPixelColor();
+        }
 
         drawCheckerboard();
         if(vc.image) drawEmap();
@@ -132,6 +122,18 @@ export function sketch(p){
 
         if(flags.bakeBackgroundOpacity.isRaised){
             if(bg) bakeBackgroundOpacity(settings.bgAlpha, () => flags.dirtyBackground.lower());            
+        }
+
+        if(flags.pointerDown.isRaised && !flags.pointerIgnore.isRaised){
+            handlePointerDown();
+        }
+
+        if(flags.pointerUp.isRaised){
+            handlePointerUp();
+        }
+
+        if(flags.pointerIgnore.isRaised){
+            cancelEdit();
         }
 
 
@@ -168,12 +170,12 @@ export function sketch(p){
         viz.drawGrid();
         
         //draw pixel outline?
-        if(!appPointer.p5Ignore && editPixel){ 
+        if(!flags.pointerIgnore.isRaised && editPixel){ 
             viz.outlinePixel(emap, editPixel.x, editPixel.y);
         }
 
         //draw pixel highlight?
-        else if(!appPointer.p5Ignore && appPointer.overCanvas && !flags.isTouch){
+        else if(!flags.pointerIgnore.isRaised && !flags.isTouch.isRaised){
             const mLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);  // mouse transformed position            
             const hoverPixel = vc.getPixelAtLocalPoint(mLocal.x, mLocal.y);            
             if(hoverPixel) viz.highlightPixel(emap, hoverPixel.x, hoverPixel.y);
@@ -286,24 +288,22 @@ export function sketch(p){
         }        
     }
 
-    //respond to pointer up / down 
-    function handleAppPointerChange(){        
-        
-        if(appPointer.isDownP5){
-            //get pixel (if any) under pointer
-            const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);        
-            editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);    
-        }
 
-        else{                        
-            if(editPixel){                
-                //stop editing and update history
-                history.push();
-                editPixel = null;
-            }            
-        }
+    function handlePointerDown(){
+        const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);        
+        editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);
+    }
 
-        appPointer.wasDownP5 = appPointer.isDownP5; //update last registered pointer state
+    function handlePointerUp(){
+        if(editPixel){                
+            //stop editing and update history
+            history.push();
+            editPixel = null;
+        }
+    }
+
+    function cancelEdit(){
+        editPixel = null;
     }
 
     function editPixelColor(){        
