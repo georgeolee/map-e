@@ -108,6 +108,10 @@ export function sketch(p){
             exportEmap();
         }
 
+        if(flags.recolor.isRaised){
+            if(emap) recolor(emap);
+        }
+
         if(flags.loadEmpty.isRaised){
             createEmap(settings.size.x, settings.size.y);
         }
@@ -183,7 +187,7 @@ export function sketch(p){
 
 
         //draw directions
-        viz.drawPixelDirections(emap);
+        if(settings.showDirection) viz.drawPixelDirections(emap);
 
         p.pop();
     }

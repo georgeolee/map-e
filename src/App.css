@@ -33,6 +33,11 @@
   --secondary-lighter: var(--green-lighter);
   --secondary-darker: var(--green-darker);
 
+
+  /* --secondary: var(--red);
+  --secondary-lighter: var(--red-lighter);
+  --secondary-darker: var(--red-darker); */
+
   --neutral: var(--gray);
   --neutral-lighter: var(--gray-lighter);
   --neutral-lighter-2: var(--gray-lighter-2);
@@ -66,8 +71,8 @@
   display: grid;
 
   grid-template-columns: var(--canvas-size);
-  
-  flex-direction: column;
+  grid-auto-rows: min-content;
+
   align-items: center;
 
   font-size: 16px;
@@ -76,24 +81,40 @@
   font-family: 'basis33','Courier New', Courier, monospace;
 }
 
+.App > *{
+  /* flex-grow: 0; */
+  
+}
+
 .App-header{
   font-family: 'extrude','basis33','Courier New', Courier, monospace;
   font-size: 32px;
   color: var(--primary);
 }
 
-.no-select, .no-select *{
+.no-select, .no-select :not(input[type="text"]){
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
 }
 
+.controls{
+  display: grid;
+  grid-template-columns: auto auto auto;
+  row-gap: 20px;
+  column-gap: 20px;
+}
+
 input, button{
   touch-action: none;
 }
 
-.editor-buttons{
+input[type="text"]{
+  touch-action: auto;
+}
+
+.button-controls{
   display: grid;
   
   --col-gap: 10px;
@@ -150,17 +171,28 @@ button{
   margin-right: var(--col-gap);
 }
 
+.number-input input{
+  
+  box-sizing: border-box;
+  /* width: 2em; */
+  width: 36px;
+  
+}
+
 /* radio styling */
 
 .radio{
   display:  flex;
+  align-items: center;
 }
 
 .radio > .radio-input{  
 }
 
 .radio > .radio-label{
-
+  position: relative;
+  left: 4px;
+  /* align-self: center; */
 }
 
 /* ------------------------ */
@@ -233,6 +265,23 @@ input[type="checkbox"]:checked, input[type="radio"]:checked{
 
 /* ---------------------------------------*/
 
+.display-area, .display-info{
+  /* background-color: var(--secondary); */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.display-info *{
+  padding: 0;
+  margin: 0;
+  list-style: none;  
+}
+
+.display-area .display-tooltip{
+  min-height: 4em; 
+  flex: 1;
+}
 
 
 
@@ -266,6 +315,7 @@ input[type="checkbox"]:checked, input[type="radio"]:checked{
 
 #bg-opacity-slider{
   visibility: var(--bg-opacity-slider-visibility);  
+  grid-column: span 3;
 }
 
 /* hover styling goes here */

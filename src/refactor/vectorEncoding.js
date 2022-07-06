@@ -19,7 +19,7 @@ export function colorFromAngle(angle){
     const y = Math.sin(angle);
 
     const r = Math.min(128 + Math.round(128*x), 255);
-    const g = Math.min(128 + Math.round(128*y), 255);
+    const g = Math.min(128 + Math.round(128*y*(settings.normalMapMode ? -1 : 1)), 255);
 
     return {
         r: r,
@@ -37,7 +37,7 @@ export function colorFromAngle(angle){
  */
 
 export function angleFromColorRG(r, g){
-    const y = g - 128;
+    const y = (g - 128) * (settings.normalMapMode ? -1 : 1);
     const x = r - 128;
     return Math.atan2(y, x);
 }
@@ -79,11 +79,8 @@ export function isNeutralColor(...args){
         2: [args[0], args[1]],
     }[args.length];
 
-    // console.log(args)
-    // console.log(`blue: ${blue}\t alpha: ${alpha}`)
-    // console.log(`args: ${args.length}`)
 
-    if(typeof blue !== 'number' || typeof alpha !== 'number') throw new Error('isNeutral(): blue or alpha not a number');
+    // if(typeof blue !== 'number' || typeof alpha !== 'number') throw new Error('isNeutral(): blue or alpha not a number');
 
     return Math.abs(blue - 128) / 128 > BLUE_NORMALIZED_MAX || alpha / 255 < ALPHA_NORMALIZED_MIN;
 }

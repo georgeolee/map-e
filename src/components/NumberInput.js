@@ -34,11 +34,18 @@ import {useEffect, useRef} from 'react';
           id={id}>
           <input 
             ref={inputRef} 
+            // defaultValue={defaultValue}
+            // type='number' 
+            // min={min} 
+            // max={max} 
+            // step={step} 
+            tabIndex={0}
+            type='text'
+            inputMode='numeric'
+            minLength={1}
+            maxLength={2}
+            pattern='\d*'
             defaultValue={defaultValue}
-            type='number' 
-            min={min} 
-            max={max} 
-            step={step} 
             onChange={(e)=> func?.(Number(e.target.value))}/>
           {label}
         </label>

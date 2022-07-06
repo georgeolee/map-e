@@ -18,9 +18,11 @@ export function CanvasContainer(props){
 
         settings.zoom.level = clip( settings.zoom.raw * zf, settings.zoom.min, settings.zoom.max);
 
+        //ignore pointer while zooming
         if(state.first){
             flags.pointerIgnore.raise();
         }
+
 
         //bake in new zoom level
         if(state.last){
@@ -33,10 +35,9 @@ export function CanvasContainer(props){
 
 
     useWheel(state => {
-        // state.event.preventDefault();
 
-        //  zoom
-        if(state.ctrlKey) return; // handled by usePinch instead (confirm on desktop w/ mouse?)
+        //  zoom    –>  handled by usePinch instead (confirm on desktop w/ mouse?)
+        if(state.ctrlKey) return; 
 
         
 
@@ -54,37 +55,39 @@ export function CanvasContainer(props){
     //move editing here
     useDrag(state => {
 
+        //scrolling? check for: alt-click or middle-click or 2-finger drag
         const isScroll = !!(state.altKey || state.event.button === 1 || state.touches === 2);
 
-        if(state.first){
-            console.log(isScroll);
-            //touch start
-            if(isScroll)flags.pointerIgnore.raise();
-            else flags.pointerDown.raise();
+        //touch start
+        if(state.first){            
+            if(isScroll)flags.pointerIgnore.raise();    //scrolling; tell p5 to ignore pointer down/hover/etc
+            else flags.pointerDown.raise();             //not scrolling; tell p5 pointer is down
         }
 
-        if(isScroll){
-            //scroll instead of edit
-
-            settings.scroll.x += state.delta[0] / settings.zoom.level;
-            settings.scroll.y += state.delta[1] / settings.zoom.level;
-        }
-        else{
-        }
-
-        if(state.last){
-            //touch end
+        //touch end
+        else if(state.last){            
             flags.pointerIgnore.lower();
             flags.pointerUp.raise();
-        }   
+        }
+
+
+        //if scrolling
+        if(isScroll){            
+            settings.scroll.x += state.delta[0] / settings.zoom.level;
+            settings.scroll.y += state.delta[1] / settings.zoom.level;
+        }  
+        //else –> edit; handled inside sketch.js   
         
     }, {target: containerRef});
 
+    //create p5 canvas running sketch.js
     useEffect(()=>{
-        
         const p5Instance = new p5(sketch, containerRef.current);
-
         return () => p5Instance.remove();
+    })
+
+    useEffect(()=>{
+        console.log('canvas render');
     })
 
     return (
@@ -93,8 +96,7 @@ export function CanvasContainer(props){
             ref={containerRef}
 
 
-                ///////////////START cleanup v
-
+                //detect touch vs mouse input
                 onPointerDownCapture={
                     e =>{
                         if(e.pointerType === 'mouse' && flags.isTouch.isRaised){
@@ -107,17 +109,19 @@ export function CanvasContainer(props){
                     }
                 }
 
+                // stop pointer down events from bubbling up to parent pointerdown handler
+                // (App has its own handler to raise pointerIgnore flag; don't want it to fire if evt target is canvas)
                 onPointerDown={evt=>{
-                    evt.stopPropagation(); //  stop the event from bubbling up to parent pointerdown handler
+                    evt.stopPropagation(); 
                 }}
 
+                //prevent unintentional editing inside of sketch.js if multiple touch points are registered
                 onTouchStart={e=>{
                     if(e.targetTouches > 1){
                         flags.pointerIgnore.raise()
                     }
                 }}
 
-                ////////////////END
 
             ></div>
     )

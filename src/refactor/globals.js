@@ -91,13 +91,6 @@ export const settings = {
     editorMode: 'LIGHT',
 }
 
-export const angleDisplay = {
-    x: 0,
-    y: 0,
-    angle: 0,
-    update: undefined,  // <AngleDisplay> component will assign a callback here for triggering its next re-render ; gets called from <Canvas> p5Container via pointer events
-    visible: false,
-}
 
 export const display = {
     angle: 'n/a',
@@ -105,13 +98,6 @@ export const display = {
     refresh: undefined,
 }
 
-export const keyScroll = {
-  up : false,
-  down : false,
-  left : false,
-  right : false,
-  shift : false,
-}
 
 /**
  * construct an rgba color object from up to 4 numerical arguments.\

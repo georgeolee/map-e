@@ -8,13 +8,21 @@ import { PIXEL_OUTLINE_WIDTH, PIXEL_VECTOR_LENGTH, PIXEL_VECTOR_THICKNESS } from
 export class VirtualCanvasVisualizer{
     
     vc;
+    scaleMatrix;
 
     constructor(virtualCanvas){
-        this.vc = virtualCanvas;        
+        this.vc = virtualCanvas;  
+        this.scaleMatrix = [1,0, 0, 1, 0, 0]      
     }
 
-    #getScaleMatrix(scale){
-        return [ scale, 0, 0, scale, 0, 0 ];
+    getScaleMatrix(scale){
+
+        this.scaleMatrix[0] = scale;
+        this.scaleMatrix[3] = scale;
+
+        // return [ scale, 0, 0, scale, 0, 0 ];
+
+        return this.scaleMatrix;
     }
 
     drawGrid(){
@@ -22,7 +30,7 @@ export class VirtualCanvasVisualizer{
         const [p5, image] = [this.vc.p5, this.vc.image]
         const c = COLOR.GRID[settings.editorMode];
         p5.push();
-        p5.applyMatrix(...this.#getScaleMatrix(this.vc.imageScale));
+        p5.applyMatrix(...this.getScaleMatrix(this.vc.imageScale));
         p5.stroke(c.r, c.g, c.b, c.a);
 
         //divide by current zoom level & image pixel scale for constant stroke thickness
@@ -44,7 +52,7 @@ export class VirtualCanvasVisualizer{
     drawImage(pimg){
         const p5 = this.vc.p5;
         p5.push();
-        p5.applyMatrix(...this.#getScaleMatrix(this.vc.getPixelRatio(pimg)));
+        p5.applyMatrix(...this.getScaleMatrix(this.vc.getPixelRatio(pimg)));
         p5.image(pimg, 0, 0);
         p5.pop();
     }
@@ -55,7 +63,7 @@ export class VirtualCanvasVisualizer{
         pimg.loadPixels();
         
         p5.push();
-        p5.applyMatrix(...this.#getScaleMatrix(this.vc.getPixelRatio(pimg)));
+        p5.applyMatrix(...this.getScaleMatrix(this.vc.getPixelRatio(pimg)));
         p5.noStroke();
 
         let c = COLOR.ACTIVE_PIXEL[settings.editorMode];
@@ -74,7 +82,7 @@ export class VirtualCanvasVisualizer{
     outlinePixel(pimg, px, py){
         const p5 = this.vc.p5;
         p5.push();
-        p5.applyMatrix(...this.#getScaleMatrix(this.vc.getPixelRatio(pimg)));
+        p5.applyMatrix(...this.getScaleMatrix(this.vc.getPixelRatio(pimg)));
         const c = COLOR.ACTIVE_PIXEL[settings.editorMode];
         p5.noFill();
         p5.stroke(c.r, c.g, c.b, c.a);
@@ -88,7 +96,7 @@ export class VirtualCanvasVisualizer{
     drawPixelDirections(pimg){
         const p5 = this.vc.p5;
         p5.push();
-        p5.applyMatrix(...this.#getScaleMatrix(this.vc.getPixelRatio(pimg)));
+        p5.applyMatrix(...this.getScaleMatrix(this.vc.getPixelRatio(pimg)));
 
         p5.strokeWeight(PIXEL_VECTOR_THICKNESS);
 

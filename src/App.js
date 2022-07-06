@@ -5,36 +5,31 @@ import './components/Slider/Slider.css'
 import { useEffect, useRef } from 'react';
 
 
-import { settings, flags, display } from './refactor/globals'
+import { flags, display } from './refactor/globals'
 
-import { FileInputButton } from './components/FileInputButton';
-import { Slider} from './components/Slider/Slider.js';
 
-import { NumberInput } from './components/NumberInput';
+import { DisplayArea } from './app-components/DisplayArea';
+import {CanvasContainer} from './app-components/Canvas'
 
-import { Button } from './components/Button';
-
-import { EMAP_MIN_SIZE, EMAP_MAX_SIZE } from './refactor/constants';
-import { DisplayArea } from './components/DisplayArea';
-import { Radio } from './components/Radio';
-import { Checkbox } from './components/Checkbox';
-
-import {CanvasContainer} from './components/Canvas'
+import { Controls } from './app-components/Controls';
 
 //TODO:
 
-  //  continue migrating p5 stuff & gesture handling -> canvas container
 
+  //  new git branch - refactor VC transform to allow zoom from point other than center
+  //      stateful transform ->
+  //      add scale & translate functions to operate on current matrix instead of recomputing matrix each time from scroll & zoom
 
-  //  layout
+  //  number input
+  //  control layout
 
   //  p5 sketch - mobile performance slowdown?
 
-  //  useTooltip hook
+  // viz toggle ? does it influence performance at all?
 
   // > general tidy up of newly added stuff
 
-  // viz toggle ? 
+
 
 
   // implement bg transform?
@@ -90,121 +85,13 @@ function App() {
 
       <CanvasContainer/>
 
-
-      <div className='editor-buttons'>
-        <Button
-          tooltip='undo'
-          id='undo-button'
-          onClick={()=>flags.undo.raise()}
-          />        
-
-        <Button
-          tooltip='reset view'
-          id='reset-view-button'
-          onClick={()=>settings.resetView()}
-          />
-
-        <Button
-          tooltip='redo'
-          id='redo-button'
-          onClick={()=>flags.redo.raise()}
-          />
-
-        <FileInputButton
-          tooltip='open vector map PNG'
-          id='emap-file-input'
-          func = {url => {
-            settings.url = url;
-            flags.loadURL.raise();
-          }}
-          />
-
-        <FileInputButton
-          tooltip='open background PNG'
-          id='background-file-input'
-          func = { url => {
-            settings.bgUrl = url;
-            flags.loadBackgroundURL.raise();
-          }}
-          />
-
-        <Button
-          tooltip='download vector map PNG'
-          id='download-button'
-          onClick={()=>flags.export.raise()}
-          />  
-
-        <div className='new-emap-inputs'>
-          <Button
-            tooltip='create a new blank emap'
-            id='new-emap-button'
-            onClick={()=>flags.loadEmpty.raise()}
-            />
-
-          <div className='new-emap-size-inputs'>
-            <NumberInput
-              label='width'
-              min={EMAP_MIN_SIZE}
-              max={EMAP_MAX_SIZE}
-              func={n=>settings.size.x = n}
-              defaultValue={settings.size.x}
-              />
-
-            <NumberInput
-              label='height'
-              min={EMAP_MIN_SIZE}
-              max={EMAP_MAX_SIZE}
-              func={n=>settings.size.y = n}
-              defaultValue={settings.size.y}
-              />
-          </div>        
-        </div>
-
-      </div>
-   
-
-      {/* add vector viz toggle */}
-
-      <Slider
-        min={0}
-        max={255}
-        id='bg-opacity-slider'
-        defaultValue={settings.bgAlpha}
-        func={n=>{
-          settings.bgAlpha = n;
-          flags.dirtyBackground.raise();
-        }}
-        onPointerUp={ () => {
-          flags.bakeBackgroundOpacity.raise();
-        }}
-        />
-
-        <div>
-          <Radio
-            label='off'
-            checked
-            func={()=>settings.snap.set(false)}
-            />    
-          <Radio
-            label='22.5º'
-            func={()=>settings.snap.set(22.5)}
-            />
-          <Radio
-            label='45º'
-            func={()=>settings.snap.set(45)}
-            />
-          <Radio
-            label='90º'
-            func={()=>settings.snap.set(90)}
-            />
-        </div>
-
       <DisplayArea
         id='display'
         displayData={display}
         />
 
-      <Checkbox/>      
+      <Controls
+        />
 
     </div>
   );

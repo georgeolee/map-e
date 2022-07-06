@@ -17,6 +17,11 @@ export class VirtualCanvas{
 
     imageScale;    
 
+
+    //TESTING
+    localToWorldMatrix;
+    worldToLocalMatrix;
+
     constructor(p5Instance){
         this.p5 = p5Instance;
 
@@ -28,6 +33,9 @@ export class VirtualCanvas{
 
         this.imageScale = 1;
 
+        //TESTING
+        this.localToWorldMatrix = [1,0,0,1,0,0];
+        this.worldToLocalMatrix = [1,0,0,1,0,0];
     }
 
     setImage(pImage){
@@ -68,21 +76,19 @@ export class VirtualCanvas{
         const scale = this.zoom;          //scale accounting for zoom level ; image scale applied elsewhere, wherever it gets displayed
         const [u, v] = [this.p5.width/2, this.p5.height/2]; //screen half width & height
 
-        return [
+        //first column
+        this.localToWorldMatrix[0] = scale;
+        this.localToWorldMatrix[1] = 0;
 
-            //first column
-            scale,
-            0,
+        //second column
+        this.localToWorldMatrix[2] = 0;
+        this.localToWorldMatrix[3] = scale;
 
-            //second column
-            0,
-            scale,
+        //third column
+        this.localToWorldMatrix[4] = scale * (this.scroll.x - u) + u;
+        this.localToWorldMatrix[5] = scale * (this.scroll.y - v) + v;        
 
-            //third column
-            scale * (this.scroll.x - u) + u,
-            scale * (this.scroll.y - v) + v
-
-        ];
+        return this.localToWorldMatrix;
     }
 
     
@@ -101,20 +107,15 @@ export class VirtualCanvas{
         const scale = this.zoom;
         const [u, v] = [this.p5.width/2, this.p5.height/2]; //screen half width & height
 
-        return [
+        this.worldToLocalMatrix[0] = 1 / scale;
+        this.worldToLocalMatrix[1] = 0;
+        this.worldToLocalMatrix[2] = 0;
+        this.worldToLocalMatrix[3] = 1 / scale;
+        this.worldToLocalMatrix[4] = -1 * (this.scroll.x - u + u/scale);
+        this.worldToLocalMatrix[5] = -1 * (this.scroll.y - v + v/scale);
 
-            //first column
-            1/scale,
-            0,
 
-            //second column
-            0,
-            1/scale,
-
-            //third column
-            -1 * ( this.scroll.x - u + u/scale ),
-            -1 * ( this.scroll.y - v + v/scale )
-        ];
+        return this.worldToLocalMatrix;
     }
 
     //convert from world to local coordinates (multiplies [x, y] by world to local matrix)
@@ -152,12 +153,6 @@ export class VirtualCanvas{
         
         if(Math.abs(localX - halfWidth) > halfWidth || Math.abs(localY - halfHeight) > halfHeight) return null; //outside of image bounds
 
-        // console.log('getPxlocalpt : passed null check')
-
-        // console.log(`localx: ${localX}\tlocaly: ${localY}\timagescale: ${this.imageScale}`)
-
-        // console.log(this.getPixelRatio(this.image))
-
         return {
             x: Math.floor(localX / this.imageScale),
             y: Math.floor(localY / this.imageScale),
@@ -181,15 +176,8 @@ export class VirtualCanvas{
         this.image.updatePixels();
     }
 
-    //THINGS THAT DO *NOT* GO HERE -------
-
-    // actually loading image files from url
-    // export
-    // background opacity bake
-    // checkerboard background for whole p5 canvas
-    // actually apply zoom scroll transformations
-
-
-    //-----------------------------------
+    scaleFromWorldPoint(scale, origin){
+        const M = this.getWorldToLocalMatrix();
+    }
 
 }
