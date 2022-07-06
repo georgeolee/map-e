@@ -1,6 +1,6 @@
 //represents the scrollable, zoomable image editing area that the user interacts with
 
-
+import { Transform } from "./Transform";
 
 
 export class VirtualCanvas{
@@ -22,6 +22,8 @@ export class VirtualCanvas{
     localToWorldMatrix;
     worldToLocalMatrix;
 
+    transform;
+
     constructor(p5Instance){
         this.p5 = p5Instance;
 
@@ -36,6 +38,55 @@ export class VirtualCanvas{
         //TESTING
         this.localToWorldMatrix = [1,0,0,1,0,0];
         this.worldToLocalMatrix = [1,0,0,1,0,0];
+
+        this.transform = new Transform();
+
+
+        /*
+        *   pinch zoom centered at a point
+        *
+        *       keep track of multiple transformations:
+        *       
+        *
+        *       base transform TB
+        * 
+        *       new transform z1 -> offset towards pinch center
+        *       new transform zp -> pinch scale factor
+        *       new transform z2 -> offset back away from pinch center
+        * 
+        *       new transform tp -> (possibly) -> pan / scroll / translation during pinch (other than offset to center)
+        *
+        * 
+        *       while pinch zooming, keep track of all, and compute final result (without mutating anything yet)
+        *           - zp changing
+        *           - tp possibly changing
+        *       
+        *       when pinch zoom is released, consolidate all into a single transformation and update TB with the result
+        * 
+        * 
+        *       notes~
+        *           - don't worry about inverses during pinch - shouldn't need until the gesture is finished and editing is enabled again
+        * 
+        *       
+        * 
+        * 
+        */ 
+
+        //on pinch zoom start
+        //  let t1 .. tz .. t2 = new Transform
+        //  t1.translate(zoom origin)   - offset to Pinch Origin
+        //  tz.setToScale(zoomfactor)   - scale from PO
+        //  t2.translate(-zoom origin)  - offset back from PO
+
+        // on pinch zoom
+        // tz.setToScale(zoom factor)
+
+        // on pinch zoom end
+        //  let t = t1.applyToSelf(tz).translate(-zoom origin) combine into a single transformation
+        //
+        //  -> 
+
+
     }
 
     setImage(pImage){
