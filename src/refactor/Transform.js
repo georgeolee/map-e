@@ -55,17 +55,24 @@ export class Transform{
 
         this.i = Transform.matrixMult(otherTransform.i, this.i);    //combined inverse
 
-        
+        return this;
     }
 
     clone(){
         const T = new Transform()
         T.m = [...this.m];
         T.i = [...this.i];
+        return T;
     }
 
-    static matrixMult(A, B){
-        const M = new Array(6);
+    static matrixMult(...args){
+
+        if(!args || args.length < 2) throw new Error(`Transform.matrixMult: invalid arguments ; supply 2 or more matrices in left to right order`)
+
+        const A = args.shift(); //leftmost matrix to multiply
+        const B = args.shift(); //next matrix to multiply
+
+        const M = new Array(6); //result
 
         const [ a,  c,  e,
                 b,  d,  f,  ]   =
@@ -110,7 +117,7 @@ export class Transform{
         //  [x] = 0*s + 0*t + 1*0 -> always 0
         //  [x] = 0*u + 0*v + 1*1 -> always 1
 
-        return M;
+        return args.length > 0 ? Transform.matrixMult(M, ...args) : M;
     }
 
     setToIdentity(){
@@ -118,6 +125,7 @@ export class Transform{
             this.m[n] = Transform.identityMatrix[n];
             this.i[n] = Transform.identityMatrix[n];
         }
+        return this;
     }
 
     //configure as a scale transformation
@@ -143,6 +151,7 @@ export class Transform{
         //set inverse matrix
         this.i[4] = -x;
         this.i[5] = -y;
+        return this;
     }
     
     scale(s){

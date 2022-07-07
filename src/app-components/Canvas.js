@@ -6,6 +6,7 @@ import { useRef, useEffect } from "react";
 import { sketch } from "../refactor/sketch";
 
 import { settings, clip, flags } from "../refactor/globals";
+import { vc } from "../refactor/globals";
 
 export function CanvasContainer(props){
 
@@ -16,18 +17,26 @@ export function CanvasContainer(props){
 
         const zf = state.movement[0];   //zoom factor
 
-        settings.zoom.level = clip( settings.zoom.raw * zf, settings.zoom.min, settings.zoom.max);
+        // settings.zoom.level = clip( settings.zoom.raw * zf, settings.zoom.min, settings.zoom.max);
 
         //ignore pointer while zooming
         if(state.first){
             flags.pointerIgnore.raise();
+
+            //test
+            vc.startPinch();
         }
 
+        //some way to clip?
+        vc.scaleFromPoint(zf, state.origin[0], state.origin[1])
 
         //bake in new zoom level
         if(state.last){
-            settings.zoom.raw = settings.zoom.level;
+            // settings.zoom.raw = settings.zoom.level;
             flags.pointerIgnore.lower();
+            
+            //test
+            vc.endPinch();
         }
 
     }, {target:containerRef, preventDefault: true});
@@ -43,9 +52,9 @@ export function CanvasContainer(props){
 
         //  scroll
         else{
-            const sensitivity = 1;
-            settings.scroll.x += state.delta[0] * sensitivity / settings.zoom.level;
-            settings.scroll.y += state.delta[1] * sensitivity / settings.zoom.level;
+            //test
+            const scale = vc.getScale();
+            vc.translate(state.delta[0] / scale, state.delta[1] / scale)
         }
         
     }, {target: containerRef, eventOptions:{passive:false}, preventDefault: true});
@@ -72,9 +81,9 @@ export function CanvasContainer(props){
 
 
         //if scrolling
-        if(isScroll){            
-            settings.scroll.x += state.delta[0] / settings.zoom.level;
-            settings.scroll.y += state.delta[1] / settings.zoom.level;
+        if(isScroll){                        
+            const scale = vc.getScale();
+            vc.translate(state.delta[0] / scale, state.delta[1] / scale)
         }  
         //else –> edit; handled inside sketch.js   
         
