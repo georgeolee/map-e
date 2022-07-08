@@ -78,10 +78,6 @@ export function sketch(p){
     p.draw = function(){
         handleFlags();
 
-        //get zoom & scroll amounts
-        vc.scroll = settings.scroll;
-        vc.zoom = settings.zoom.level;
-
         // TEST - currently moved to resizeobserver callback
         // if(/* canvas element resize check */){
         //     handleCanvasResize();

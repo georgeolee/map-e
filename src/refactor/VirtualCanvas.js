@@ -34,10 +34,6 @@ export class VirtualCanvas{
         this.p5 = p5Instance;
 
         this.zoom = 1;
-        this.scroll = {
-            x:0,
-            y:0,
-        }
 
         this.imageScale = 1;
 
@@ -177,6 +173,8 @@ export class VirtualCanvas{
 
         this.hotScale.setToTranslation(x, y).scale(s).translate(-x,-y);
 
+        // this.hotScale.setToTranslation(x - u, y - v).scale(s).translate(-x + u,-y +v);
+
 
         if(!this.pinching){
 
@@ -204,7 +202,17 @@ export class VirtualCanvas{
 
         //this.hotScale.translate(x, y)
 
+        //CURRENT
         this.transform.translate(x, y)
+
+        //TEST
+        // if(!this.pinching){
+        //     this.transform.translate(x, y);
+        //     return;
+        // }
+
+        // this.hotTranslation.translate(x, y);
+
     }
 
     startPinch(){
@@ -214,7 +222,11 @@ export class VirtualCanvas{
     endPinch(){
         this.pinching = false;
 
+        //CURRENT
         this.transform.applyToSelf(this.hotScale);
+
+        //TEST
+        // this.transform.applyToSelf(this.hotScale).applyToSelf(this.hotTranslation);
 
         this.hotScale.setToIdentity();
         this.hotTranslation.setToIdentity();
@@ -235,8 +247,11 @@ export class VirtualCanvas{
 
         //return Transform.mult(transform.m, hotScale.m) ... translation?
 
+        //CURRENT
         return Transform.matrixMult(this.transform.m, this.hotScale.m)
-        // return Transform.matrixMult(this.transform.m, this.tprev.m, this.hotScale.m, this.tpost.m)
+
+        //TEST
+        // return Transform.matrixMult(this.transform.m, this.hotScale.m, this.hotTranslation.m)
     }
 
     /**
@@ -254,12 +269,21 @@ export class VirtualCanvas{
         // NOTE - inverse order for multiplication 
         //return Transform.mult(hotScale.i, transform.i) ... translation?
 
+        //CURRENT
         return Transform.matrixMult(this.hotScale.i, this.transform.i)
+
+        //TEST
+        // return Transform.matrixMult(this.hotTranslation.i, this.hotScale.i, this.transform.i);
 
     }
 
-    getScale(){
-        return this.getTransformMatrix()[0]
+    /**
+     * get the current canvas scale
+     * @param {boolean} includeHotPinch - if true, factor in the scale of any ongoing pinch gesture; defaults to true
+     * @returns 
+     */
+    getScale(includeHotPinch = true){
+        return includeHotPinch ? this.getTransformMatrix()[0] : this.transform.m[0]
     }
 
     getTranslation(){
