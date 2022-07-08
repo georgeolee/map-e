@@ -148,7 +148,10 @@ export function CanvasContainer(props){
             if(timeoutRef.current){
                 clearTimeout(timeoutRef.current);
             }
-            d.style.backgroundColor = '#fe8';
+
+            const color = state.delta[1] < 0 ? '#fe8' : '#8ef'
+
+            d.style.backgroundColor = color;
             timeoutRef.current = setTimeout(()=> d.style.backgroundColor = 'var(--white)',200)
 
             
@@ -163,7 +166,7 @@ export function CanvasContainer(props){
         }  
         //else –> edit; handled inside sketch.js   
         
-    }, {target: containerRef});
+    }, {target: containerRef, pointer:{touch:true}});
 
     //create p5 canvas running sketch.js
     useEffect(()=>{
