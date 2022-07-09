@@ -332,7 +332,7 @@ export function sketch(p){
             const noVector = 'n/a'
             if(display.angle !== noVector){
                 display.angle = noVector;
-                display?.refresh()
+                display.refresh?.()
             }
             return;
         }
@@ -353,7 +353,7 @@ export function sketch(p){
         const degrees = Math.round(angle * RAD_TO_DEG);
         if(display.angle !== degrees){
             display.angle = degrees;
-            display?.refresh();
+            display.refresh?.();
         }        
     }
 

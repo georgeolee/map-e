@@ -94,6 +94,7 @@ export const display = {
     angle: 'n/a',
     tooltip: 'tooltip',
     refresh: undefined,
+    error: undefined,
 }
 
 
