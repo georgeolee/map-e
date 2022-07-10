@@ -114,6 +114,7 @@ input[type="text"]{
   touch-action: auto;
 }
 
+
 .button-controls{
   display: grid;
   
@@ -129,7 +130,7 @@ input[type="text"]{
 
 /* button styling */
 
-button{
+.button{
   --size: calc(32px + 2*var(--border));
   --radius: 2px;
   --border: 2px;
@@ -141,9 +142,10 @@ button{
   background-size: contain;
   background-repeat: no-repeat;
   border: 2px solid var(--color);
+  display: flex;
 }
 
-.App button:active{
+.App .button:active{
   --color: var(--primary-darker)
 }
 
@@ -197,7 +199,7 @@ button{
 
 /* ------------------------ */
 
-.checkbox, .radio{
+button.checkbox, .radio{
   --color: var(--neutral-lighter);  
   --color-hover: var(--neutral-lighter-2);
 
@@ -213,14 +215,14 @@ button{
   --shadow-width: 4px;
   --border-radius: var(--border-width);
 
-  --width: 32px;
-  --height: 32px;
+  --width: 32px !important;
+  --height: 32px !important;
 }
 
-.checkbox input, .radio input{
-  appearance: none; -webkit-appearance: none;
-  width: calc(var(--width) - 2*var(--shadow-width));
-  height: calc(var(--height) - 2*var(--shadow-width));
+button.checkbox, .radio input{
+  
+  width: calc(var(--width) - 2*var(--shadow-width)) !important;
+  height: calc(var(--height) - 2*var(--shadow-width)) !important;
   background-color: var(--color);  
   border: var(--border-width) solid var(--color);
   border-bottom-color: var(--darker);
@@ -229,7 +231,7 @@ button{
   margin: var(--shadow-width);
 }
 
-input[type="checkbox"]:checked, input[type="radio"]:checked{
+button.checkbox.checked{
   --color: var(--color-checked);
   --color-hover: var(--color-checked-hover);
 
@@ -238,11 +240,12 @@ input[type="checkbox"]:checked, input[type="radio"]:checked{
   border-left-color: var(--darker);  
 }
 
+
 .radio+.radio{
   margin-top: calc(-1*var(--shadow-width));
 }
 
-.checkbox input{
+.checkbox{
   border-radius: var(--border-radius);
 }
 
@@ -320,15 +323,15 @@ input[type="checkbox"]:checked, input[type="radio"]:checked{
 
 /* hover styling goes here */
 @media (hover :hover) and (pointer: fine){
-  button:hover{
+  .button:hover{
     --color: var(--primary-lighter);
   }
 
-  button:hover, input[type="checkbox"]:hover, input[type="radio"]:hover{
+  button:hover, input[type="radio"]:hover{
     cursor: pointer;
   }
 
-  input[type="checkbox"]:hover, input[type="radio"]:hover{
+  .checkbox:hover, input[type="radio"]:hover{
     --color: var(--color-hover);
   }
 }

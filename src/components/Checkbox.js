@@ -1,46 +1,28 @@
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 
-import { useTooltip } from "../hooks/useTooltip";
-
-import { display } from "../refactor/globals";
+import { Button } from "./Button";
 
 export function Checkbox(props){
 
-    const {showTooltip, handlers} = useTooltip(400, {onLongPress: ()=>console.log('LP')});
-
-    const inputRef = useRef();
-
     const {
-        checked = false,
-        label = 'Checkbox',
-        init = true,
+        id,
         func = b => console.log(`checkbox value: ${b}`),
         tooltip,
     } = props;
 
-    const onChange = e => {if(!showTooltip)func(e.target.checked)};
+    const [isChecked, setChecked] = useState(props.checked)
 
-    useEffect(()=>{
-        display.tooltip = showTooltip ? tooltip : '';
-        display.refresh?.()
-    })
+    const buttonProps = {
+        tooltip: tooltip,
+        id: id,
+        className: isChecked ? 'checkbox' : 'checkbox checked',
+        onClick: () => {
+            const newState = !isChecked;  
+            func(newState);
+            setChecked(newState);
+        },
+    }
+    
 
-    // useEffect(()=>{
-    //     inputRef.current.checked = checked;
-    //     if(init) func(inputRef.current.checked)
-    // })
-
-    return(
-        <div className="checkbox">            
-            <input 
-                {...handlers}
-                type="checkbox"                 
-                ref={inputRef} 
-                onChange={onChange} 
-                defaultChecked={checked}
-                data-tooltip={tooltip}/>
-                
-            <div className="checkbox-label">{label}</div>
-        </div>
-    );
+    return<Button {...buttonProps}/>;
 }

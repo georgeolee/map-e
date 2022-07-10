@@ -20,14 +20,12 @@ export function FileInputButton(props){
     return(
         <div className={'file-input app-button' + (className ? ' ' + className : '')} id={id}>   
             <Button
-                className="file-input-button" 
                 onClick={e => e.target.nextElementSibling?.click()} 
                 tooltip={tooltip}
                 />
             <input 
                 type="file" 
                 accept={accept} 
-                className='file-input-button' 
                 onChange={onChange}
                 />
         </div>
