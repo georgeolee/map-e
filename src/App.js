@@ -13,6 +13,8 @@ import {CanvasContainer} from './app-components/Canvas'
 
 import { Controls } from './app-components/Controls';
 
+import { Transform } from './refactor/Transform';
+
 //TODO:
 
 
@@ -37,10 +39,7 @@ import { Controls } from './app-components/Controls';
 
 
 function App() {
-
   
-
-
   return (
     <div 
       className="App no-select"

@@ -8,6 +8,8 @@ import { Button } from '../components/Button';
 import { Radio } from '../components/Radio';
 import { Checkbox } from '../components/Checkbox';
 
+import { vc } from '../refactor/globals';
+
 export function Controls(props){
 
     return(
@@ -23,7 +25,7 @@ export function Controls(props){
                 <Button
                 tooltip='Reset the canvas view.'
                 id='reset-view-button'
-                onClick={()=>settings.resetView()}
+                onClick={()=>vc.transform.setToIdentity()}
                 />
 
                 <Button

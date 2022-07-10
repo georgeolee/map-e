@@ -1,6 +1,8 @@
 //represents the scrollable, zoomable image editing area that the user interacts with
 
+import { Transform } from "./Transform";
 
+import { clip, settings } from "./globals";
 
 
 export class VirtualCanvas{
@@ -10,32 +12,68 @@ export class VirtualCanvas{
     width;
     height;
 
-    zoom;   // don't do here, but square the value that gets passed into this ( zoomLevel**2 ) for more linear feel
-    scroll;
-
     image;    
 
     imageScale;    
 
 
-    //TESTING
-    localToWorldMatrix;
-    worldToLocalMatrix;
+    //transformations
+    transform;      //current base tranformation with previous scales & translatations baked in
+    hotScale;       //a pinch zoom transformation still in progress
+    hotTranslation; //a translation applied while pinch zoom is still in progress
+
+                    //... when pinch zoom finishes, bake transformations : 
+                    //          first scale, then translation -> this.transform.applyToSelf(hotScale).applyToSelf(hotTranslation)
+
+    //where to track pinch status?
+    pinching;
+
+
 
     constructor(p5Instance){
         this.p5 = p5Instance;
 
         this.zoom = 1;
-        this.scroll = {
-            x:0,
-            y:0,
-        }
 
         this.imageScale = 1;
 
         //TESTING
-        this.localToWorldMatrix = [1,0,0,1,0,0];
-        this.worldToLocalMatrix = [1,0,0,1,0,0];
+
+        this.transform = new Transform();
+
+        this.hotScale = new Transform();      
+        this.hotTranslation = new Transform();
+
+        this.pinching = false;
+
+
+        /*
+        *   pinch zoom centered at a point
+        *
+        *       keep track of multiple transformations:
+        *       
+        *
+        *       base transform TB
+        * 
+        *       new transform z1 -> offset towards pinch center
+        *       new transform zp -> pinch scale factor
+        *       new transform z2 -> offset back away from pinch center
+        * 
+        *       new transform tp -> (possibly) -> pan / scroll / translation during pinch (other than offset to center)
+        *
+        * 
+        *       while pinch zooming, keep track of all, and compute final result (without mutating anything yet)
+        *           - zp changing
+        *           - tp possibly changing
+        *       
+        *       when pinch zoom is released, consolidate all into a single transformation and update TB with the result
+        * 
+        * 
+        *       
+        * 
+        * 
+        */ 
+
     }
 
     setImage(pImage){
@@ -45,11 +83,6 @@ export class VirtualCanvas{
 
         this.imageScale = this.getPixelRatio(this.image);
 
-        //TODO: THIS - set width & height according to image aspect & canvas size
-        //TEST: is this correct?
-        
-        this.width = aspect > 1 ? this.p5.width : this.p5.width * aspect;
-        this.height = aspect > 1 ? this.p5.height / aspect : this.p5.height;
     }
 
     getPixelRatio(pImage){
@@ -59,68 +92,10 @@ export class VirtualCanvas{
     }
 
 
-    /**
-     * get the transformation matrix that represents this object's position & scale in world (ie p5 canvas) space
-     * 
-     * use this one to apply transforms when drawing VirtualCanvas within the p5canvas space
-     * 
-     * @returns the matrix as a number array 
-     */
-    getLocalToWorldMatrix(){
-        
-
-        //TODO: which of these is correct? apply image scale elsewhere, if possible... i think that's the correct way; make this more reusable
-
-        // const scale = this.zoom * this.imageScale;          //final scale accounting for zoom level & image fullscreen size
-
-        const scale = this.zoom;          //scale accounting for zoom level ; image scale applied elsewhere, wherever it gets displayed
-        const [u, v] = [this.p5.width/2, this.p5.height/2]; //screen half width & height
-
-        //first column
-        this.localToWorldMatrix[0] = scale;
-        this.localToWorldMatrix[1] = 0;
-
-        //second column
-        this.localToWorldMatrix[2] = 0;
-        this.localToWorldMatrix[3] = scale;
-
-        //third column
-        this.localToWorldMatrix[4] = scale * (this.scroll.x - u) + u;
-        this.localToWorldMatrix[5] = scale * (this.scroll.y - v) + v;        
-
-        return this.localToWorldMatrix;
-    }
-
-    
-
-    /**
-     * get the transform matrix that converts world (screen / p5 canvas element ) coordinates to object local coordinates ; the inverse of getLocalToWorldMatrix
-     * 
-     * use this one to convert mouse coordinates from screen space to object space
-     * 
-     * @returns the matrix as a number array
-     */
-    getWorldToLocalMatrix(){
-
-        //TODO : same question as above regarding scale
-        
-        const scale = this.zoom;
-        const [u, v] = [this.p5.width/2, this.p5.height/2]; //screen half width & height
-
-        this.worldToLocalMatrix[0] = 1 / scale;
-        this.worldToLocalMatrix[1] = 0;
-        this.worldToLocalMatrix[2] = 0;
-        this.worldToLocalMatrix[3] = 1 / scale;
-        this.worldToLocalMatrix[4] = -1 * (this.scroll.x - u + u/scale);
-        this.worldToLocalMatrix[5] = -1 * (this.scroll.y - v + v/scale);
-
-
-        return this.worldToLocalMatrix;
-    }
-
     //convert from world to local coordinates (multiplies [x, y] by world to local matrix)
     getWorldToLocalPoint(worldX, worldY){
-        const M = this.getWorldToLocalMatrix();
+
+        const M = this.getInverseTransformMatrix()
 
         /* M2 = [ worldX, worldY, 1 ]*/
 
@@ -132,7 +107,9 @@ export class VirtualCanvas{
 
     //convert from local to world coordinates (multiplies [x,y] by local to world matrix)
     getLocalToWorldPoint(localX, localY){
-        const M = this.getLocalToWorldMatrix();
+        // const M = this.getLocalToWorldMatrix();
+
+        const M = this.getTransformMatrix()
 
         /* M2 = [ localX, localY, 1 ]*/
 
@@ -176,8 +153,141 @@ export class VirtualCanvas{
         this.image.updatePixels();
     }
 
-    scaleFromWorldPoint(scale, origin){
-        const M = this.getWorldToLocalMatrix();
+
+    //new stuff ----------------------
+
+    scaleFromPoint(s, x, y){
+        //if(!this.pinching) consolidate & apply right away -> -translate, scale, translate        .... btw... do i have the order right? is it - S + or + S - ?
+        //
+        //  .... do the stuff
+        //  
+        //  ....    this.transform.applyToSelf( the transformation )
+
+        // this.hotScale.setToTranslation(x, y);
+        // this.hotScale.m[0] = s;
+        // this.hotScale.m[3] = s;
+        // this.hotScale.translate(-x, -y)
+
+        const currentScale = this.transform.m[0];
+        s = clip(s, settings.zoom.min / currentScale, settings.zoom.max / currentScale);
+
+        this.hotScale.setToTranslation(x, y).scale(s).translate(-x,-y);
+
+        // this.hotScale.setToTranslation(x - u, y - v).scale(s).translate(-x + u,-y +v);
+
+
+        if(!this.pinching){
+
+            this.transform.applyToSelf(this.hotScale);
+            this.hotScale.setToIdentity()
+
+        }
+
+    }
+
+
+
+    //on second thought .... is tracking hotTranslation necessary? test, think about this
+    translate(x, y){
+        //similar to above
+
+        //if(!pinching) this.transform.translate(x, y) ... apply right away
+        // ...  return
+
+        //else
+
+        //apply cumulative translations to hotTranslation - get scale from pinch ?
+        //
+        //  note~ make sure to set back to identity when pinch finishes (same goes for hotScale)
+
+        //this.hotScale.translate(x, y)
+
+        //CURRENT
+        this.transform.translate(x, y)
+
+        //TEST
+        // if(!this.pinching){
+        //     this.transform.translate(x, y);
+        //     return;
+        // }
+
+        // this.hotTranslation.translate(x, y);
+
+    }
+
+    startPinch(){
+        this.pinching = true;
+    }
+
+    endPinch(){
+        this.pinching = false;
+
+        //CURRENT
+        this.transform.applyToSelf(this.hotScale);
+
+        //TEST
+        // this.transform.applyToSelf(this.hotScale).applyToSelf(this.hotTranslation);
+
+        this.hotScale.setToIdentity();
+        this.hotTranslation.setToIdentity();
+
+    }
+
+    /**
+     * get the transformation matrix that represents this object's position & scale in world (ie p5 canvas) space
+     * 
+     * use this one to apply transforms when drawing VirtualCanvas within the p5canvas space
+     * 
+     * @returns the matrix as a number array 
+     */
+    getTransformMatrix(){
+        if(!this.pinching) return this.transform.m;
+
+        //else
+
+        //return Transform.mult(transform.m, hotScale.m) ... translation?
+
+        //CURRENT
+        return Transform.matrixMult(this.transform.m, this.hotScale.m)
+
+        //TEST
+        // return Transform.matrixMult(this.transform.m, this.hotScale.m, this.hotTranslation.m)
+    }
+
+    /**
+     * get the transform matrix that converts world (screen / p5 canvas element ) coordinates to object local coordinates ; the inverse of getLocalToWorldMatrix
+     * 
+     * use this one to convert mouse coordinates from screen space to object space
+     * 
+     * @returns the matrix as a number array
+     */
+    getInverseTransformMatrix(){
+        if(!this.pinching) return this.transform.i;
+
+        //else
+
+        // NOTE - inverse order for multiplication 
+        //return Transform.mult(hotScale.i, transform.i) ... translation?
+
+        //CURRENT
+        return Transform.matrixMult(this.hotScale.i, this.transform.i)
+
+        //TEST
+        // return Transform.matrixMult(this.hotTranslation.i, this.hotScale.i, this.transform.i);
+
+    }
+
+    /**
+     * get the current canvas scale
+     * @param {boolean} includeHotPinch - if true, factor in the scale of any ongoing pinch gesture; defaults to true
+     * @returns 
+     */
+    getScale(includeHotPinch = true){
+        return includeHotPinch ? this.getTransformMatrix()[0] : this.transform.m[0]
+    }
+
+    getTranslation(){
+        return this.getTransformMatrix().slice(4, 6) //get x & y components of the translation
     }
 
 }

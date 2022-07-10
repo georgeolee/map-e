@@ -21,6 +21,19 @@ export function DisplayArea(props){
     //set the global display object's refresh function to trigger a rerender of this component
     useEffect(()=>{
         displayData.refresh = () => setState(!state);
+
+        displayData.error = (e, displayFreeze = true) => {
+            const display = displayRef.current;
+            
+            if(!display) return;
+
+            if(displayFreeze) displayData.refresh = null;            
+            display.style.color = '#f00';
+            display.textContent = typeof e === 'string' ? e : `${e.name}: ${e.message}`
+
+            const normalDisplay = display.querySelector('.display-info');
+            if(normalDisplay) normalDisplay.style.display = 'none';
+        }
     })
 
     // useEffect

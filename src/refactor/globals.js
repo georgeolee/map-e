@@ -1,6 +1,9 @@
 
 //settings, flags, and other stuff that should be visible to both p5 sketch and react components
 
+import { VirtualCanvas } from "./VirtualCanvas";
+
+export const vc = new VirtualCanvas(null);
 
 class Flag{
 
@@ -40,6 +43,7 @@ export const flags = {
     pointerDown : new Flag(false),
     pointerUp : new Flag(false),
     pointerIgnore : new Flag(false, true),
+    
 }
 
 export const settings = {
@@ -70,12 +74,6 @@ export const settings = {
         sensitivity : 0.005,
     },
 
-    resetView: function(){
-        this.scroll.x = 0;
-        this.scroll.y = 0;
-        this.zoom.level = 1;
-        this.zoom.raw = 1;
-    },
 
     url: null,
     bgUrl : null,
@@ -96,6 +94,7 @@ export const display = {
     angle: 'n/a',
     tooltip: 'tooltip',
     refresh: undefined,
+    error: undefined,
 }
 
 

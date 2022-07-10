@@ -1,4 +1,4 @@
-import { useDrag, usePinch, useWheel } from "@use-gesture/react";
+import { useGesture } from "@use-gesture/react";
 import p5 from "p5";
 
 import { useRef, useEffect } from "react";
@@ -6,79 +6,161 @@ import { useRef, useEffect } from "react";
 import { sketch } from "../refactor/sketch";
 
 import { settings, clip, flags } from "../refactor/globals";
+import { vc } from "../refactor/globals";
+
+import { display } from "../refactor/globals";
 
 export function CanvasContainer(props){
 
     const containerRef = useRef(null);
 
 
-    usePinch( state => {
+    let x, y;
 
-        const zf = state.movement[0];   //zoom factor
 
-        settings.zoom.level = clip( settings.zoom.raw * zf, settings.zoom.min, settings.zoom.max);
+    //fixed - pinch origin weirdness - was forgetting to convert origin coords from client to element based before applying transformation
 
-        //ignore pointer while zooming
-        if(state.first){
+    //TODO - pinch works on desktop ; figure out what's causing weirdness on mobile
+            //  - related in any way to translation wonkiness?
+            //  - thought - mobile can fire drag & pinch at same time ; desktop is locked into one or other
+            //  - am i missing / fumbling a coordinate space conversion somewhere?
+
+    //continue - get 
+
+
+    useGesture({
+        //handlers
+
+        //pinch
+        onPinchStart: state => {
             flags.pointerIgnore.raise();
-        }
+            //convert client coords to canvas coords
+            const [clientX, clientY] = state.origin;            
+            const rect = containerRef.current.getBoundingClientRect();
 
-
-        //bake in new zoom level
-        if(state.last){
-            settings.zoom.raw = settings.zoom.level;
+            //save pinch origin
+            ({x, y} = vc.getWorldToLocalPoint(clientX - rect.left, clientY - rect.top));
+            vc.startPinch();            
+            
+        },
+        onPinch: state => {
+            const zf = state.movement[0];
+            vc.scaleFromPoint(zf, x, y);
+            return state.elapsedTime;
+        },
+        onPinchEnd: state => {
             flags.pointerIgnore.lower();
-        }
+            vc.endPinch();
+        },
 
-    }, {target:containerRef, preventDefault: true});
+        //wheel
+        onWheel: state => {
+            if(state.pinching) return;
+            const scale = vc.getScale(false);
+            vc.translate(state.delta[0] / scale, state.delta[1] / scale);
+
+            return state.elapsedTime;
+        },
+
+        //drag
+        onDragStart: state => {
+            const isPan = !!(state.altKey || state.event.button === 1 || state.touches === 2);
+            if(isPan) flags.pointerIgnore.raise();
+            else flags.pointerDown.raise();
+        },        
+        onDrag: state => {
+            const isPan = state.altKey || state.event?.button === 1 || state.touches === 2;
+            
+            //handle pan gesture
+            if(isPan){
+
+                if(state.event.changedTouches.length === 2){
+                    let [dx, dy] = [0, 0];
 
 
-
-    useWheel(state => {
-
-        //  zoom    –>  handled by usePinch instead (confirm on desktop w/ mouse?)
-        if(state.ctrlKey) return; 
-
-        
-
-        //  scroll
-        else{
-            const sensitivity = 1;
-            settings.scroll.x += state.delta[0] * sensitivity / settings.zoom.level;
-            settings.scroll.y += state.delta[1] * sensitivity / settings.zoom.level;
-        }
-        
-    }, {target: containerRef, eventOptions:{passive:false}, preventDefault: true});
+                    /*
+                    *   issue - oversensitive scrolling
+                    *
+                    *   cause - (probably?) - getting summed delta from touch points -> if 2 points travel same direction across screen, distance will be doubled
+                    * 
+                    *   try - average out delta?
+                    * 
+                    * 
+                    * 
+                    * 
+                    * 
+                    */
 
 
+                    for(let i = 0; i < state.event.changedTouches.length; i++){
 
-    //move editing here
-    useDrag(state => {
+                        //get touch point
+                        const t = state.event.changedTouches.item(i);
 
-        //scrolling? check for: alt-click or middle-click or 2-finger drag
-        const isScroll = !!(state.altKey || state.event.button === 1 || state.touches === 2);
+                        //get cached values for same point, if available
+                        const cached = state.memo?.[t.identifier];
 
-        //touch start
-        if(state.first){            
-            if(isScroll)flags.pointerIgnore.raise();    //scrolling; tell p5 to ignore pointer down/hover/etc
-            else flags.pointerDown.raise();             //not scrolling; tell p5 pointer is down
-        }
+                        dx += t.clientX - (cached?.clientX || t.clientX);
+                        dy += t.clientY - (cached?.clientY || t.clientY);                                             
+                    }
 
-        //touch end
-        else if(state.last){            
+                    dx /= state.event.changedTouches.length;
+                    dy /= state.event.changedTouches.length;
+
+                    const scale = vc.getScale(false);
+                    vc.translate(dx / scale, dy / scale);
+                    
+                    //cache touch points from this drag event
+                    const tp = {};                    
+                    for(let i = 0; i < state.event.changedTouches.length; i++){
+                        const t = state.event.targetTouches.item(i);
+                        tp[t.identifier] = {
+                            clientX:t.clientX, 
+                            clientY:t.clientY
+                        }
+                    }
+
+                    //and store in state.memo for the next event cycle
+                    return tp;
+                }
+                const scale = vc.getScale(false);
+                vc.translate(state.delta[0] / scale, state.delta[1] / scale);
+            }
+        },
+        onDragEnd: state => {
             flags.pointerIgnore.lower();
             flags.pointerUp.raise();
-        }
+        },
 
-
-        //if scrolling
-        if(isScroll){            
-            settings.scroll.x += state.delta[0] / settings.zoom.level;
-            settings.scroll.y += state.delta[1] / settings.zoom.level;
-        }  
-        //else –> edit; handled inside sketch.js   
+    }, {
+        //config
+        target: containerRef,
+        // preventDefault: true,
         
-    }, {target: containerRef});
+        wheel: {            
+            eventOptions:{
+                passive:false,        
+            },
+            preventDefault: true,            
+        },
+        
+        pinch: {          
+            eventOptions:{
+                passive:false,        
+            },
+            preventDefault: true,
+            // threshold: 0.05
+
+        },
+
+        drag: {
+            pointer:{
+                touch:true,
+            },
+            // delay:true,
+            // threshold: 2,
+        }
+    })
 
     //create p5 canvas running sketch.js
     useEffect(()=>{

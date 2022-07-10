@@ -1,7 +1,7 @@
 import { VirtualCanvas } from "./VirtualCanvas";
 import { VirtualCanvasVisualizer } from "./VirtualCanvasVisualizer";
 import * as COLOR from './colors';
-import { flags, settings, display } from "./globals";
+import { flags, settings, display, vc } from "./globals";
 import { History } from "./History";
 
 import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT, DEG_TO_RAD, BG_MAX_SIZE, RAD_TO_DEG } from "./constants";
@@ -21,7 +21,8 @@ export function sketch(p){
     
     let editPixel = null;
 
-    const vc = new VirtualCanvas(p);
+    // const vc = new VirtualCanvas(p);
+    vc.p5 = p;
     const viz = new VirtualCanvasVisualizer(vc);
     
     const history = new History(emap);
@@ -76,10 +77,6 @@ export function sketch(p){
 
     p.draw = function(){
         handleFlags();
-
-        //get zoom & scroll amounts
-        vc.scroll = settings.scroll;
-        vc.zoom = settings.zoom.level;
 
         // TEST - currently moved to resizeobserver callback
         // if(/* canvas element resize check */){
@@ -151,7 +148,13 @@ export function sketch(p){
 
     function drawEmap(){
         p.push();
-        p.applyMatrix(...vc.getLocalToWorldMatrix()); // apply canvas transform
+
+
+        //test
+        p.applyMatrix(...vc.getTransformMatrix())
+
+
+        // p.applyMatrix(...vc.getLocalToWorldMatrix()); // apply canvas transform
 
         //draw background & emap image
         // if(bg) viz.drawImage(bg);
@@ -329,7 +332,7 @@ export function sketch(p){
             const noVector = 'n/a'
             if(display.angle !== noVector){
                 display.angle = noVector;
-                display?.refresh()
+                display.refresh?.()
             }
             return;
         }
@@ -350,7 +353,7 @@ export function sketch(p){
         const degrees = Math.round(angle * RAD_TO_DEG);
         if(display.angle !== degrees){
             display.angle = degrees;
-            display?.refresh();
+            display.refresh?.();
         }        
     }
 
