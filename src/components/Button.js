@@ -10,7 +10,7 @@ export function Button(props){
         tooltip = '',
         onClick,
         id,
-        className,
+        className = 'button',
         content,
     } = props;
 
