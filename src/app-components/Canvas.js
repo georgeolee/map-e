@@ -53,7 +53,7 @@ export function CanvasContainer(props){
         config: {
             friction: 10,
             tension: 400,
-            mass:0.21,
+            mass:0.11,
         },
     })
 
@@ -115,11 +115,11 @@ export function CanvasContainer(props){
         onPinchStart: state => {
             p5Flags.pointerIgnore.raise();
 
-            //convert client coords to canvas coords
+            //convert client coords to element coords
             const [clientX, clientY] = state.origin;            
             const rect = containerRef.current.getBoundingClientRect();
 
-            //save pinch origin
+            //get pinch origin in VC coordinates ; use the same origin for the duration of the pinch gesture
             ({x:pinchX, y:pinchY} = vc.getWorldToLocalPoint(clientX - rect.left, clientY - rect.top));
             vc.startPinch();            
             
@@ -163,8 +163,6 @@ export function CanvasContainer(props){
                 //touch screen 2 finger swipe
                 if(state.event.changedTouches?.length === 2){
                     let [dx, dy] = [0, 0];
-
-
                     for(let i = 0; i < state.event.changedTouches.length; i++){
 
                         //get touch point
@@ -173,17 +171,18 @@ export function CanvasContainer(props){
                         //get cached values for same point, if available
                         const cached = state.memo?.[t.identifier];
 
+                        //add deltas to sum
                         dx += t.clientX - (cached?.clientX || t.clientX);
                         dy += t.clientY - (cached?.clientY || t.clientY);                                             
                     }
 
+                    //get average delta
                     dx /= state.event.changedTouches.length;
                     dy /= state.event.changedTouches.length;
 
                     const scale = vc.getScale(false);
                     vc.translate(dx / scale, dy / scale);
                     
-                    //TEST
                     handleVCTransformation();
                     
                     //cache touch points from this drag event

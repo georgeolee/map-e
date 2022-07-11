@@ -26,6 +26,10 @@ export class VirtualCanvas{
 
     pinching;
 
+
+    /**
+     * animated matrix values from Canvas gesture / spring hooks
+     */
     animated;
 
     constructor(p5Instance){
@@ -46,7 +50,7 @@ export class VirtualCanvas{
         this.animated = {
             matrix: this.getTransformMatrix(),
             inverseMatrix: this.getInverseTransformMatrix(),
-            stop: null,
+            stop: null, //Canvas attaches a callback here for stopping animation
         }
 
 
@@ -69,7 +73,10 @@ export class VirtualCanvas{
 
         const M = useAnimatedMatrix ? this.animated.inverseMatrix : this.getInverseTransformMatrix()
 
-        /* M2 = [ worldX, worldY, 1 ]*/
+        /* treat point as a 1x3 matrix with padding 1  ---->    worldX, 
+                                                                worldY, 
+                                                                1 
+        */
 
         return {
             x: M[0]*worldX + M[2]*worldY + M[4]*1,
@@ -126,17 +133,19 @@ export class VirtualCanvas{
 
 
 
+    /**
+     * 
+     * @param {number} s scale factor
+     * @param {number} x scale origin x
+     * @param {number} y scale origin y
+     */
     scaleFromPoint(s, x, y){
 
-
         this.hotPinch.setToTranslation(x, y).scale(s).translate(-x,-y);
-
-
         if(!this.pinching){ //if not pinching, bake into current transformation
 
             this.transform.applyToSelf(this.hotPinch);
             this.hotPinch.setToIdentity()
-
         }
 
     }
@@ -148,8 +157,8 @@ export class VirtualCanvas{
     }
 
     /**
-     * Starts a pinch. While pinching is true, multiple calls to scaleFromPoint() are *not* cumulative. 
-     * Instead, subsequent calls overwrite hotPinch, which is used to compute overall transform / inverse transform matrices.
+     * Starts a pinch. While pinching, multiple calls to scaleFromPoint() are *not* cumulative. 
+     * Instead, subsequent calls overwrite the current pinch, which is combined with the overall transform / inverse transform matrices.
      * 
      * Calling endPinch() bakes in the current pinch transformation
      */
@@ -171,7 +180,7 @@ export class VirtualCanvas{
      * 
      * use this one to apply transforms when drawing VirtualCanvas within the p5canvas space
      * 
-     * @returns the matrix as a number array 
+     * @returns {number[]}the matrix as a number array 
      */
     getTransformMatrix(){
         if(!this.pinching) return this.transform.m;
@@ -210,7 +219,6 @@ export class VirtualCanvas{
         return this.getTransformMatrix().slice(4, 6) //get x & y components of the translation
     }
 
-    // implement
     resetTransform(){
         this.transform.setToIdentity();
         this.animated.matrix = this.transform.m;
