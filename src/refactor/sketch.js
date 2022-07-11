@@ -150,11 +150,12 @@ export function sketch(p){
         p.push();
 
 
-        //test
-        p.applyMatrix(...vc.getTransformMatrix())
+        // p.applyMatrix(...vc.getTransformMatrix())
+        
+        
+        //TEST - spring
+        p.applyMatrix(...vc.animated.matrix)
 
-
-        // p.applyMatrix(...vc.getLocalToWorldMatrix()); // apply canvas transform
 
         //draw background & emap image
         // if(bg) viz.drawImage(bg);

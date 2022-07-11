@@ -28,7 +28,7 @@ export class VirtualCanvas{
     //where to track pinch status?
     pinching;
 
-
+    animated;
 
     constructor(p5Instance){
         this.p5 = p5Instance;
@@ -46,6 +46,10 @@ export class VirtualCanvas{
 
         this.pinching = false;
 
+        this.animated = {
+            matrix: this.getTransformMatrix(),
+            inverseMatrix: this.getInverseTransformMatrix()
+        }
 
         /*
         *   pinch zoom centered at a point
