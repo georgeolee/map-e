@@ -34,8 +34,10 @@ export class VirtualCanvasVisualizer{
         p5.stroke(c.r, c.g, c.b, c.a);
 
         //divide by current zoom level & image pixel scale for constant stroke thickness
-        // p5.strokeWeight(settings.gridWeight / (settings.zoom.level * this.vc.imageScale))
-        p5.strokeWeight(settings.gridWeight / (this.vc.getScale() * this.vc.imageScale))
+        
+        // p5.strokeWeight(settings.gridWeight / (this.vc.getScale() * this.vc.imageScale))
+
+        p5.strokeWeight(settings.gridWeight / (this.vc.getAnimatedScale() * this.vc.imageScale))
 
         //already scaled to image pixel size via applymatrix - just step by 1 image pixel at a time
         for(let x = 0; x <= image.width; x ++){

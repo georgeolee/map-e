@@ -5,7 +5,7 @@ import './components/Slider/Slider.css'
 import { useEffect, useRef } from 'react';
 
 
-import { flags, display } from './refactor/globals'
+import { p5Flags, display } from './refactor/globals'
 
 
 import { DisplayArea } from './app-components/DisplayArea';
@@ -45,11 +45,11 @@ function App() {
       className="App no-select"
 
       onPointerDown={e=>{
-        flags.pointerIgnore.raise();
+        p5Flags.pointerIgnore.raise();
       }}
 
       onPointerUp={e=>{
-        flags.pointerIgnore.lower();
+        p5Flags.pointerIgnore.lower();
       }}
 
       onKeyDown={e=>{
@@ -59,8 +59,8 @@ function App() {
         let action;
 
         const actions = {
-          undo : () => flags.undo.raise(),
-          redo : () => flags.redo.raise(),
+          undo : () => p5Flags.undo.raise(),
+          redo : () => p5Flags.redo.raise(),
         }
 
         if(e.key === 'z'){

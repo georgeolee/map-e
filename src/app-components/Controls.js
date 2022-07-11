@@ -1,4 +1,4 @@
-import { settings, flags } from '../refactor/globals'
+import { settings, p5Flags } from '../refactor/globals'
 import { EMAP_MIN_SIZE, EMAP_MAX_SIZE } from '../refactor/constants';
 
 import { FileInputButton } from '../components/FileInputButton';
@@ -19,19 +19,19 @@ export function Controls(props){
                 <Button
                 tooltip='undo'
                 id='undo-button'
-                onClick={()=>flags.undo.raise()}
+                onClick={()=>p5Flags.undo.raise()}
                 />        
 
                 <Button
                 tooltip='Reset the canvas view.'
                 id='reset-view-button'
-                onClick={()=>vc.transform.setToIdentity()}
+                onClick={()=>vc.resetTransform()}
                 />
 
                 <Button
                 tooltip='redo'
                 id='redo-button'
-                onClick={()=>flags.redo.raise()}
+                onClick={()=>p5Flags.redo.raise()}
                 />
 
                 <FileInputButton
@@ -39,7 +39,7 @@ export function Controls(props){
                 id='emap-file-input'
                 func = {url => {
                     settings.url = url;
-                    flags.loadURL.raise();
+                    p5Flags.loadURL.raise();
                 }}
                 />
 
@@ -48,21 +48,21 @@ export function Controls(props){
                 id='background-file-input'
                 func = { url => {
                     settings.bgUrl = url;
-                    flags.loadBackgroundURL.raise();
+                    p5Flags.loadBackgroundURL.raise();
                 }}
                 />
 
                 <Button
                 tooltip='Download the current vector map as a PNG image. '
                 id='download-button'
-                onClick={()=>flags.export.raise()}
+                onClick={()=>p5Flags.export.raise()}
                 />  
 
                 <div className='new-emap-inputs'>
                 <Button
                     tooltip='create a new blank emap'
                     id='new-emap-button'
-                    onClick={()=>flags.loadEmpty.raise()}
+                    onClick={()=>p5Flags.loadEmpty.raise()}
                     />
 
                     <div className='new-emap-size-inputs'>
@@ -122,7 +122,7 @@ export function Controls(props){
                 id='nmap-toggle'
                 label='nmap'
                 tooltip='toggle normal map mode'
-                func={b=>{settings.normalMapMode = b; flags.recolor.raise()}}
+                func={b=>{settings.normalMapMode = b; p5Flags.recolor.raise()}}
                 />
         </div>           
 
@@ -133,10 +133,10 @@ export function Controls(props){
             defaultValue={settings.bgAlpha}
             func={n=>{
             settings.bgAlpha = n;
-            flags.dirtyBackground.raise();
+            p5Flags.dirtyBackground.raise();
             }}
             onPointerUp={ () => {
-            flags.bakeBackgroundOpacity.raise();
+            p5Flags.bakeBackgroundOpacity.raise();
             }}
             />
     </div>

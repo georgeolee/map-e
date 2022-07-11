@@ -1,5 +1,5 @@
 
-//settings, flags, and other stuff that should be visible to both p5 sketch and react components
+//settings, p5Flags, and other stuff that should be visible to both p5 sketch and react components
 
 import { VirtualCanvas } from "./VirtualCanvas";
 
@@ -24,7 +24,9 @@ class Flag{
     }
 }
 
-export const flags = {
+
+//pass data / instructions into p5 sketch
+export const p5Flags = {
     export : new Flag(false),
     recolor : new Flag(false),
     loadEmpty : new Flag(false),
@@ -61,14 +63,7 @@ export const settings = {
         y : 16,
     },
 
-    scroll : {
-        x : 0,
-        y : 0,
-    },
-
     zoom : {
-        level : 1,
-        raw : 1,
         min : 0.25,
         max : 10,
         sensitivity : 0.005,

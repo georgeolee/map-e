@@ -19,13 +19,11 @@ export class VirtualCanvas{
 
     //transformations
     transform;      //current base tranformation with previous scales & translatations baked in
-    hotScale;       //a pinch zoom transformation still in progress
-    hotTranslation; //a translation applied while pinch zoom is still in progress
+    hotPinch;       //a pinch zoom transformation still in progress
 
                     //... when pinch zoom finishes, bake transformations : 
-                    //          first scale, then translation -> this.transform.applyToSelf(hotScale).applyToSelf(hotTranslation)
+                    //          first scale, -> this.transform.applyToSelf(hotPinch)
 
-    //where to track pinch status?
     pinching;
 
     animated;
@@ -41,52 +39,22 @@ export class VirtualCanvas{
 
         this.transform = new Transform();
 
-        this.hotScale = new Transform();      
-        this.hotTranslation = new Transform();
+        this.hotPinch = new Transform();      
 
         this.pinching = false;
 
         this.animated = {
             matrix: this.getTransformMatrix(),
-            inverseMatrix: this.getInverseTransformMatrix()
+            inverseMatrix: this.getInverseTransformMatrix(),
+            stop: null,
         }
 
-        /*
-        *   pinch zoom centered at a point
-        *
-        *       keep track of multiple transformations:
-        *       
-        *
-        *       base transform TB
-        * 
-        *       new transform z1 -> offset towards pinch center
-        *       new transform zp -> pinch scale factor
-        *       new transform z2 -> offset back away from pinch center
-        * 
-        *       new transform tp -> (possibly) -> pan / scroll / translation during pinch (other than offset to center)
-        *
-        * 
-        *       while pinch zooming, keep track of all, and compute final result (without mutating anything yet)
-        *           - zp changing
-        *           - tp possibly changing
-        *       
-        *       when pinch zoom is released, consolidate all into a single transformation and update TB with the result
-        * 
-        * 
-        *       
-        * 
-        * 
-        */ 
 
     }
 
     setImage(pImage){
         this.image = pImage;
-
-        const aspect = this.image.width / this.image.height;
-
         this.imageScale = this.getPixelRatio(this.image);
-
     }
 
     getPixelRatio(pImage){
@@ -97,9 +65,9 @@ export class VirtualCanvas{
 
 
     //convert from world to local coordinates (multiplies [x, y] by world to local matrix)
-    getWorldToLocalPoint(worldX, worldY){
+    getWorldToLocalPoint(worldX, worldY, useAnimatedMatrix = false){
 
-        const M = this.getInverseTransformMatrix()
+        const M = useAnimatedMatrix ? this.animated.inverseMatrix : this.getInverseTransformMatrix()
 
         /* M2 = [ worldX, worldY, 1 ]*/
 
@@ -110,10 +78,9 @@ export class VirtualCanvas{
     }
 
     //convert from local to world coordinates (multiplies [x,y] by local to world matrix)
-    getLocalToWorldPoint(localX, localY){
-        // const M = this.getLocalToWorldMatrix();
+    getLocalToWorldPoint(localX, localY, useAnimatedMatrix = false){
 
-        const M = this.getTransformMatrix()
+        const M = useAnimatedMatrix ? this.animated.matrix : this.getTransformMatrix()
 
         /* M2 = [ localX, localY, 1 ]*/
 
@@ -158,32 +125,17 @@ export class VirtualCanvas{
     }
 
 
-    //new stuff ----------------------
 
     scaleFromPoint(s, x, y){
-        //if(!this.pinching) consolidate & apply right away -> -translate, scale, translate        .... btw... do i have the order right? is it - S + or + S - ?
-        //
-        //  .... do the stuff
-        //  
-        //  ....    this.transform.applyToSelf( the transformation )
-
-        // this.hotScale.setToTranslation(x, y);
-        // this.hotScale.m[0] = s;
-        // this.hotScale.m[3] = s;
-        // this.hotScale.translate(-x, -y)
-
-        const currentScale = this.transform.m[0];
-        s = clip(s, settings.zoom.min / currentScale, settings.zoom.max / currentScale);
-
-        this.hotScale.setToTranslation(x, y).scale(s).translate(-x,-y);
-
-        // this.hotScale.setToTranslation(x - u, y - v).scale(s).translate(-x + u,-y +v);
 
 
-        if(!this.pinching){
+        this.hotPinch.setToTranslation(x, y).scale(s).translate(-x,-y);
 
-            this.transform.applyToSelf(this.hotScale);
-            this.hotScale.setToIdentity()
+
+        if(!this.pinching){ //if not pinching, bake into current transformation
+
+            this.transform.applyToSelf(this.hotPinch);
+            this.hotPinch.setToIdentity()
 
         }
 
@@ -191,50 +143,27 @@ export class VirtualCanvas{
 
 
 
-    //on second thought .... is tracking hotTranslation necessary? test, think about this
     translate(x, y){
-        //similar to above
-
-        //if(!pinching) this.transform.translate(x, y) ... apply right away
-        // ...  return
-
-        //else
-
-        //apply cumulative translations to hotTranslation - get scale from pinch ?
-        //
-        //  note~ make sure to set back to identity when pinch finishes (same goes for hotScale)
-
-        //this.hotScale.translate(x, y)
-
-        //CURRENT
-        this.transform.translate(x, y)
-
-        //TEST
-        // if(!this.pinching){
-        //     this.transform.translate(x, y);
-        //     return;
-        // }
-
-        // this.hotTranslation.translate(x, y);
-
+        this.transform.translate(x, y)        
     }
 
+    /**
+     * Starts a pinch. While pinching is true, multiple calls to scaleFromPoint() are *not* cumulative. 
+     * Instead, subsequent calls overwrite hotPinch, which is used to compute overall transform / inverse transform matrices.
+     * 
+     * Calling endPinch() bakes in the current pinch transformation
+     */
     startPinch(){
         this.pinching = true;
     }
 
+    /**
+     * Bakes in the current pinch transformation
+     */
     endPinch(){
         this.pinching = false;
-
-        //CURRENT
-        this.transform.applyToSelf(this.hotScale);
-
-        //TEST
-        // this.transform.applyToSelf(this.hotScale).applyToSelf(this.hotTranslation);
-
-        this.hotScale.setToIdentity();
-        this.hotTranslation.setToIdentity();
-
+        this.transform.applyToSelf(this.hotPinch);
+        this.hotPinch.setToIdentity();
     }
 
     /**
@@ -247,15 +176,7 @@ export class VirtualCanvas{
     getTransformMatrix(){
         if(!this.pinching) return this.transform.m;
 
-        //else
-
-        //return Transform.mult(transform.m, hotScale.m) ... translation?
-
-        //CURRENT
-        return Transform.matrixMult(this.transform.m, this.hotScale.m)
-
-        //TEST
-        // return Transform.matrixMult(this.transform.m, this.hotScale.m, this.hotTranslation.m)
+        return Transform.matrixMult(this.transform.m, this.hotPinch.m)
     }
 
     /**
@@ -263,35 +184,38 @@ export class VirtualCanvas{
      * 
      * use this one to convert mouse coordinates from screen space to object space
      * 
-     * @returns the matrix as a number array
+     * @returns {number[]} the matrix as a number array
      */
     getInverseTransformMatrix(){
         if(!this.pinching) return this.transform.i;
 
-        //else
-
         // NOTE - inverse order for multiplication 
-        //return Transform.mult(hotScale.i, transform.i) ... translation?
-
-        //CURRENT
-        return Transform.matrixMult(this.hotScale.i, this.transform.i)
-
-        //TEST
-        // return Transform.matrixMult(this.hotTranslation.i, this.hotScale.i, this.transform.i);
-
+        return Transform.matrixMult(this.hotPinch.i, this.transform.i)
     }
 
     /**
      * get the current canvas scale
-     * @param {boolean} includeHotPinch - if true, factor in the scale of any ongoing pinch gesture; defaults to true
-     * @returns 
+     * @param {boolean} includeHotPinch - if true, factor in the result of any ongoing pinch gesture; defaults to true
+     * @returns {number} scale
      */
     getScale(includeHotPinch = true){
         return includeHotPinch ? this.getTransformMatrix()[0] : this.transform.m[0]
     }
 
+    getAnimatedScale(){
+        return this.animated.matrix[0];
+    }
+
     getTranslation(){
         return this.getTransformMatrix().slice(4, 6) //get x & y components of the translation
+    }
+
+    // implement
+    resetTransform(){
+        this.transform.setToIdentity();
+        this.animated.matrix = this.transform.m;
+        this.animated.inverseMatrix = this.transform.i;
+        this.animated.stop?.();
     }
 
 }

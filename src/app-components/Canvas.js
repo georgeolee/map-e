@@ -5,18 +5,19 @@ import { useRef, useEffect } from "react";
 
 import { sketch } from "../refactor/sketch";
 
-import { settings, clip, flags } from "../refactor/globals";
+import { settings, clip, p5Flags } from "../refactor/globals";
 import { vc } from "../refactor/globals";
 
-import { display } from "../refactor/globals";
 
-import { useSpring, useSpringRef, config } from "@react-spring/web";
+import { useSpring, useSpringRef } from "@react-spring/web";
 
 export function CanvasContainer(props){
 
     const containerRef = useRef(null);
 
     let x, y;
+
+    let pinchX, pinchY;
 
 /*          TODO - REMEMBER THIS TIME
   __  __  ____  _    _  _____ ______           
@@ -50,81 +51,90 @@ export function CanvasContainer(props){
         matrix: vc.getTransformMatrix(),
         inverseMatrix: vc.getInverseTransformMatrix(),
         config: {
-            friction: 170,
-            tension: 2000,
-            mass: 1
+            friction: 10,
+            tension: 400,
+            mass:0.21,
         },
     })
 
     const queueMatrixAnimation = () => {
-        //check if this destructuring is necessary - eliminate if not
-        const m = [...vc.getTransformMatrix()];
-        const i = [...vc.getInverseTransformMatrix()];
+        const m = vc.getTransformMatrix();
+        const i = vc.getInverseTransformMatrix();
         const controller = springRef.current[0];
+
+        //push new animation targets to queue
         controller.update({matrix:m, inverseMatrix:i});
     }
 
-    const processSpringQueue = async () => {
-        const controller = springRef.current[0];
-        if(!controller.queue.length || !controller.idle) return;
-        await controller.start();
-        processSpringQueue();
-    }
 
     const updateVCAnim = () => {
-        // frameRequest = 0;
         
+        //get animated matrix values
         vc.animated.matrix = anim.matrix.get();
-        vc.animated.inverseMatrix = anim.matrix.get();
-        // if(frameRequest || springRef.current[0].idle) return;
+        vc.animated.inverseMatrix = anim.inverseMatrix.get();
+
+        //no pending animations - end update loop
+        if(springRef.current[0].idle && !springRef.current[0].queue.length){
+            frameRequest = 0;
+            return;
+        }
+
+        // if(frameRequest) window.cancelAnimationFrame(frameRequest)
         frameRequest = window.requestAnimationFrame(updateVCAnim)
     }
 
     //call immediately after any matrix change
     const handleVCTransformation = () => {
-        springRef.current[0].stop()
+
+        const controller = springRef.current[0];
+
+        controller.stop()
         queueMatrixAnimation();
-        processSpringQueue();
-        if(frameRequest) window.cancelAnimationFrame(frameRequest);
-        frameRequest = window.requestAnimationFrame(updateVCAnim);
+        if(controller.idle) controller.start();
+        
+        //start update loop if it isn't running 
+        if(!frameRequest) frameRequest = window.requestAnimationFrame(updateVCAnim);
     };
 
+    //attach a callback to VC for stopping any ongoing animation when resetting transform; probably a cleaner way to do this
+    useEffect(()=>{
+        vc.animated.stop = () => {
+            springRef.current[0].stop(); 
+            if(frameRequest){
+                window.cancelAnimationFrame(frameRequest);
+                frameRequest = 0;
+            }
+        };
+    })
     //----------------------------------------
-
-    //fixed - pinch origin weirdness - was forgetting to convert origin coords from client to element based before applying transformation
-
-    //TODO - pinch works on desktop ; figure out what's causing weirdness on mobile
-            //  - related in any way to translation wonkiness?
-            //  - thought - mobile can fire drag & pinch at same time ; desktop is locked into one or other
-            //  - am i missing / fumbling a coordinate space conversion somewhere?
-
-    //continue - get 
 
 
     useGesture({
-        //handlers
 
         //pinch
         onPinchStart: state => {
-            flags.pointerIgnore.raise();
+            p5Flags.pointerIgnore.raise();
+
             //convert client coords to canvas coords
             const [clientX, clientY] = state.origin;            
             const rect = containerRef.current.getBoundingClientRect();
 
             //save pinch origin
-            ({x, y} = vc.getWorldToLocalPoint(clientX - rect.left, clientY - rect.top));
+            ({x:pinchX, y:pinchY} = vc.getWorldToLocalPoint(clientX - rect.left, clientY - rect.top));
             vc.startPinch();            
             
         },
         onPinch: state => {
-            const zf = state.movement[0];
-            vc.scaleFromPoint(zf, x, y);
+            //clamp scale between min & max settings
+            const currentCanvasScale = vc.getScale(false);
+            const zf = clip(state.movement[0], settings.zoom.min / currentCanvasScale, settings.zoom.max / currentCanvasScale);
+            
+            vc.scaleFromPoint(zf, pinchX, pinchY);
 
-            //TEST
             handleVCTransformation();
         },
         onPinchEnd: state => {
-            flags.pointerIgnore.lower();
+            p5Flags.pointerIgnore.lower();
             vc.endPinch();
         },
 
@@ -134,7 +144,6 @@ export function CanvasContainer(props){
             const scale = vc.getScale(false);
             vc.translate(state.delta[0] / scale, state.delta[1] / scale);
             
-            //TEST
             handleVCTransformation();
             return state.elapsedTime;
         },
@@ -142,8 +151,8 @@ export function CanvasContainer(props){
         //drag
         onDragStart: state => {
             const isPan = !!(state.altKey || state.event.button === 1 || state.touches === 2);
-            if(isPan) flags.pointerIgnore.raise();
-            else flags.pointerDown.raise();
+            if(isPan) p5Flags.pointerIgnore.raise();
+            else p5Flags.pointerDown.raise();
         },        
         onDrag: state => {
             const isPan = state.altKey || state.event?.button === 1 || state.touches === 2;
@@ -151,22 +160,9 @@ export function CanvasContainer(props){
             //handle pan gesture
             if(isPan){
 
+                //touch screen 2 finger swipe
                 if(state.event.changedTouches?.length === 2){
                     let [dx, dy] = [0, 0];
-
-
-                    /*
-                    *   issue - oversensitive scrolling
-                    *
-                    *   cause - (probably?) - getting summed delta from touch points -> if 2 points travel same direction across screen, distance will be doubled
-                    * 
-                    *   try - average out delta?
-                    * 
-                    * 
-                    * 
-                    * 
-                    * 
-                    */
 
 
                     for(let i = 0; i < state.event.changedTouches.length; i++){
@@ -203,6 +199,8 @@ export function CanvasContainer(props){
                     //and store in state.memo for the next event cycle
                     return tp;
                 }
+
+                //other pan gesture - wheel or alt click drag
                 const scale = vc.getScale(false);
                 vc.translate(state.delta[0] / scale, state.delta[1] / scale);
 
@@ -211,15 +209,15 @@ export function CanvasContainer(props){
             }
         },
         onDragEnd: state => {
-            flags.pointerIgnore.lower();
-            flags.pointerUp.raise();
+            p5Flags.pointerIgnore.lower();
+            p5Flags.pointerUp.raise();
         },
 
     }, {
-        //config
+        //gesture config - global
         target: containerRef,
-        // preventDefault: true,
         
+        //gesture config
         wheel: {            
             eventOptions:{
                 passive:false,        
@@ -232,16 +230,12 @@ export function CanvasContainer(props){
                 passive:false,        
             },
             preventDefault: true,
-            // threshold: 0.05
-
         },
 
         drag: {
             pointer:{
                 touch:true,
             },
-            // delay:true,
-            // threshold: 2,
         }
     })
 
@@ -264,12 +258,12 @@ export function CanvasContainer(props){
                 //detect touch vs mouse input
                 onPointerDownCapture={
                     e =>{
-                        if(e.pointerType === 'mouse' && flags.isTouch.isRaised){
-                            flags.isTouch.lower();
+                        if(e.pointerType === 'mouse' && p5Flags.isTouch.isRaised){
+                            p5Flags.isTouch.lower();
                         }
                                                                     
-                        else if(e.pointerType !== 'mouse' && !flags.isTouch.isRaised){
-                            flags.isTouch.raise();
+                        else if(e.pointerType !== 'mouse' && !p5Flags.isTouch.isRaised){
+                            p5Flags.isTouch.raise();
                         }
                     }
                 }
@@ -283,7 +277,7 @@ export function CanvasContainer(props){
                 //prevent unintentional editing inside of sketch.js if multiple touch points are registered
                 onTouchStart={e=>{
                     if(e.targetTouches > 1){
-                        flags.pointerIgnore.raise()
+                        p5Flags.pointerIgnore.raise()
                     }
                 }}
 

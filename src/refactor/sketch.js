@@ -1,7 +1,7 @@
 import { VirtualCanvas } from "./VirtualCanvas";
 import { VirtualCanvasVisualizer } from "./VirtualCanvasVisualizer";
 import * as COLOR from './colors';
-import { flags, settings, display, vc } from "./globals";
+import { p5Flags, settings, display, vc } from "./globals";
 import { History } from "./History";
 
 import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT, DEG_TO_RAD, BG_MAX_SIZE, RAD_TO_DEG } from "./constants";
@@ -41,8 +41,6 @@ export function sketch(p){
 
     //how to detect canvas resize ? resizeobserver?
 
-    //handle flags
-
 
     vc.setImage(emap);
 
@@ -76,7 +74,7 @@ export function sketch(p){
 
 
     p.draw = function(){
-        handleFlags();
+        handleP5Flags();
 
         // TEST - currently moved to resizeobserver callback
         // if(/* canvas element resize check */){
@@ -91,58 +89,58 @@ export function sketch(p){
         if(vc.image) drawEmap();
     }
 
-    function handleFlags(){
+    function handleP5Flags(){
 
-        if(flags.undo.isRaised){
+        if(p5Flags.undo.isRaised){
             history.step(-1);            
         }
 
-        if(flags.redo.isRaised){
+        if(p5Flags.redo.isRaised){
             history.step(1);
         }
 
-        if(flags.export.isRaised){
+        if(p5Flags.export.isRaised){
             exportEmap();
         }
 
-        if(flags.recolor.isRaised){
+        if(p5Flags.recolor.isRaised){
             if(emap) recolor(emap);
         }
 
-        if(flags.loadEmpty.isRaised){
+        if(p5Flags.loadEmpty.isRaised){
             createEmap(settings.size.x, settings.size.y);
         }
 
-        if(flags.loadURL.isRaised){
+        if(p5Flags.loadURL.isRaised){
             loadEmap(settings.url);
         }
 
-        if(flags.loadBackgroundURL.isRaised){
+        if(p5Flags.loadBackgroundURL.isRaised){
             loadBackground(settings.bgUrl);
         }
 
-        if(flags.bakeBackgroundOpacity.isRaised){
-            if(bg) bakeBackgroundOpacity(settings.bgAlpha, () => flags.dirtyBackground.lower());            
+        if(p5Flags.bakeBackgroundOpacity.isRaised){
+            if(bg) bakeBackgroundOpacity(settings.bgAlpha, () => p5Flags.dirtyBackground.lower());            
         }
 
-        if(flags.pointerDown.isRaised && !flags.pointerIgnore.isRaised){
+        if(p5Flags.pointerDown.isRaised && !p5Flags.pointerIgnore.isRaised){
             handlePointerDown();
         }
 
-        if(flags.pointerUp.isRaised){
+        if(p5Flags.pointerUp.isRaised){
             handlePointerUp();
         }
 
-        if(flags.pointerIgnore.isRaised){
+        if(p5Flags.pointerIgnore.isRaised){
             cancelEdit();
         }
 
 
         //observer disconnect?
 
-        //lower all flags except for ones marked sticky
-        for(const f in flags){
-            if(!flags[f].isSticky) flags[f].lower();
+        //lower all p5Flags except for ones marked sticky
+        for(const f in p5Flags){
+            if(!p5Flags[f].isSticky) p5Flags[f].lower();
         }
     }
 
@@ -158,10 +156,9 @@ export function sketch(p){
 
 
         //draw background & emap image
-        // if(bg) viz.drawImage(bg);
 
         if(bg){
-            if(flags.dirtyBackground.isRaised){
+            if(p5Flags.dirtyBackground.isRaised){
                 p.push();
                 p.tint(255, settings.bgAlpha);
                 viz.drawImage(bg);
@@ -178,14 +175,18 @@ export function sketch(p){
         viz.drawGrid();
         
         //draw pixel outline?
-        if(!flags.pointerIgnore.isRaised && editPixel){ 
+        if(!p5Flags.pointerIgnore.isRaised && editPixel){ 
             viz.outlinePixel(emap, editPixel.x, editPixel.y);
         }
 
         //draw pixel highlight?
-        else if(!flags.pointerIgnore.isRaised && !flags.isTouch.isRaised){
-            const mLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);  // mouse transformed position            
-            const hoverPixel = vc.getPixelAtLocalPoint(mLocal.x, mLocal.y);            
+        else if(!p5Flags.pointerIgnore.isRaised && !p5Flags.isTouch.isRaised){
+
+
+            //TEST - animated matrix
+            const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY, true);  // transform canvas element pointer coordinates to vc coords ; use animated matrix
+            
+            const hoverPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);            
             if(hoverPixel) viz.highlightPixel(emap, hoverPixel.x, hoverPixel.y);
         }
 
@@ -229,7 +230,7 @@ export function sketch(p){
 
             bgBaked = p.createImage(bg.width, bg.height);
             bgBaked.copy(bg, 0, 0, bg.width, bg.height, 0, 0, bg.width, bg.height);
-            flags.bakeBackgroundOpacity.raise();
+            p5Flags.bakeBackgroundOpacity.raise();
 
             //css prop to show slider for controlling bg opacity
             document.documentElement.style.setProperty('--bg-opacity-slider-visibility', 'visible');
@@ -298,7 +299,11 @@ export function sketch(p){
 
 
     function handlePointerDown(){
-        const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);        
+
+        //TEST - animated
+        // const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY);
+        const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY, true);
+
         editPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);
     }
 
