@@ -15,33 +15,12 @@ export function CanvasContainer(props){
 
     const containerRef = useRef(null);
 
-    let x, y;
-
     let pinchX, pinchY;
 
-/*          TODO - REMEMBER THIS TIME
-  __  __  ____  _    _  _____ ______           
- |  \/  |/ __ \| |  | |/ ____|  ____|          
- | \  / | |  | | |  | | (___ | |__             
- | |\/| | |  | | |  | |\___ \|  __|            
- | |  | | |__| | |__| |____) | |____           
- |_|  |_|\____/_\____/|_____/|______|          
- \ \        / / |             | |              
-  \ \  /\  / /| |__   ___  ___| |              
-   \ \/  \/ / | '_ \ / _ \/ _ \ |              
-    \  /\  /  | | | |  __/  __/ |              
-     \/  \/   |_| |_|\___|\___|_|  _ _         
-                    (_) | (_)     (_) |        
-  ___  ___ _ __  ___ _| |_ ___   ___| |_ _   _ 
- / __|/ _ \ '_ \/ __| | __| \ \ / / | __| | | |
- \__ \  __/ | | \__ \ | |_| |\ V /| | |_| |_| |
- |___/\___|_| |_|___/_|\__|_| \_/ |_|\__|\__, |
-                                          __/ |
-                                         |___/  
-  */
+    let isWheelPinch = false; //try to distinguish trackpad from mouse wheel
+    const wheelDeltaYThreshold = 75; //treat as wheel pinch instead of trackpad or touch if initial dy exceeds this threshold
 
 
-    //TEST---------------------------
     const springRef = useSpringRef()
 
     let frameRequest = 0;
@@ -61,7 +40,6 @@ export function CanvasContainer(props){
         const m = vc.getTransformMatrix();
         const i = vc.getInverseTransformMatrix();
         const controller = springRef.current[0];
-
         //push new animation targets to queue
         controller.update({matrix:m, inverseMatrix:i});
     }
@@ -79,7 +57,6 @@ export function CanvasContainer(props){
             return;
         }
 
-        // if(frameRequest) window.cancelAnimationFrame(frameRequest)
         frameRequest = window.requestAnimationFrame(updateVCAnim)
     }
 
@@ -115,6 +92,12 @@ export function CanvasContainer(props){
         onPinchStart: state => {
             p5Flags.pointerIgnore.raise();
 
+            //check for mouse wheel pinch
+            isWheelPinch = 
+                state.event.deltaY && // - filter out touch events
+                Math.abs(state.event.deltaY) > wheelDeltaYThreshold; // - filter out trackpad input (hopefully)
+
+
             //convert client coords to element coords
             const [clientX, clientY] = state.origin;            
             const rect = containerRef.current.getBoundingClientRect();
@@ -122,30 +105,69 @@ export function CanvasContainer(props){
             //get pinch origin in VC coordinates ; use the same origin for the duration of the pinch gesture
             ({x:pinchX, y:pinchY} = vc.getWorldToLocalPoint(clientX - rect.left, clientY - rect.top));
             vc.startPinch();            
-            
         },
         onPinch: state => {
+
+            //skip concurrent pinch events - fix for ctrl + mouse wheel firing twice on last tick
+            if(state.memo?.timestamp === state.timeStamp) return state.memo;
+
+            if(//catch any trackpad input that was misidentified as using mouse wheel
+                isWheelPinch && 
+                state.memo && 
+                (
+                    Math.abs(state.memo.deltaY) !== Math.abs(state.event.deltaY) || 
+                    Math.abs(state.event.deltaY) < wheelDeltaYThreshold
+                )){
+                isWheelPinch = false;
+            }
+         
+            // console.log('last: ', state.last, '\ttimestamp: ', state.timeStamp, '\tfirst: ', state.first, 'using mouse wheel: ', isWheelPinch)
+        
             //clamp scale between min & max settings
             const currentCanvasScale = vc.getScale(false);
-            const zf = clip(state.movement[0], settings.zoom.min / currentCanvasScale, settings.zoom.max / currentCanvasScale);
+
+            // TEST
+
+            let ticks;
+
+            let zf;
+
+            if(isWheelPinch){
+                ticks = (state.memo?.ticks ?? 0) + Math.sign(state.event.deltaY);
+                zf = 1 + (0.2 / 1 * -ticks);
+                zf = zf = clip(zf, settings.zoom.min / currentCanvasScale, settings.zoom.max / currentCanvasScale);
+            }
+
+            else zf = clip(state.movement[0], settings.zoom.min / currentCanvasScale, settings.zoom.max / currentCanvasScale);
             
             vc.scaleFromPoint(zf, pinchX, pinchY);
 
             handleVCTransformation();
+
+            return {
+                timestamp: state.timeStamp,
+                deltaY: state.event.deltaY,
+                ticks: ticks,   //  net positive + negative wheel events ; for determining zoom if using mouse wheel
+            }
         },
         onPinchEnd: state => {
             p5Flags.pointerIgnore.lower();
             vc.endPinch();
+
+            //TEST
+            isWheelPinch = false;
         },
 
         //wheel
         onWheel: state => {
-            if(state.pinching) return;
+            if(state.event.ctrlKey || state.pinching) return; //don't fire while pinching
             const scale = vc.getScale(false);
-            vc.translate(state.delta[0] / scale, state.delta[1] / scale);
+            const  sensitivity = state.altKey ? 0.1 : 1;
+            const delta = state.delta.map(d => d * sensitivity);
+            if(state.shiftKey) delta.reverse();
+            vc.translate(delta[0] / scale, delta[1] / scale);
             
             handleVCTransformation();
-            return state.elapsedTime;
         },
 
         //drag
@@ -221,7 +243,7 @@ export function CanvasContainer(props){
             eventOptions:{
                 passive:false,        
             },
-            preventDefault: true,            
+            preventDefault: true,     
         },
         
         pinch: {          
@@ -229,6 +251,9 @@ export function CanvasContainer(props){
                 passive:false,        
             },
             preventDefault: true,
+            scaleBounds:{
+                ...settings.zoom
+            }
         },
 
         drag: {
@@ -247,6 +272,12 @@ export function CanvasContainer(props){
     useEffect(()=>{
         console.log('canvas render');
     })
+
+    //safari - prevent interfering w trackpad zoom
+    useEffect(()=>{
+        document.addEventListener('gesturestart', (e) => e.preventDefault())
+        document.addEventListener('gesturechange', (e) => e.preventDefault())
+    }, [])
 
     return (
         <div
