@@ -2,9 +2,6 @@ import './App.css';
 import './components/Slider/Slider.css'
 
 
-import { useEffect, useRef } from 'react';
-
-
 import { p5Flags, display } from './refactor/globals'
 
 
@@ -13,7 +10,8 @@ import {CanvasContainer} from './app-components/Canvas'
 
 import { Controls } from './app-components/Controls';
 
-import { Transform } from './refactor/Transform';
+
+import { TooltipModal } from './components/TooltipModal';
 
 //TODO:
 
@@ -90,6 +88,10 @@ function App() {
         />
 
       <Controls
+        />
+
+      <TooltipModal
+        content='a modal?'
         />
 
     </div>

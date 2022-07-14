@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { display } from "../refactor/globals";
 
 import { useLongPress } from "./useLongPress";
 
@@ -8,7 +9,7 @@ import { useLongPress } from "./useLongPress";
  * @param {{}} handlers 
  * @returns 
  */
-export function useTooltip(showDelay = 500, handlers = {}){
+export function useTooltip(tooltip = 'a tooltip!', showDelay = 500, handlers = {}){
     
     // if the component uses any of these handlers, pass them in so they can be added to the new handlers returned by this hook
     const {
@@ -41,6 +42,8 @@ export function useTooltip(showDelay = 500, handlers = {}){
     function showTooltip(){
         // console.log(`showing tooltip`)
 
+        display.setTooltip?.(tooltip)
+
         setTooltipVisible(true);
     }
 
@@ -50,6 +53,8 @@ export function useTooltip(showDelay = 500, handlers = {}){
 
         // console.log(`tooltip hidden`)
 
+        display.setTooltip?.('')
+        
         setTooltipVisible(false);
     }
 

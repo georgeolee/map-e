@@ -90,6 +90,8 @@ export const display = {
     tooltip: 'tooltip',
     refresh: undefined,
     error: undefined,
+
+    setTooltip: null,
 }
 
 

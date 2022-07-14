@@ -14,7 +14,7 @@ export function Button(props){
         content,
     } = props;
 
-    const {visible, handlers} = useTooltip(400, {onClick: onClick});
+    const {visible, handlers} = useTooltip(tooltip, 500, {onClick: onClick});
 
     useEffect(()=>{
         display.tooltip = visible ? tooltip : '';
