@@ -199,7 +199,12 @@ input[type="text"]{
 
 /* ------------------------ */
 
+input[type="radio"]{
+  appearance: none;
+  -webkit-appearance: none;
+}
 button.checkbox, .radio{
+  
   --color: var(--neutral-lighter);  
   --color-hover: var(--neutral-lighter-2);
 
@@ -231,7 +236,7 @@ button.checkbox, .radio input{
   margin: var(--shadow-width);
 }
 
-button.checkbox.checked{
+button.checkbox.checked, .radio input:checked{
   --color: var(--color-checked);
   --color-hover: var(--color-checked-hover);
 

@@ -15,7 +15,7 @@ export function Checkbox(props){
     const buttonProps = {
         tooltip: tooltip,
         id: id,
-        className: isChecked ? 'checkbox' : 'checkbox checked',
+        className: isChecked ? 'checkbox checked' : 'checkbox',
         onClick: () => {
             const newState = !isChecked;  
             func(newState);
