@@ -88,11 +88,7 @@ function App() {
         />
 
       <Controls
-        />
-
-      <TooltipModal
-        content='a modal?'
-        />
+        />      
 
     </div>
   );

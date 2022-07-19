@@ -14,35 +14,43 @@ export function Modal(props){
 
     
 
-    const {width, height } = useSpring({
+    const {width} = useSpring({
         to:{
-            width: visible ? '50vw' : '0vw',
-            height: visible ? `${50 / (window.innerWidth / window.innerHeight)}vh` : '0vh',
+            // width: visible ? '100%' : '0%',
+            width: visible ? '360px' : '0px',
         },
         config: {
             ...config.wobbly,
-            
+            bounce: 0.2
         }
 
     })
+
+    const {left} = useSpring({
+        to:[
+            {left: `10vh`},
+            {left: '0vh'},
+        ],
+        from:{left:'0vh'},
+        config: {
+            mass: 0.1,
+            tension:300,
+            friction:10,
+        },
+        cancel:!visible
+    });
+
+
 
     const {opacity} = useSpring({
         to:{
             opacity: visible ? 1 : 0,
         },
         config: {
-            ...config.wobbly,
+            ...config.stiff,
             clamp: true
         }
 
-    })
-
-    const {top} = useSpring({
-        to: {top: '0'},
-        from: { top: '40vh'},
-        reverse: !visible,
-        reset: visible,
-        config: config.wobbly
     })
 
     const button = onClick ? <button onClick={onClick}>CLICK ME</button> : null;
@@ -51,21 +59,23 @@ export function Modal(props){
         console.log('modal render')
     })
 
-    const padding = 'min(100px, 10vw)';
+    const padding = 'min(30px, 10vw)';
 
     return(
         <animated.div
             style={{
                 boxSizing: 'border-box',
                 padding: padding,
-                backgroundColor:'#444e',
+                backgroundColor:'#888e',
                 color: '#fff',
-                fontSize:'32px',
+                fontSize:'16px',
                 borderRadius:'10px',
                 
 
-                position: 'relative',
-                bottom: top,
+                // bottom:'100%',
+
+                position: 'absolute',
+                // bottom: top,
 
                 display: 'flex',
                 // display: display,
@@ -79,7 +89,9 @@ export function Modal(props){
 
                 opacity: opacity,
                 width: width,
-                height: height
+
+                left: left,
+                maxHeight: '100%',
             }}
         >
             {content}

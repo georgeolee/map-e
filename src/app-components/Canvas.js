@@ -10,6 +10,7 @@ import { vc } from "../refactor/globals";
 
 
 import { useSpring, useSpringRef } from "@react-spring/web";
+import { TooltipModal } from "../components/TooltipModal";
 
 export function CanvasContainer(props){
 
@@ -312,6 +313,6 @@ export function CanvasContainer(props){
                 }}
 
 
-            ></div>
+            ><TooltipModal/></div>
     )
 }

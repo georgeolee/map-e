@@ -14,12 +14,12 @@ export function Button(props){
         content,
     } = props;
 
-    const {visible, handlers} = useTooltip(tooltip, 500, {onClick: onClick});
+    const {visible, handlers} = useTooltip(tooltip, 1200, {onClick: onClick});
 
-    useEffect(()=>{
-        display.tooltip = visible ? tooltip : '';
-        display.refresh?.()
-    })
+    // useEffect(()=>{
+    //     display.tooltip = visible ? tooltip : '';
+    //     display.refresh?.()
+    // })
 
     return(
         <button

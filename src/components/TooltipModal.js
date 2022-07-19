@@ -17,17 +17,27 @@ export function TooltipModal(props){
     return (
 
         <div
-            id='modal-wrapper'
+            id='tooltip-modal-wrapper'
 
             style={{
-                position: 'fixed',
-                width:'100vw',
-                height:'100vh',
+                // position: 'fixed',
+                // width:'100vw',
+                // height:'100vh',
+
+                position: 'relative',
+                display:'flex',
+                maxHeight:'100px',
+                
+                // position:"absolute",
+                // width:'100vw',
+                // height:'100vh',
+                boxSizing:'border-box',
+
                 touchAction:'none',
                 pointerEvents:'none',
 
-                alignItems:'center',
-                justifyContent:'center'
+                // alignItems:'center',
+                // justifyContent:'center'
             }}>
 
         <Modal
