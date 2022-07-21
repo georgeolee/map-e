@@ -5,14 +5,9 @@ import {useEffect, useRef} from 'react';
       //props
 
       const {
-        label = 'number input',
-        min = 0,
-        max = 100,
-        step = 1,
-        defaultValue = (min + max) / 2,
+        defaultValue = 16,
         func,
         id,
-        className,
         init = true,        
       } = props;
       
@@ -22,32 +17,24 @@ import {useEffect, useRef} from 'react';
 
       useEffect( () =>
         {
-          // inputRef.current.value = value;     //set initial value
           if(init) func?.(Number(inputRef.current.value));
         },
-        []
+        [func, init]
       )
 
       return(
-        <label 
-          className={'number-input' + (className ? ' ' + className : '')} 
-          id={id}>
-          <input 
+        <input 
+            id={id}
+            className='number-input'
             ref={inputRef} 
-            // defaultValue={defaultValue}
-            // type='number' 
-            // min={min} 
-            // max={max} 
-            // step={step} 
             tabIndex={0}
             type='text'
             inputMode='numeric'
             minLength={1}
             maxLength={2}
             pattern='\d*'
-            defaultValue={defaultValue}
+            defaultValue={defaultValue.toString()}
+            
             onChange={(e)=> func?.(Number(e.target.value))}/>
-          {label}
-        </label>
       );
   }

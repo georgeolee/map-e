@@ -34,6 +34,8 @@ export function Controls(props){
                 onClick={()=>p5Flags.redo.raise()}
                 />
 
+                <div className="spacer"></div>
+
                 <FileInputButton
                 tooltip='Open a PNG image as a new vector map. The image will be recolored to match the encoding format.'
                 id='emap-file-input'
@@ -58,32 +60,29 @@ export function Controls(props){
                 onClick={()=>p5Flags.export.raise()}
                 />  
 
-                <div className='new-emap-inputs'>
                 <Button
                     tooltip='create a new blank emap'
                     id='new-emap-button'
                     onClick={()=>p5Flags.loadEmpty.raise()}
-                    />
+                    />        
 
-                    <div className='new-emap-size-inputs'>
+                <div className='new-emap-size-inputs'>
                         <NumberInput
-                        label='width'
+                        id='width-input'
                         min={EMAP_MIN_SIZE}
                         max={EMAP_MAX_SIZE}
                         func={n=>settings.size.x = n}
                         defaultValue={settings.size.x}
                         />
-
+                        X
                         <NumberInput
-                        label='height'
+                        id='height-input'
                         min={EMAP_MIN_SIZE}
                         max={EMAP_MAX_SIZE}
                         func={n=>settings.size.y = n}
                         defaultValue={settings.size.y}
                         />
-                    </div>        
-                </div>
-
+                    </div>
             </div>
 
 

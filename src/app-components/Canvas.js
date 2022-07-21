@@ -276,9 +276,19 @@ export function CanvasContainer(props){
 
     //safari - prevent interfering w trackpad zoom
     useEffect(()=>{
-        document.addEventListener('gesturestart', (e) => e.preventDefault())
-        document.addEventListener('gesturechange', (e) => e.preventDefault())
-    }, [])
+
+        const canvas = containerRef.current;
+
+        const interruptGestureEvent = e => e.preventDefault();
+
+        canvas.addEventListener('gesturestart', interruptGestureEvent)
+        canvas.addEventListener('gesturechange', interruptGestureEvent)
+
+        return () => {
+            canvas.removeEventListener('gesturestart', interruptGestureEvent)
+            canvas.removeEventListener('gesturechange', interruptGestureEvent)
+        }
+    });
 
     return (
         <div

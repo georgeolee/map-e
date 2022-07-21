@@ -1,3 +1,6 @@
+/* TODO - control layout */
+/* size inputs - move to modal? */
+
 :root{
   box-sizing: border-box;
   background-color: var(--white);
@@ -47,10 +50,18 @@
 
 
 
-  --canvas-size: 360px;
+  --canvas-size: 330px;
   --bg-opacity-slider-visibility: hidden;
 }
 
+/* app container element */
+#root{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+}
 
 #p5-container{
   height: fit-content;
@@ -68,7 +79,7 @@
 }
 .App {
 
-  min-height: 100vh;
+  /* min-height: 100vh; */
   display: grid;
 
   grid-template-columns: var(--canvas-size);
@@ -93,7 +104,7 @@
   color: var(--primary);
 }
 
-.no-select, .no-select :not(input[type="text"]){
+.App :not(input[type="text"]){
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -109,6 +120,8 @@
 
 input, button{
   touch-action: none;
+  /* touch-action: manipulation; */
+  /* touch-action: pinch-zoom; */
 }
 
 input[type="text"]{
@@ -123,15 +136,25 @@ input[type="text"]{
   --row-gap: 10px;
 
   grid-template-columns: auto auto auto;
+
+  /* grid-template-columns: repeat(6, 1fr); */
+
   column-gap: var(--col-gap);
   row-gap: var(--row-gap);
   justify-content: center;
   align-content: center;
 }
 
+/* TEST */
+.spacer{
+  grid-column: span 3;
+  display: none;
+}
+
+
 /* button styling */
 
-.button{
+.button:not(.checkbox){
   --size: calc(32px + 2*var(--border));
   --radius: 2px;
   --border: 2px;
@@ -168,28 +191,11 @@ input[type="text"]{
   display: none;
 }
 
-/* number input styling */
-
-.number-input > :first-child{
-  margin-right: var(--col-gap);
-}
-
-.number-input input{
-  
-  box-sizing: border-box;
-  /* width: 2em; */
-  width: 36px;
-  
-}
-
 /* radio styling */
 
 .radio{
   display:  flex;
   align-items: center;
-}
-
-.radio > .radio-input{  
 }
 
 .radio > .radio-label{
@@ -200,12 +206,13 @@ input[type="text"]{
 
 /* ------------------------ */
 
-input[type="radio"]{
+input[type="radio"], button{
   appearance: none;
   -webkit-appearance: none;
 }
+
 button.checkbox, .radio{
-  
+
   --color: var(--neutral-lighter);  
   --color-hover: var(--neutral-lighter-2);
 
@@ -221,14 +228,16 @@ button.checkbox, .radio{
   --shadow-width: 4px;
   --border-radius: var(--border-width);
 
-  --width: 32px !important;
-  --height: 32px !important;
+  --width: 32px;
+  --height: 32px;
+
 }
 
 button.checkbox, .radio input{
-  
-  width: calc(var(--width) - 2*var(--shadow-width)) !important;
-  height: calc(var(--height) - 2*var(--shadow-width)) !important;
+
+  padding: 0;
+  width: calc(var(--width) - 2*var(--shadow-width));
+  height: calc(var(--height) - 2*var(--shadow-width));
   background-color: var(--color);  
   border: var(--border-width) solid var(--color);
   border-bottom-color: var(--darker);
@@ -271,6 +280,11 @@ button.checkbox.checked, .radio input:checked{
 }
 
 
+.toggle-controls{
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
 
 /* ---------------------------------------*/
 
@@ -294,21 +308,36 @@ button.checkbox.checked, .radio input:checked{
 
 
 
-.new-emap-inputs{
+/* .new-emap-inputs{
   display: flex;
   grid-column: span 3;
-}
-.new-emap-inputs > :nth-child(n+2){
-  margin-left: var(--col-gap);
+} */
+
+
+.new-emap-size-inputs{
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-column: span 2;
+  width: 100%;
+  height: min-content;
+  align-self: center;
+  align-items: center;
+  color: var(--primary);
+  justify-content: space-between;
 }
 
-.new-emap-inputs .new-emap-size-inputs{
-  display: flex;
-  flex-direction: column;
-}
+/* "number" input styling - for w and h*/
 
-.new-emap-size-inputs > :nth-child(n+2){
-  margin-top: var(--row-gap);
+.number-input{
+  /* appearance: none; */
+  box-sizing: border-box;
+  /* font-size: 16px; */
+  /* width: 2em; */
+  width: 30px;
+  color: inherit;
+  border: 1px solid var(--primary);
+  border-radius: 2px;
+  outline-color: var(--primary);
 }
 
 #undo-button{background-image: url(./images/icons/undo-white.png);}
@@ -329,7 +358,7 @@ button.checkbox.checked, .radio input:checked{
 
 /* hover styling goes here */
 @media (hover :hover) and (pointer: fine){
-  .button:hover{
+  .button:not(.checkbox):hover{
     --color: var(--primary-lighter);
   }
 
@@ -337,7 +366,7 @@ button.checkbox.checked, .radio input:checked{
     cursor: pointer;
   }
 
-  .checkbox:hover, input[type="radio"]:hover{
+  button.checkbox:hover, input[type="radio"]:hover{
     --color: var(--color-hover);
   }
 }

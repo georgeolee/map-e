@@ -40,7 +40,7 @@ function App() {
   
   return (
     <div 
-      className="App no-select"
+      className="App"
 
       onPointerDown={e=>{
         p5Flags.pointerIgnore.raise();

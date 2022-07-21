@@ -1,7 +1,6 @@
-import { useSpring, useSpringRef, animated, config } from "@react-spring/web";
-import { useEffect } from "react";
+import { useSpring, animated, config } from "@react-spring/web";
+import { useEffect, useRef } from "react";
 
-import { useState } from "react";
 
 export function Modal(props){
 
@@ -12,33 +11,22 @@ export function Modal(props){
         onClick,
     } = props;
 
-    
+    const modalRef = useRef();
+
 
     const {width} = useSpring({
         to:{
             // width: visible ? '100%' : '0%',
-            width: visible ? '360px' : '0px',
+            width: visible ? '330px' : '0px',            
         },
         config: {
             ...config.wobbly,
-            bounce: 0.2
-        }
-
-    })
-
-    const {left} = useSpring({
-        to:[
-            {left: `10vh`},
-            {left: '0vh'},
-        ],
-        from:{left:'0vh'},
-        config: {
-            mass: 0.1,
-            tension:300,
-            friction:10,
+            // bounce: 0.2,
+            bounce: 0,
+            // clamp: true,
+            
         },
-        cancel:!visible
-    });
+    })
 
 
 
@@ -63,13 +51,15 @@ export function Modal(props){
 
     return(
         <animated.div
+            id={id}
+            ref={modalRef}
             style={{
                 boxSizing: 'border-box',
                 padding: padding,
                 backgroundColor:'#888e',
                 color: '#fff',
                 fontSize:'16px',
-                borderRadius:'10px',
+                borderRadius:'0px 10px 10px 0px',
                 
 
                 // bottom:'100%',
@@ -90,8 +80,8 @@ export function Modal(props){
                 opacity: opacity,
                 width: width,
 
-                left: left,
                 maxHeight: '100%',
+                height:'100%',
             }}
         >
             {content}
