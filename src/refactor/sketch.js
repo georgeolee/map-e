@@ -229,6 +229,7 @@ export function sketch(p){
             }
 
             bgBaked = p.createImage(bg.width, bg.height);
+            bg.loadPixels();
             bgBaked.copy(bg, 0, 0, bg.width, bg.height, 0, 0, bg.width, bg.height);
             p5Flags.bakeBackgroundOpacity.raise();
 

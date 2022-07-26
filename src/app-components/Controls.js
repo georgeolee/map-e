@@ -85,6 +85,25 @@ export function Controls(props){
                     </div>
             </div>
 
+        <div className='toggle-controls'>
+            
+            viz
+            <Checkbox
+                id='viz-toggle'
+                label='viz'
+                tooltip='show pixel vector directions'
+                func={b=>settings.showDirection = b}
+                checked
+                />
+
+            nmap
+            <Checkbox
+                id='nmap-toggle'
+                label='nmap'
+                tooltip='toggle normal map mode'
+                func={b=>{settings.normalMapMode = b; p5Flags.recolor.raise()}}
+                />
+        </div>
 
         <div className='snap-controls'>
             Snap
@@ -106,24 +125,7 @@ export function Controls(props){
                 func={()=>settings.snap.set(90)}
                 />
         </div>
-
-
-        <div className='toggle-controls'>
-            <Checkbox
-                id='viz-toggle'
-                label='viz'
-                tooltip='show pixel vector directions'
-                func={b=>settings.showDirection = b}
-                checked
-                />
-
-            <Checkbox
-                id='nmap-toggle'
-                label='nmap'
-                tooltip='toggle normal map mode'
-                func={b=>{settings.normalMapMode = b; p5Flags.recolor.raise()}}
-                />
-        </div>           
+           
 
         <Slider
             min={0}

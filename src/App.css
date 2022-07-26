@@ -2,9 +2,9 @@
 /* size inputs - move to modal? */
 
 :root{
-  box-sizing: border-box;
   background-color: var(--white);
   color: var(--black);
+  font-size: 16px;
 
   /* color definitions */
   --red : #f44;
@@ -52,6 +52,17 @@
 
   --canvas-size: 330px;
   --bg-opacity-slider-visibility: hidden;
+  
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+ul{
+  list-style: none;
 }
 
 /* app container element */
@@ -83,7 +94,10 @@
   display: grid;
 
   grid-template-columns: var(--canvas-size);
-  grid-auto-rows: min-content;
+
+  grid-template-columns: repeat(3, auto);
+  row-gap: 0.5em;
+  
 
   align-items: center;
 
@@ -93,9 +107,11 @@
   font-family: 'basis33','Courier New', Courier, monospace;
 }
 
-.App > *{
-  /* flex-grow: 0; */
-  
+#info-button{
+  grid-column: 3;
+}
+#p5-container, .controls, .display-area{
+  grid-column: span 3;
 }
 
 .App-header{
@@ -104,6 +120,7 @@
   color: var(--primary);
 }
 
+/* disable highlighting except on text inputs */
 .App :not(input[type="text"]){
   user-select: none;
   -webkit-user-select: none;
@@ -113,15 +130,13 @@
 
 .controls{
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: auto auto 1fr;
   row-gap: 20px;
   column-gap: 20px;
 }
 
 input, button{
   touch-action: none;
-  /* touch-action: manipulation; */
-  /* touch-action: pinch-zoom; */
 }
 
 input[type="text"]{
@@ -129,13 +144,15 @@ input[type="text"]{
 }
 
 
+/* TODO - control layout */
+
 .button-controls{
   display: grid;
   
   --col-gap: 10px;
   --row-gap: 10px;
 
-  grid-template-columns: auto auto auto;
+  grid-template-columns: repeat(3, 1fr);
 
   /* grid-template-columns: repeat(6, 1fr); */
 
@@ -143,6 +160,8 @@ input[type="text"]{
   row-gap: var(--row-gap);
   justify-content: center;
   align-content: center;
+  position: relative;
+  top: 1em;
 }
 
 /* TEST */
@@ -151,10 +170,25 @@ input[type="text"]{
   display: none;
 }
 
+#info-button{
+  background-color: transparent;
+  border: none;
+  appearance: none;
+  outline: none;
+  color: var(--neutral-lighter);
+
+  border-radius: 50%;
+  border: 2px solid var(--neutral-lighter);
+  width: 1em;
+  height: 1em;
+
+  font-family: 'basis33','extrude','Courier New', Courier, monospace;
+  font-size: 2em;
+}
 
 /* button styling */
 
-.button:not(.checkbox){
+.button:not(.checkbox):not(#info-button){
   --size: calc(32px + 2*var(--border));
   --radius: 2px;
   --border: 2px;
@@ -289,7 +323,6 @@ button.checkbox.checked, .radio input:checked{
 /* ---------------------------------------*/
 
 .display-area, .display-info{
-  /* background-color: var(--secondary); */
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -307,13 +340,6 @@ button.checkbox.checked, .radio input:checked{
 }
 
 
-
-/* .new-emap-inputs{
-  display: flex;
-  grid-column: span 3;
-} */
-
-
 .new-emap-size-inputs{
   display: grid;
   grid-template-columns: auto auto auto;
@@ -327,12 +353,8 @@ button.checkbox.checked, .radio input:checked{
 }
 
 /* "number" input styling - for w and h*/
-
 .number-input{
-  /* appearance: none; */
   box-sizing: border-box;
-  /* font-size: 16px; */
-  /* width: 2em; */
   width: 30px;
   color: inherit;
   border: 1px solid var(--primary);
@@ -357,18 +379,94 @@ button.checkbox.checked, .radio input:checked{
 }
 
 /* hover styling goes here */
-@media (hover :hover) and (pointer: fine){
-  .button:not(.checkbox):hover{
-    --color: var(--primary-lighter);
-  }
+@media (hover :hover) and (pointer: fine){  
 
   button:hover, input[type="radio"]:hover{
     cursor: pointer;
   }
 
+  #root .button:not(.checkbox):hover{
+    --color: var(--primary-lighter);
+  }
+
   button.checkbox:hover, input[type="radio"]:hover{
     --color: var(--color-hover);
   }
+
+  #info-modal-content > button:hover{
+    background-color: var(--neutral-lighter-2);
+  }
+}
+
+
+/* INFO MODAL */
+
+#info-modal{
+  display: flex;
+  /* flex-direction: column; */
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  inset: 0 0 0 0;
+  z-index: 10000;
+  background-color: #0002;
+  --transition-time: 0.1s;
+}
+
+#info-modal.hidden{
+  transition: opacity var(--transition-time), visibility 0s var(--transition-time);
+  opacity: 0;  
+  visibility: hidden;
+
+}
+
+#info-modal.visible{  
+  transition: opacity var(--transition-time);
+  opacity: 1;
+  visibility: visible;
+}
+
+#info-modal-content{
+
+  --margin: min(4em, 10vw, 10vh);
+  min-height: 30vh;
+  max-height: calc(100% - 2*var(--margin));
+  display: flex;
+  position: relative;
+  overflow: auto;
+  margin: var(--margin);
+  padding: 2em;
+  background-color: var(--white);
+  border-radius: 1em;
+  color: var(--black);
+  /* flex: 1; */
+  box-shadow: 0 2px 5px #0002;
+
+}
+
+/* X button to close the modal */
+#info-modal-content > button{
+  border: none;
+  background: transparent;
+  position: absolute;
+
+  right: 1em;
+  top: 1em;
+  color: var(--black);
+  background-color: var(--neutral-lighter);
+
+  color: var(--white);
+  border-radius: 50%;
+  padding: 0.5em;
+  width: 2em;
+  height:2em;
+}
+
+
+
+#info li{
+  margin: 1em 0
+  /* line-height: 2em; */
 }
 
 /* screen size breakpoints */

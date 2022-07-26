@@ -12,6 +12,7 @@ import { Controls } from './app-components/Controls';
 
 
 import { TooltipModal } from './components/TooltipModal';
+import { InfoButton } from './app-components/InfoButton';
 
 //TODO:
 
@@ -79,6 +80,10 @@ function App() {
       >
 
       <div className='App-header'>map-e</div>
+
+      {/* <button id='info-button'>?</button> */}
+
+      <InfoButton/>
 
       <CanvasContainer/>
 
