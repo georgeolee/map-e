@@ -100,9 +100,10 @@ export function useTooltip(tooltip = 'a tooltip!', showDelay = 500, handlers = {
         //LT handler for showing tooltip on long touch
         long_touch_handlers.onPointerDown(e);
         
-        //hide tooltip on mouse down
+        //hide tooltip (if showing) & clear show timer (if not showing yet) on mouse down
         if(e.pointerType === 'mouse'){
             hideTooltip();
+            clearShowTimer();
         }
     }
 

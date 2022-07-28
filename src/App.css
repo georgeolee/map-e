@@ -426,6 +426,7 @@ button.checkbox.checked, .radio input:checked{
   visibility: visible;
 }
 
+
 #info-modal-content{
 
   --margin: min(4em, 10vw, 10vh);
@@ -441,7 +442,6 @@ button.checkbox.checked, .radio input:checked{
   color: var(--black);
   /* flex: 1; */
   box-shadow: 0 2px 5px #0002;
-
 }
 
 /* X button to close the modal */

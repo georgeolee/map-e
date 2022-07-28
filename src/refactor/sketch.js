@@ -29,17 +29,22 @@ export function sketch(p){
 
     const downloadAnchor = document.createElement('a');
 
-    //TODO 
 
 
-    // canvas sizing / resizing
+    //detect initial pointer motion before doing pointer-related stuff - fix for starting highlight at pixel 0,0
+    let foundPointer=false;
+    const listenerCleanup = [];
+
+    const detectPointer = () => {
+        foundPointer = true;
+        for(const removeListener of listenerCleanup){
+            removeListener();
+        }
+    }
+
+    //TODO - canvas sizing / resizing during runtime
         // best approach?
         // maybe -> size wrapper div via css, resize p5 canvas to fit inside?
-
-
-    //canvas element resize handling
-
-    //how to detect canvas resize ? resizeobserver?
 
 
     vc.setImage(emap);
@@ -70,6 +75,7 @@ export function sketch(p){
 
         history.push();
         
+        setupPointerDetection();
     }
 
 
@@ -87,6 +93,16 @@ export function sketch(p){
 
         drawCheckerboard();
         if(vc.image) drawEmap();
+    }
+
+    function setupPointerDetection(){
+        const cnv = p.canvas;
+        cnv.addEventListener('pointerdown',detectPointer);
+        cnv.addEventListener('pointermove',detectPointer);
+        listenerCleanup.push(
+            () => cnv.removeEventListener('pointerdown',detectPointer),
+            () => cnv.removeEventListener('pointermove',detectPointer),
+        );
     }
 
     function handleP5Flags(){
@@ -180,7 +196,7 @@ export function sketch(p){
         }
 
         //draw pixel highlight?
-        else if(!p5Flags.pointerIgnore.isRaised && !p5Flags.isTouch.isRaised){
+        else if(!p5Flags.pointerIgnore.isRaised && !p5Flags.isTouch.isRaised && !settings.modalLock && foundPointer){
 
 
             //TEST - animated matrix

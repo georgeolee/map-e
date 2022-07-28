@@ -9,5 +9,5 @@ Vector maps are exported as PNG textures. The red and green channels of each pix
 
 ### Try It Out
 
-You can find a working build (not necessarily the latest) [here](https://map-e.netlify.app).\
+You can find a working build (not necessarily the latest) [here](https://map-e.netlify.app).
 

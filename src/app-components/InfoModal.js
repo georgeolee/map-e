@@ -1,19 +1,21 @@
-import { useRef } from "react";
+import { useEffect } from "react";
 import { Info } from "./Info";
+import { settings } from "../refactor/globals";
 
 export function InfoModal(props){
 
-    const modalRef = useRef()
 
     const {
         visible,
         hideModal,
     } = props;
 
+    useEffect(()=>{
+        settings.modalLock = visible;
+    })
 
     return(
         <div             
-            ref={modalRef}
             id='info-modal'
             className={visible ? 'visible' : 'hidden'}>
 
