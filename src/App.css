@@ -352,6 +352,11 @@ button.checkbox.checked, .radio input:checked{
   justify-content: space-between;
 }
 
+.new-emap-size-inputs #size-label{
+  grid-column: span 3;
+  text-align: center;
+}
+
 /* "number" input styling - for w and h*/
 .number-input{
   box-sizing: border-box;
@@ -368,7 +373,7 @@ button.checkbox.checked, .radio input:checked{
 
 
 #emap-file-input button{background-image: url(./images/icons/file-open-e-white.png);}
-#background-file-input button{background-image: url(./images/icons/file-open-p-white.png);}
+#background-file-input button{background-image: url(./images/icons/file-open-b-white.png);}
 #new-emap-button{background-image: url(./images/icons/file-new-white.png);}
 
 #download-button{background-image: url(./images/icons/download-white.png);}

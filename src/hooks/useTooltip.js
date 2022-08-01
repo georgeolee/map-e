@@ -11,13 +11,13 @@ import { useLongPress } from "./useLongPress";
  */
 export function useTooltip(tooltip = 'a tooltip!', showDelay = 500, handlers = {}){
     
-    // if the component uses any of these handlers, pass them in so they can be added to the new handlers returned by this hook
+    // if the component uses any of these handlers, pass them in so they can be incorporated into the event handlers returned by this hook
     const {
-        onClick: parent_onClick,
-        onPointerEnter: parent_onPointerEnter,
-        onPointerLeave: parent_onPointerLeave,
-        onPointerDown: parent_onPointerDown,
-        onPointerUp: parent_onPointerUp,
+        onClick: component_onClick,
+        onPointerEnter: component_onPointerEnter,
+        onPointerLeave: component_onPointerLeave,
+        onPointerDown: component_onPointerDown,
+        onPointerUp: component_onPointerUp,
     } = handlers;
 
 
@@ -25,9 +25,9 @@ export function useTooltip(tooltip = 'a tooltip!', showDelay = 500, handlers = {
     const {handlers: long_touch_handlers} = useLongPress(showDelay, {
         
         //normal onClick handling for mouse & short touch
-        onMouseClick: parent_onClick,
-        onMouseLongClick: parent_onClick,
-        onTouchClick: parent_onClick,
+        onMouseClick: component_onClick,
+        onMouseLongClick: component_onClick,
+        onTouchClick: component_onClick,
 
 
         onTouchLongPress: () => startShowTimer(0),  //  delay here is handled by useLongPress first arg, so just use 0 for startShowTimer
@@ -71,8 +71,8 @@ export function useTooltip(tooltip = 'a tooltip!', showDelay = 500, handlers = {
 
     function handleOnPointerEnter(e){
         
-        //call parent handler if one was provided
-        parent_onPointerEnter?.(e);
+        //call component handler if one was provided
+        component_onPointerEnter?.(e);
 
         //no hover behavior for touch input ; use long touch instead
         if(e.pointerType === 'touch'  || e.pointerType === 'pen') return;
@@ -83,7 +83,7 @@ export function useTooltip(tooltip = 'a tooltip!', showDelay = 500, handlers = {
 
     function handleOnPointerLeave(e){
 
-        parent_onPointerLeave?.(e);
+        component_onPointerLeave?.(e);
 
         clearShowTimer();
         hideTooltip();
@@ -95,7 +95,7 @@ export function useTooltip(tooltip = 'a tooltip!', showDelay = 500, handlers = {
 
     function handleOnPointerDown(e){
 
-        parent_onPointerDown?.(e);
+        component_onPointerDown?.(e);
 
         //LT handler for showing tooltip on long touch
         long_touch_handlers.onPointerDown(e);
@@ -109,7 +109,7 @@ export function useTooltip(tooltip = 'a tooltip!', showDelay = 500, handlers = {
 
     function handleOnPointerUp(e){
 
-        parent_onPointerUp?. (e);
+        component_onPointerUp?. (e);
 
         long_touch_handlers.onPointerUp(e);
         hideTooltip();
@@ -119,7 +119,7 @@ export function useTooltip(tooltip = 'a tooltip!', showDelay = 500, handlers = {
         long_touch_handlers.onClick(e);
     }
 
-    //return tooltip visibility and new event handlers that incorporate the tooltip logic
+    //return tooltip visibility (boolean) and new event handlers that incorporate the tooltip logic
     return {
         visible,
         handlers:{

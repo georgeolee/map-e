@@ -82,7 +82,9 @@ export function Controls(props){
                         func={n=>settings.size.y = n}
                         defaultValue={settings.size.y}
                         />
-                    </div>
+                        
+                        <span id='size-label'>emap size</span>
+                </div>
             </div>
 
         <div className='toggle-controls'>
@@ -106,7 +108,7 @@ export function Controls(props){
         </div>
 
         <div className='snap-controls'>
-            Snap
+            snap
             <Radio
                 label='off'
                 checked

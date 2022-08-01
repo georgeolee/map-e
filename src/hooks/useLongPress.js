@@ -21,9 +21,9 @@ export function useLongPress(longPressTime = 500, listeners = {}){
     
     const {
         //generic pointer listeners
-        onClick, 
-        onLongClick, 
-        onLongPress,
+        onClick,        //short click
+        onLongClick,    //long click (long press + release)
+        onLongPress,    //long press
     
         //mouse specific
         onMouseClick,
@@ -46,7 +46,7 @@ export function useLongPress(longPressTime = 500, listeners = {}){
 
 
     function startPressTimer(e){
-        //console.log('\t\tpress startedd');
+        //console.log('\t\tpress started');
         isLongPress.current = false;
         clearPressTimer();
         timerRef.current = setTimeout(()=>{
@@ -80,7 +80,6 @@ export function useLongPress(longPressTime = 500, listeners = {}){
 
     function handleOnClick(e){
         if(isLongPress.current){
-            //console.log(`long press - ${inputType.current}`);
             
             onLongClick?.(e);
             if(inputType.current === 'mouse') onMouseLongClick?.(e);
@@ -88,9 +87,6 @@ export function useLongPress(longPressTime = 500, listeners = {}){
 
             return; //is a long press / click ; don't fire regular click action
         }
-        //console.log(`click - ${inputType.current}`);
-        //console.log(`\t\tset action type to click`);
-
         
         onClick?.(e);
         if(inputType.current === 'mouse') onMouseClick?.(e);

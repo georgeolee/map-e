@@ -1,7 +1,7 @@
 import { useSpring, animated, config } from "@react-spring/web";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
-
+//rename this -> not really a generic modal
 export function Modal(props){
 
     const {
@@ -13,18 +13,17 @@ export function Modal(props){
 
     const modalRef = useRef();
 
+    //get canvas width
+    const canvasWidth = getComputedStyle(document.documentElement).getPropertyValue('--canvas-size');
 
     const {width} = useSpring({
         to:{
-            // width: visible ? '100%' : '0%',
-            width: visible ? '330px' : '0px',            
+            // width: visible ? '330px' : '0px',
+            width: visible ? canvasWidth : '0px',
         },
         config: {
             ...config.wobbly,
-            // bounce: 0.2,
             bounce: 0,
-            // clamp: true,
-            
         },
     })
 
@@ -43,10 +42,6 @@ export function Modal(props){
 
     const button = onClick ? <button onClick={onClick}>CLICK ME</button> : null;
 
-    useEffect(()=>{
-        console.log('modal render')
-    })
-
     const padding = 'min(30px, 10vw)';
 
     return(
@@ -62,13 +57,9 @@ export function Modal(props){
                 borderRadius:'0px 10px 10px 0px',
                 
 
-                // bottom:'100%',
-
                 position: 'absolute',
-                // bottom: top,
 
                 display: 'flex',
-                // display: display,
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',

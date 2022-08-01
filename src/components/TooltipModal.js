@@ -8,8 +8,6 @@ export function TooltipModal(props){
 
 
     useEffect(()=>{
-        console.log('tooltip modal render')
-
         display.setTooltip = t => setTooltip(t);
     })
 
