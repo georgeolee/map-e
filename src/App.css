@@ -247,20 +247,12 @@ input[type="radio"], button{
 
 button.checkbox, .radio{
 
-  --color: var(--neutral-lighter);  
-  --color-hover: var(--neutral-lighter-2);
-
-  --color-checked: var(--secondary);
-  --color-checked-hover: var(--secondary-lighter);
-
-  --darker: #0003;
-
-  --outline: var(--neutral-lighter);
+  --color: var(--primary);  
+  --color-hover: var(--primary-lighter);
 
 
-  --border-width: 5px;
-  --shadow-width: 4px;
-  --border-radius: var(--border-width);
+  --border-width: 2px;
+  --border-radius: 6px;
 
   --width: 32px;
   --height: 32px;
@@ -270,28 +262,61 @@ button.checkbox, .radio{
 button.checkbox, .radio input{
 
   padding: 0;
-  width: calc(var(--width) - 2*var(--shadow-width));
-  height: calc(var(--height) - 2*var(--shadow-width));
-  background-color: var(--color);  
+
+  width: var(--width);
+  height: var(--height);
+
+  background-color: transparent;
+
   border: var(--border-width) solid var(--color);
-  border-bottom-color: var(--darker);
-  border-right-color: var(--darker);
-  box-shadow: 0 0 0 var(--shadow-width) var(--outline);  
-  margin: var(--shadow-width);
+
 }
 
-button.checkbox.checked, .radio input:checked{
-  --color: var(--color-checked);
-  --color-hover: var(--color-checked-hover);
 
-  border-color: transparent;
-  border-top-color: var(--darker);
-  border-left-color: var(--darker);  
+button.checkbox:after, .radio input::after{
+  content: "";
+  display: flex;
+  flex-grow: 1;
+  /* justify-content: center;
+  align-items: center; */
+
+
+  /* --offset: calc(var(--border-width)/2 + 1px); */
+  --offset: 4px;
+
+  border: var(--offset) solid transparent;
+  padding: 0;
+
+  border-radius: var(--border-radius);
+
+  width: calc(100% - 2*var(--offset));
+  height:calc(100% - 2*var(--offset));
+
+  box-shadow: inset 0 0 0 0px var(--color);
 }
 
+button.checkbox.checked:after, .radio input:checked::after{
+ 
+
+  box-shadow: inset 0 0 0 var(--width) var(--color);
+}
+
+
+
+/* pseudo */
+.radio+.radio input::after{
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.radio:not(:last-child) input::after{
+  /* --color: #44f */
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
 
 .radio+.radio{
-  margin-top: calc(-1*var(--shadow-width));
+  margin-top: calc(-1*var(--border-width));
 }
 
 .checkbox{
