@@ -37,10 +37,6 @@
   --secondary-darker: var(--green-darker);
 
 
-  /* --secondary: var(--red);
-  --secondary-lighter: var(--red-lighter);
-  --secondary-darker: var(--red-darker); */
-
   --neutral: var(--gray);
   --neutral-lighter: var(--gray-lighter);
   --neutral-lighter-2: var(--gray-lighter-2);
@@ -130,9 +126,22 @@ ul{
 
 .controls{
   display: grid;
-  grid-template-columns: auto auto 1fr;
-  row-gap: 20px;
-  column-gap: 20px;
+  grid-template-columns: 1fr 0 auto auto;
+  row-gap: 10px;
+  column-gap: 10px;
+}
+
+.controls > *{
+  width: fit-content;
+}
+
+
+.controls > .toggle-controls{
+  grid-column: 3;
+}
+
+.controls > .snap-controls{
+  grid-column: 4;  
 }
 
 input, button{
@@ -146,22 +155,31 @@ input[type="text"]{
 
 /* TODO - control layout */
 
+.snap-controls > :first-child{
+  
+  margin-top: 10px;
+}
 .button-controls{
   display: grid;
   
   --col-gap: 10px;
   --row-gap: 10px;
 
-  grid-template-columns: repeat(3, 1fr);
+  /* fit as many buttons as possible horizontally */
+  grid-template-columns: repeat(auto-fit, 36px);
 
-  /* grid-template-columns: repeat(6, 1fr); */
 
   column-gap: var(--col-gap);
   row-gap: var(--row-gap);
-  justify-content: center;
+
+  /* justify-content: center; */
   align-content: center;
   position: relative;
   top: 1em;
+  top:calc(1em + var(--row-gap));
+  height: fit-content;
+  width: auto;
+  
 }
 
 /* TEST */
@@ -349,14 +367,14 @@ button.checkbox.checked:after, .radio input:checked::after{
 
 .display-area, .display-info{
   display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+  flex-direction: row;
+  justify-content: space-between;
+  flex: 1;
 }
 
 .display-info *{
   padding: 0;
   margin: 0;
-  list-style: none;  
 }
 
 .display-area .display-tooltip{
@@ -366,30 +384,29 @@ button.checkbox.checked:after, .radio input:checked::after{
 
 
 .new-emap-size-inputs{
-  display: grid;
-  grid-template-columns: auto auto auto;
-  grid-column: span 2;
-  width: 100%;
+  display: flex;
+  
+  column-gap: 1em;
+  
+  /* width: 100%; */
   height: min-content;
   align-self: center;
   align-items: center;
-  color: var(--primary);
+  /* color: var(--primary); */
   justify-content: space-between;
-}
-
-.new-emap-size-inputs #size-label{
-  grid-column: span 3;
-  text-align: center;
 }
 
 /* "number" input styling - for w and h*/
 .number-input{
   box-sizing: border-box;
   width: 30px;
+  width: 2em;
   color: inherit;
-  border: 1px solid var(--primary);
+  border: 1px solid #888;
   border-radius: 2px;
-  outline-color: var(--primary);
+  /* outline-color: var(--primary); */
+
+  font-size: max(1rem, 16px);
 }
 
 #undo-button{background-image: url(./images/icons/undo-white.png);}
@@ -405,7 +422,8 @@ button.checkbox.checked:after, .radio input:checked::after{
 
 #bg-opacity-slider{
   visibility: var(--bg-opacity-slider-visibility);  
-  grid-column: span 3;
+  grid-column: 1 / -1;
+  width: 100%;
 }
 
 /* hover styling goes here */
@@ -423,15 +441,19 @@ button.checkbox.checked:after, .radio input:checked::after{
     --color: var(--color-hover);
   }
 
-  #info-modal-content > button:hover{
+  .modal button:hover{
+    background-color: var(--primary-lighter);
+  }
+  .modal .modal-close-button:hover{
     background-color: var(--neutral-lighter-2);
   }
+
 }
 
 
 /* INFO MODAL */
 
-#info-modal{
+.modal{
   display: flex;
   /* flex-direction: column; */
   align-items: center;
@@ -443,21 +465,26 @@ button.checkbox.checked:after, .radio input:checked::after{
   --transition-time: 0.1s;
 }
 
-#info-modal.hidden{
+#new-file-modal .modal-content{
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.modal.hidden{
   transition: opacity var(--transition-time), visibility 0s var(--transition-time);
   opacity: 0;  
   visibility: hidden;
 
 }
 
-#info-modal.visible{  
+.modal.visible{  
   transition: opacity var(--transition-time);
   opacity: 1;
   visibility: visible;
 }
 
 
-#info-modal-content{
+.modal-content{
 
   --margin: min(4em, 10vw, 10vh);
   min-height: 30vh;
@@ -471,25 +498,31 @@ button.checkbox.checked:after, .radio input:checked::after{
   border-radius: 1em;
   color: var(--black);
   /* flex: 1; */
-  box-shadow: 0 2px 5px #0002;
+  box-shadow: 0 4px 8px #0004;
+  row-gap: 1em;
 }
 
 /* X button to close the modal */
-#info-modal-content > button{
+.modal .modal-close-button{
   border: none;
-  background: transparent;
   position: absolute;
 
   right: 1em;
   top: 1em;
-  color: var(--black);
   background-color: var(--neutral-lighter);
 
-  color: var(--white);
   border-radius: 50%;
   padding: 0.5em;
   width: 2em;
   height:2em;
+}
+
+.modal button{
+  border: none;
+  color: var(--white);
+  background-color: var(--primary);
+  border-radius: 4px;
+  padding: 1em;
 }
 
 

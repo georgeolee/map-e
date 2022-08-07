@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { display } from "../refactor/globals";
-import { Modal } from "./Modal";
+import { Tooltip } from "./Tooltip";
 
 export function TooltipModal(props){
 
@@ -28,7 +28,7 @@ export function TooltipModal(props){
 
             }}>
 
-        <Modal
+        <Tooltip
             visible={!!tooltip}
             content={tooltip}
             />

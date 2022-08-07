@@ -1,4 +1,3 @@
-import { VirtualCanvas } from "./VirtualCanvas";
 import { VirtualCanvasVisualizer } from "./VirtualCanvasVisualizer";
 import * as COLOR from './colors';
 import { p5Flags, settings, display, vc } from "./globals";
@@ -271,6 +270,11 @@ export function sketch(p){
             vc.setImage(emap);
             history.trackImage(emap);
             history.push();
+
+            //update display w/ new image dimensions
+            settings.size = {x: pimg.width, y: pimg.height};
+            display.size = {...settings.size}
+            display.refresh?.();
         })
     }
 

@@ -2,7 +2,7 @@ import { useSpring, animated, config } from "@react-spring/web";
 import { useRef } from "react";
 
 //rename this -> not really a generic modal
-export function Modal(props){
+export function Tooltip(props){
 
     const {
         id,

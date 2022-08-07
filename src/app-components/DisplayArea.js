@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { TooltipModal } from "../components/TooltipModal";
+import { settings } from "../refactor/globals";
 
 /**
  * Display area for showing angle info & tooltips
@@ -44,10 +45,10 @@ export function DisplayArea(props){
             className={'display-area' + (className ? ' ' + className : '')}
             ref={displayRef}
             >
-                <ul className="display-info">
-                    <li className="display-angle">angle: {displayData.angle}</li>
-                    {/* <li className="display-tooltip">{displayData.tooltip}</li>                     */}
-                </ul>
+                <div className="display-info">
+                    <div className="display-angle">angle: {displayData.angle}</div>
+                    <div className="display-size">{`size: ${displayData.size.x} x ${displayData.size.y}`}</div>
+                </div>
                 {/* <TooltipModal/> */}
         </div>
     )

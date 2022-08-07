@@ -88,6 +88,7 @@ export const settings = {
 export const display = {
     angle: 'n/a',
     tooltip: 'tooltip',
+    size: {...settings.size},
     refresh: undefined,
     error: undefined,
 

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { InfoModal } from "./InfoModal";
+import { Modal } from "./Modal";
+import {Info} from './Info';
 
 export function InfoButton(props){
 
@@ -13,6 +14,7 @@ export function InfoButton(props){
     const modalProps = {
         visible: showing,
         hideModal: () => showModal(false),
+        content: <Info/>,
     }
 
 
@@ -22,7 +24,7 @@ export function InfoButton(props){
             <button {...buttonProps}>            
                 ?
             </button>
-            <InfoModal {...modalProps}/>
+            <Modal {...modalProps}/>
         </>
         
     );

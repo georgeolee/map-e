@@ -1,12 +1,12 @@
 import { settings, p5Flags } from '../refactor/globals'
-import { EMAP_MIN_SIZE, EMAP_MAX_SIZE } from '../refactor/constants';
 
 import { FileInputButton } from '../components/FileInputButton';
 import { Slider} from '../components/Slider/Slider.js';
-import { NumberInput } from '../components/NumberInput';
 import { Button } from '../components/Button';
 import { Radio } from '../components/Radio';
 import { Checkbox } from '../components/Checkbox';
+
+import { NewFileButton } from './NewFileButton';
 
 import { vc } from '../refactor/globals';
 
@@ -17,27 +17,32 @@ export function Controls(props){
         
             <div className='button-controls'>
                 <Button
-                tooltip='undo'
+                tooltip='Undo'
                 id='undo-button'
                 onClick={()=>p5Flags.undo.raise()}
                 />        
 
                 <Button
-                tooltip='Reset the canvas view.'
-                id='reset-view-button'
-                onClick={()=>vc.resetTransform()}
-                />
-
-                <Button
-                tooltip='redo'
+                tooltip='Redo'
                 id='redo-button'
                 onClick={()=>p5Flags.redo.raise()}
                 />
 
-                <div className="spacer"></div>
+                <Button
+                tooltip='Reset the canvas view.'
+                id='reset-view-button'
+                onClick={()=>vc.resetTransform()}
+                />                
+
+                <Button
+                tooltip='Download the current vector map as a PNG image. '
+                id='download-button'
+                onClick={()=>p5Flags.export.raise()}
+                />
+
 
                 <FileInputButton
-                tooltip='Open a PNG image as a new vector map. The image will be recolored to match the encoding format.'
+                tooltip='Open a previously downloaded vector map. Results may vary with other PNG images.'
                 id='emap-file-input'
                 func = {url => {
                     settings.url = url;
@@ -52,39 +57,12 @@ export function Controls(props){
                     settings.bgUrl = url;
                     p5Flags.loadBackgroundURL.raise();
                 }}
+                />                  
+                
+                <NewFileButton
+                tooltip='Create a new vector map.'
                 />
 
-                <Button
-                tooltip='Download the current vector map as a PNG image. '
-                id='download-button'
-                onClick={()=>p5Flags.export.raise()}
-                />  
-
-                <Button
-                    tooltip='create a new blank emap'
-                    id='new-emap-button'
-                    onClick={()=>p5Flags.loadEmpty.raise()}
-                    />        
-
-                <div className='new-emap-size-inputs'>
-                        <NumberInput
-                        id='width-input'
-                        min={EMAP_MIN_SIZE}
-                        max={EMAP_MAX_SIZE}
-                        func={n=>settings.size.x = n}
-                        defaultValue={settings.size.x}
-                        />
-                        X
-                        <NumberInput
-                        id='height-input'
-                        min={EMAP_MIN_SIZE}
-                        max={EMAP_MAX_SIZE}
-                        func={n=>settings.size.y = n}
-                        defaultValue={settings.size.y}
-                        />
-                        
-                        <span id='size-label'>emap size</span>
-                </div>
             </div>
 
         <div className='toggle-controls'>
