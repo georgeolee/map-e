@@ -46,7 +46,7 @@ export function DisplayArea(props){
             ref={displayRef}
             >
                 <div className="display-info">
-                    <div className="display-angle">angle: {displayData.angle}</div>
+                    <div className="display-angle">angle: {typeof displayData.angle === 'number' ? displayData.angle + 'º' : displayData.angle}</div>
                     <div className="display-size">{`size: ${displayData.size.x} x ${displayData.size.y}`}</div>
                 </div>
                 {/* <TooltipModal/> */}

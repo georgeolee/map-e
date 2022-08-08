@@ -20,7 +20,6 @@ export function sketch(p){
     
     let editPixel = null;
 
-    // const vc = new VirtualCanvas(p);
     vc.p5 = p;
     const viz = new VirtualCanvasVisualizer(vc);
     
@@ -41,10 +40,6 @@ export function sketch(p){
         }
     }
 
-    //TODO - canvas sizing / resizing during runtime
-        // best approach?
-        // maybe -> size wrapper div via css, resize p5 canvas to fit inside?
-
 
     vc.setImage(emap);
 
@@ -53,7 +48,8 @@ export function sketch(p){
         p.frameRate(60);
         
 
-        const parentRect = p.canvas.parentElement.getBoundingClientRect()
+        const container = p.canvas.parentElement;
+        const parentRect = container.getBoundingClientRect()
         p.createCanvas(parentRect.width, parentRect.height);
 
         p.noSmooth();
@@ -65,8 +61,8 @@ export function sketch(p){
                 
 
         //REVISIT THIS
-        const resizeObserver = new ResizeObserver(handleCanvasResize);
-        resizeObserver.observe(p.canvas); //p5 canvas element
+        const resizeObserver = new ResizeObserver(handleCanvasContainerResize);
+        resizeObserver.observe(container); //p5 canvas element
 
         vc.setImage(emap)
 
@@ -83,7 +79,7 @@ export function sketch(p){
 
         // TEST - currently moved to resizeobserver callback
         // if(/* canvas element resize check */){
-        //     handleCanvasResize();
+        //     handleCanvasContainerResize();
         // }
 
         if(editPixel){
@@ -296,14 +292,12 @@ export function sketch(p){
         }, 'image/png')
     }
 
-    function handleCanvasResize(resizeObserverEntries){
+    function handleCanvasContainerResize(resizeObserverEntries){
 
         for(const entry of resizeObserverEntries){
-            if(entry.target.classList.contains('p5Canvas')){
 
                 const rect = entry.target.getBoundingClientRect();
 
-                //resize canvas - is this necessary to reset p5 width & height? element should already be resized at this point
                 p.resizeCanvas(rect.width,rect.height,true); //resize w/o immediate redraw
 
                 createCheckerboard();
@@ -314,7 +308,6 @@ export function sketch(p){
                 p.redraw(); //redraw w new size, checkerboard, image scale
                 
                 return;
-            }
         }        
     }
 

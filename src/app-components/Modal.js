@@ -13,6 +13,8 @@ export function Modal(props){
 
     useEffect(()=>{
         settings.modalLock = visible;
+
+        
     })
 
     return(
