@@ -74,10 +74,12 @@ export function CanvasContainer(props){
         if(!frameRequest) frameRequest = window.requestAnimationFrame(updateVCAnim);
     };
 
-    //attach a callback to VC for stopping any ongoing animation when resetting transform; probably a cleaner way to do this
+    //attach a callback to VC for stopping any ongoing animation when resetting VC transform; probably a cleaner way to do this
     useEffect(()=>{
         vc.animated.stop = () => {
-            springRef.current[0].stop(); 
+            springRef.current[0].stop(); //stop animation
+            springRef.current[0].set({matrix: vc.transform.m, inverseMatrix: vc.transform.i}) //set the controller to the new values, so it doesn't jerk back when the next animation starts
+            
             if(frameRequest){
                 window.cancelAnimationFrame(frameRequest);
                 frameRequest = 0;

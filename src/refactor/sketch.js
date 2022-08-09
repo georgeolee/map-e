@@ -283,7 +283,7 @@ export function sketch(p){
 
     function exportEmap(){
         const now = new Date();
-        downloadAnchor.download = `emission-map_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.png`;
+        downloadAnchor.download = `vector-map_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.png`;
 
         emap.canvas.toBlob(blob => {         
             downloadAnchor.href = URL.createObjectURL(blob);
@@ -347,7 +347,8 @@ export function sketch(p){
 
         //pointer over edit pixel?
         if(pointerPixel?.x === editPixel.x && pointerPixel?.y === editPixel.y){
-            vc.setPixelColor(editPixel.x, editPixel.y, COLOR.NEUTRAL[settings.neutralColor]);
+            
+            vc.setPixelColor(editPixel.x, editPixel.y, settings.normalMapMode ?  COLOR.NEUTRAL.BLUE : COLOR.NEUTRAL.TRANSPARENT);
             
             const noVector = 'n/a'
             if(display.angle !== noVector){

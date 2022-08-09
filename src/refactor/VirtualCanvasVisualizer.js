@@ -118,7 +118,7 @@ export class VirtualCanvasVisualizer{
             // + 0.5 -> offset from top left towards pixel center
             
             p5.line(px + 0.5, py + 0.5, px + vx + 0.5, py + vy + 0.5); //draw vector
-            p5.stroke(COLOR.PIXEL_CENTER.r, COLOR.PIXEL_CENTER.g, COLOR.PIXEL_CENTER.b);
+            p5.stroke(COLOR.PIXEL_CENTER.r, COLOR.PIXEL_CENTER.g, COLOR.PIXEL_CENTER.b, COLOR.PIXEL_CENTER.a);
             p5.point(px + 0.5, py + 0.5);   //dot at center
         }
         p5.pop();

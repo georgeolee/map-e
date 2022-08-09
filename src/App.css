@@ -57,9 +57,6 @@
   box-sizing: border-box;
 }
 
-ul{
-  list-style: none;
-}
 
 /* app container element */
 #root{
@@ -455,20 +452,15 @@ button.checkbox.checked:after, .radio input:checked::after{
 
 .modal{
   display: flex;
-  /* flex-direction: column; */
   align-items: center;
   justify-content: center;
   position: fixed;
-  inset: 0 0 0 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   z-index: 10000;
   background-color: #0002;
   --transition-time: 0.1s;
 }
 
-/* #new-file-modal .modal-content{
-  flex-direction: column;
-  justify-content: space-around;
-} */
 
 .modal.hidden{
   transition: opacity var(--transition-time), visibility 0s var(--transition-time);
@@ -487,9 +479,7 @@ button.checkbox.checked:after, .radio input:checked::after{
 .modal-content{
 
   --margin: min(4em, 10vw, 10vh);
-  /* min-height: 30vh; */
-  max-height: calc(100vh - 2*var(--margin));
-  /* max-height: 100%; */
+  max-height: calc(100% - 2*var(--margin));
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -500,13 +490,23 @@ button.checkbox.checked:after, .radio input:checked::after{
   background-color: var(--white);
   border-radius: 1em;
   color: var(--black);
-  /* flex: 1; */
   box-shadow: 0 4px 8px #0004;
-  row-gap: 1em;
+  row-gap: 1em;  
+}
+
+#info *{
+  white-space: pre-line;
+  line-height: 1.5em;
+}
+
+
+
+.modal-visible :not(.modal *){
+  touch-action: none;
 }
 
 .modal-content > div{
-  overflow: auto;
+  overflow-y: auto;  
 }
 
 /* X button to close the modal */
@@ -532,12 +532,6 @@ button.checkbox.checked:after, .radio input:checked::after{
   padding: 1em;
 }
 
-
-
-#info li{
-  margin: 1em 0;
-  line-height: 2em;
-}
 
 @media screen and (min-width: 360px) {
   :root{

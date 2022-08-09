@@ -79,7 +79,6 @@ export const settings = {
     gridWeight : 1,
 
     normalMapMode : false, 
-    neutralColor : 'TRANSPARENT',
 
     editorMode: 'LIGHT',
 }

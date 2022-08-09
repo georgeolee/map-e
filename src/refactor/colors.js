@@ -10,12 +10,14 @@ export const NEUTRAL = {
 
 export const BG_A = {
     LIGHT: rgba(250),
+    // LIGHT: rgba(235),
     DARK: rgba(67),
 };
 
 export const BG_B = {
     // LIGHT: rgba(245),
     LIGHT: rgba(240),
+    // LIGHT: rgba(230),
     DARK: rgba(65),
 };
 

@@ -13,8 +13,9 @@ export function Modal(props){
 
     useEffect(()=>{
         settings.modalLock = visible;
-
         
+        if(visible) document.documentElement.classList.add('modal-visible');
+        else document.documentElement.classList.remove('modal-visible');
     })
 
     return(

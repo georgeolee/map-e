@@ -21,7 +21,7 @@ export function NewFileButton(props){
 
         Enter dimensions for the new vector map. 
         <br/>
-        Note: the current image will not be saved.
+        Note: the current texture will not be saved.
         <div className='new-emap-size-inputs'>
             <NumberInput
             id='width-input'

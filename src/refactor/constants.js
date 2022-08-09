@@ -13,7 +13,7 @@ export const SCROLL_FAST_SPEED = 50;
 export const CANVAS_DEFAULT_WIDTH = 600;
 export const CANVAS_DEFAULT_HEIGHT = 600;
 
-export const CHECKERBOARD_COUNT = 16;
+export const CHECKERBOARD_COUNT = 32;
 
 export const GRID_SPACING = 1;
 export const PIXEL_OUTLINE_WIDTH = 1.5;
