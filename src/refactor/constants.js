@@ -7,13 +7,10 @@ export const ZOOM_MIN = 0.25;
 export const ZOOM_MAX = 10;
 export const ZOOM_SENSITIVITY = 0.005;
 
-export const SCROLL_SPEED = 20;
-export const SCROLL_FAST_SPEED = 50;
-
 export const CANVAS_DEFAULT_WIDTH = 600;
 export const CANVAS_DEFAULT_HEIGHT = 600;
 
-export const CHECKERBOARD_COUNT = 32;
+export const CHECKERBOARD_COUNT = 64;
 
 export const GRID_SPACING = 1;
 export const PIXEL_OUTLINE_WIDTH = 1.5;

@@ -8,7 +8,10 @@ export function InfoButton(props){
 
     const buttonProps = {
         id:'info-button',
-        onClick: () => showModal(true),
+        onClick: e => {
+            showModal(true)
+            // e.stopPropagation()
+        },
     }
 
     const modalProps = {

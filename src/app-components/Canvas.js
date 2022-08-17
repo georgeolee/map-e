@@ -24,7 +24,7 @@ export function CanvasContainer(props){
 
     const springRef = useSpringRef()
 
-    let frameRequest = 0;
+    let frameRequest = useRef(0);
 
     const anim = useSpring({
         ref: springRef,
@@ -54,11 +54,11 @@ export function CanvasContainer(props){
 
         //no pending animations - end update loop
         if(springRef.current[0].idle && !springRef.current[0].queue.length){
-            frameRequest = 0;
+            frameRequest.current = 0;
             return;
         }
 
-        frameRequest = window.requestAnimationFrame(updateVCAnim)
+        frameRequest.current = window.requestAnimationFrame(updateVCAnim)
     }
 
     //call immediately after any matrix change
@@ -71,7 +71,7 @@ export function CanvasContainer(props){
         if(controller.idle) controller.start();
         
         //start update loop if it isn't running 
-        if(!frameRequest) frameRequest = window.requestAnimationFrame(updateVCAnim);
+        if(!frameRequest.current) frameRequest.current = window.requestAnimationFrame(updateVCAnim);
     };
 
     //attach a callback to VC for stopping any ongoing animation when resetting VC transform; probably a cleaner way to do this
@@ -80,9 +80,9 @@ export function CanvasContainer(props){
             springRef.current[0].stop(); //stop animation
             springRef.current[0].set({matrix: vc.transform.m, inverseMatrix: vc.transform.i}) //set the controller to the new values, so it doesn't jerk back when the next animation starts
             
-            if(frameRequest){
-                window.cancelAnimationFrame(frameRequest);
-                frameRequest = 0;
+            if(frameRequest.current){
+                window.cancelAnimationFrame(frameRequest.current);
+                frameRequest.current = 0;
             }
         };
     })

@@ -11,60 +11,6 @@
 export class Transform{
 
     static dummy;
-    static matrixMult;
-
-    m; //matrix representation of the transformation
-    
-    i;  //inverse of the transformation
-
-    static{
-        this.identityMatrix = [
-
-            //first col
-            1,
-            0,
-
-            //second col
-            0,
-            1,
-
-            //3rd col
-            0,
-            0,
-        ];
-
-        this.dummy = new Transform();
-    }
-
-    constructor(){
-        // default to identity matrix
-        this.m = [...Transform.identityMatrix];
-        this.i = [...Transform.identityMatrix];
-    }
-
-    /**
-     * Starting from this transform, apply otherTransform
-     * 
-     * mutates this one to reflect the combined result
-     * 
-     * @param {Transform} otherTransform 
-     */
-    applyToSelf(otherTransform){
-        
-        this.m = Transform.matrixMult(this.m, otherTransform.m);    // combined transformation
-
-        this.i = Transform.matrixMult(otherTransform.i, this.i);    //combined inverse
-
-        return this;
-    }
-
-    clone(){
-        const T = new Transform()
-        T.m = [...this.m];
-        T.i = [...this.i];
-        return T;
-    }
-
     static matrixMult(...args){
 
         if(!args || args.length < 2) throw new Error(`Transform.matrixMult: invalid arguments ; supply 2 or more matrices in left to right order`)
@@ -119,6 +65,60 @@ export class Transform{
 
         return args.length > 0 ? Transform.matrixMult(M, ...args) : M;
     }
+
+    m; //matrix representation of the transformation
+    
+    i;  //inverse of the transformation
+
+    static{
+        this.identityMatrix = [
+
+            //first col
+            1,
+            0,
+
+            //second col
+            0,
+            1,
+
+            //3rd col
+            0,
+            0,
+        ];
+
+        this.dummy = new Transform();
+        
+    }
+
+    constructor(){
+        // default to identity matrix
+        this.m = [...Transform.identityMatrix];
+        this.i = [...Transform.identityMatrix];
+    }
+
+    /**
+     * Starting from this transform, apply otherTransform
+     * 
+     * mutates this one to reflect the combined result
+     * 
+     * @param {Transform} otherTransform 
+     */
+    applyToSelf(otherTransform){
+        
+        this.m = Transform.matrixMult(this.m, otherTransform.m);    // combined transformation
+
+        this.i = Transform.matrixMult(otherTransform.i, this.i);    //combined inverse
+
+        return this;
+    }
+
+    clone(){
+        const T = new Transform()
+        T.m = [...this.m];
+        T.i = [...this.i];
+        return T;
+    }
+
 
     setToIdentity(){
         for(let n = 0; n < 6; n++){

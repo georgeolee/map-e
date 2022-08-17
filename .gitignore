@@ -14,6 +14,10 @@
 # readme images for github
 /readme-images
 
+# icon files (unformatted)
+/icon.png
+/icon.svg
+
 # misc
 .DS_Store
 .env.local

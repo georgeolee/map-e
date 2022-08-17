@@ -14,14 +14,15 @@ export function Modal(props){
     useEffect(()=>{
         settings.modalLock = visible;
         
-        if(visible) document.documentElement.classList.add('modal-visible');
-        else document.documentElement.classList.remove('modal-visible');
+        // if(visible) document.documentElement.classList.add('modal-visible');
+        // else document.documentElement.classList.remove('modal-visible');
     })
 
     return(
         <div
             id={id}
-            className={`modal ${visible ? 'visible' : 'hidden'}`}>
+            className={`modal ${visible ? 'visible' : 'hidden'}`}
+            >
 
             <div className='modal-content'>
                 <button className='modal-close-button' onClick={hideModal}>X</button>

@@ -1,13 +1,13 @@
 //App info to render inside of modal
 export function Info(){
 
-    const about = `This is a tool for creating simple vector maps for use in shaders or other programs that decode data from textures.
+    const about = `This is a tool for creating *very* simple vector maps for use in shaders and other programs that read data from textures.
 
-    Each position in the grid has a unit vector associated with it. 
+    Each position in the grid has a unit vector attached to it. 
     
     Empty grid cells are not rendered in the editor, but for encoding purposes are treated as the positive Z vector (0,0,1).
     
-    All other grid cells represent vectors in the XY plane.
+    All other grid cells represent unit vectors in the XY plane.
     
     `
     
@@ -24,8 +24,11 @@ export function Info(){
     `
 
     const controls = `Click and drag on the grid to add, rotate, and remove vectors
+
     Zoom: pinch | ctrl + wheel
+
     Pan: 2 finger drag | wheel | alt + drag
+
     Long press (mobile) or hover (desktop) to show tooltips
     
     v 0.1.2
@@ -39,7 +42,7 @@ export function Info(){
 
             <h2 style={{fontSize:'2rem', fontWeight:'normal'}}>Encoding</h2>
             <div>{encoding}</div>     
-            {/* <div>{garbage}</div>    */}
+            
             <h2 style={{fontSize:'2rem', fontWeight:'normal'}}>Controls</h2>
             <div>{controls}</div>
         </div>

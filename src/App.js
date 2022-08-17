@@ -10,8 +10,6 @@ import {CanvasContainer} from './app-components/Canvas'
 
 import { Controls } from './app-components/Controls';
 
-
-import { TooltipModal } from './components/TooltipModal';
 import { InfoButton } from './app-components/InfoButton';
 
 //TODO:

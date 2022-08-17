@@ -3,6 +3,7 @@
 
 :root{
   background-color: var(--white);
+  background-color: transparent;
   color: var(--black);
   font-size: 16px;
 
@@ -499,11 +500,6 @@ button.checkbox.checked:after, .radio input:checked::after{
   line-height: 1.5em;
 }
 
-
-
-.modal-visible :not(.modal *){
-  touch-action: none;
-}
 
 .modal-content > div{
   overflow-y: auto;  

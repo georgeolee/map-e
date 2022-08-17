@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { TooltipModal } from "../components/TooltipModal";
-import { settings } from "../refactor/globals";
 
 /**
  * Display area for showing angle info & tooltips
@@ -12,7 +10,7 @@ export function DisplayArea(props){
     const {
         id,
         className,
-        displayData,
+        displayData, //global display object
     } = props;
 
     const displayRef = useRef();

@@ -1,9 +1,5 @@
 import { useTooltip } from '../hooks/useTooltip';
 
-import { useEffect } from 'react';
-
-import { display } from '../refactor/globals';
-
 export function Button(props){
 
     const {
@@ -16,10 +12,6 @@ export function Button(props){
 
     const {visible, handlers} = useTooltip(tooltip, 1200, {onClick: onClick});
 
-    // useEffect(()=>{
-    //     display.tooltip = visible ? tooltip : '';
-    //     display.refresh?.()
-    // })
 
     return(
         <button
