@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { display } from "../refactor/globals";
+import { display } from "../globals";
 
 import { useLongPress } from "./useLongPress";
 

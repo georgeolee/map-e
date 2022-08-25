@@ -1,4 +1,4 @@
-import { settings, p5Flags } from '../refactor/globals'
+import { settings, p5Flags } from '../globals'
 
 import { FileInputButton } from '../components/FileInputButton';
 import { Slider} from '../components/Slider/Slider.js';
@@ -8,7 +8,7 @@ import { Checkbox } from '../components/Checkbox';
 
 import { NewFileButton } from './NewFileButton';
 
-import { vc } from '../refactor/globals';
+import { vc } from '../globals';
 
 export function Controls(props){
 

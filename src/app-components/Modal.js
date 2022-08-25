@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { settings } from "../refactor/globals";
+import { settings } from "../globals";
 
 export function Modal(props){
 

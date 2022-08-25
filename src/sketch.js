@@ -3,10 +3,11 @@ import * as COLOR from './colors';
 import { p5Flags, settings, display, vc } from "./globals";
 import { History } from "./History";
 
-import { CHECKERBOARD_COUNT, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT, DEG_TO_RAD, BG_MAX_SIZE, RAD_TO_DEG } from "./constants";
+import { CHECKERBOARD_COUNT, DEG_TO_RAD, BG_MAX_SIZE, RAD_TO_DEG } from "./constants";
 
 
-import { recolor, colorFromAngle } from "./vectorEncoding";
+import { recolor, colorFromAngle, isNeutralColor, angleFromColorRG } from "./vectorEncoding";
+
 
 
 export function sketch(p){
@@ -16,7 +17,7 @@ export function sketch(p){
 
     let bgBaked = null;
 
-    let cb = p.createImage(CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT); //checkerboard (static background)
+    let cb = p.createImage(100, 100); //checkerboard (static background) ; dimensions not important here — gets resized on canvas creation in setup
     
     let editPixel = null;
 
@@ -71,16 +72,12 @@ export function sketch(p){
         history.push();
         
         setupPointerDetection();
+
     }
 
 
     p.draw = function(){
         handleP5Flags();
-
-        // TEST - currently moved to resizeobserver callback
-        // if(/* canvas element resize check */){
-        //     handleCanvasContainerResize();
-        // }
 
         if(editPixel){
             editPixelColor();
@@ -103,11 +100,13 @@ export function sketch(p){
     function handleP5Flags(){
 
         if(p5Flags.undo.isRaised){
-            history.step(-1);            
+            history.step(-1);        
+            if(emap) recolor(emap);
         }
 
         if(p5Flags.redo.isRaised){
             history.step(1);
+            if(emap) recolor(emap);
         }
 
         if(p5Flags.export.isRaised){
@@ -146,9 +145,6 @@ export function sketch(p){
             cancelEdit();
         }
 
-
-        //observer disconnect?
-
         //lower all p5Flags except for ones marked sticky
         for(const f in p5Flags){
             if(!p5Flags[f].isSticky) p5Flags[f].lower();
@@ -159,11 +155,8 @@ export function sketch(p){
         p.push();
 
 
-        // p.applyMatrix(...vc.getTransformMatrix())
-        
-        
-        //TEST - spring
-        p.applyMatrix(...vc.animated.matrix)
+        // p.applyMatrix(...vc.getTransformMatrix())    //raw matrix values (no spring animation)
+        p.applyMatrix(...vc.animated.matrix)    //animated matrix values (spring animation to smooth out transformations)
 
 
         //draw background & emap image
@@ -198,7 +191,32 @@ export function sketch(p){
             const pLocal = vc.getWorldToLocalPoint(p.mouseX, p.mouseY, true);  // transform canvas element pointer coordinates to vc coords ; use animated matrix
             
             const hoverPixel = vc.getPixelAtLocalPoint(pLocal.x, pLocal.y);            
-            if(hoverPixel) viz.highlightPixel(emap, hoverPixel.x, hoverPixel.y);
+            
+            //hovering over a pixel?
+            if(hoverPixel){
+
+                //highlight it in editor
+                viz.highlightPixel(emap, hoverPixel.x, hoverPixel.y);
+
+                //get angle of hovered pixel
+                vc.image.loadPixels();
+                const i = hoverPixel.x + hoverPixel.y * vc.image.width;
+                const hoverRed = vc.image.pixels[4 * i];
+                const hoverGreen = vc.image.pixels[4 * i + 1];
+                const hoverBlue = vc.image.pixels[4 * i + 2];
+                const hoverAlpha = vc.image.pixels[4 * i + 3];
+                
+                const isEmpty = isNeutralColor(hoverBlue, hoverAlpha);
+
+                const angle = isEmpty ? null : angleFromColorRG(hoverRed, hoverGreen) * RAD_TO_DEG;
+
+                if(display.angle !== angle){
+                    display.angle = angle;
+                    display.refresh?.();
+                }
+
+            }
+                        
         }
 
 
@@ -350,9 +368,8 @@ export function sketch(p){
             
             vc.setPixelColor(editPixel.x, editPixel.y, settings.normalMapMode ?  COLOR.NEUTRAL.BLUE : COLOR.NEUTRAL.TRANSPARENT);
             
-            const noVector = 'n/a'
-            if(display.angle !== noVector){
-                display.angle = noVector;
+            if(display.angle !== null){
+                display.angle = null;
                 display.refresh?.()
             }
             return;
@@ -371,9 +388,11 @@ export function sketch(p){
         vc.setPixelColor(editPixel.x, editPixel.y, vectorColor);
 
         //update display angle?
-        const degrees = Math.round(angle * RAD_TO_DEG);
-        if(display.angle !== degrees){
-            display.angle = degrees;
+
+        angle *= RAD_TO_DEG;
+    
+        if(display.angle !== angle){
+            display.angle = angle;
             display.refresh?.();
         }        
     }

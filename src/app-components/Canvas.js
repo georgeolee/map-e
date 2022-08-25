@@ -3,10 +3,10 @@ import p5 from "p5";
 
 import { useRef, useEffect } from "react";
 
-import { sketch } from "../refactor/sketch";
+import { sketch } from "../sketch";
 
-import { settings, clip, p5Flags } from "../refactor/globals";
-import { vc } from "../refactor/globals";
+import { settings, clip, p5Flags } from "../globals";
+import { vc } from "../globals";
 
 
 import { useSpring, useSpringRef } from "@react-spring/web";

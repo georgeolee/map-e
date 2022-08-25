@@ -2,7 +2,7 @@ import './App.css';
 import './components/Slider/Slider.css'
 
 
-import { p5Flags, display } from './refactor/globals'
+import { p5Flags, display } from './globals'
 
 
 import { DisplayArea } from './app-components/DisplayArea';

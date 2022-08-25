@@ -1,12 +1,11 @@
 
 
 /**
- * Represents one or more transformations
+ * Represents one or more 2D transformations
  * 
  * 3x3 matrix in column major order
  */
 
-//add - track inverse transformation
 
 export class Transform{
 

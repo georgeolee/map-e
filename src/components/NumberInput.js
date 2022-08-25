@@ -8,16 +8,36 @@ import {useEffect, useRef} from 'react';
         defaultValue = 16,
         func,
         id,
-        init = true,        
+        init = true,
+        onInvalid,
+        min = 0,
+        max = 100,
       } = props;
       
 
       const inputRef = useRef();
 
+      const validateNumber = val => {
+        const num = Number(val);
+        if(typeof num !== 'number' || num < min || num > max) return false; //NaN / bounds check
+        return num;
+      }
+
+      const handleInput = val => {
+        const n = validateNumber(val);
+        
+        if(n === false){
+          onInvalid?.(val);
+        }
+
+        else{
+          func?.(n);
+        }
+      }
 
       useEffect( () =>
         {
-          if(init) func?.(Number(inputRef.current.value));
+          if(init) handleInput(inputRef.current.value);
         },
         [func, init]
       )
@@ -31,10 +51,10 @@ import {useEffect, useRef} from 'react';
             type='text'
             inputMode='numeric'
             minLength={1}
-            maxLength={2}
+            maxLength={3}
             pattern='\d*'
             defaultValue={defaultValue.toString()}
             
-            onChange={(e)=> func?.(Number(e.target.value))}/>
+            onChange={(e)=> handleInput(e.target.value)}/>
       );
   }

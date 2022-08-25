@@ -65,8 +65,7 @@ export const settings = {
 
     zoom : {
         min : 0.25,
-        max : 10,
-        sensitivity : 0.005,
+        max : 10,        
     },
 
 

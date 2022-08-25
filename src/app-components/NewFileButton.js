@@ -4,9 +4,10 @@ import { Button } from "../components/Button";
 import { NumberInput } from "../components/NumberInput";
 
 import { useState } from "react";
-import { p5Flags, settings, display } from "../refactor/globals";
+import { p5Flags, settings, display } from "../globals";
 
-import { EMAP_MAX_SIZE, EMAP_MIN_SIZE } from "../refactor/constants";
+import { EMAP_MAX_SIZE, EMAP_MIN_SIZE } from "../constants";
+
 
 export function NewFileButton(props){
 
@@ -16,6 +17,11 @@ export function NewFileButton(props){
 
     const [showing, showModal] = useState(false);
 
+    const [validWidth, setValidWidth] = useState(true);
+    const [validHeight, setValidHeight] = useState(true);
+
+
+    
     const modalContent = (
         <>
 
@@ -27,7 +33,11 @@ export function NewFileButton(props){
             id='width-input'
             min={EMAP_MIN_SIZE}
             max={EMAP_MAX_SIZE}
-            func={n=>{settings.size.x = n}}
+            onInvalid={()=>setValidWidth(false)}
+            func={n=>{                
+                settings.size.x = n
+                setValidWidth(true)
+            }}
             defaultValue={settings.size.x}
             />
             X
@@ -35,12 +45,22 @@ export function NewFileButton(props){
             id='height-input'
             min={EMAP_MIN_SIZE}
             max={EMAP_MAX_SIZE}
-            func={n=>settings.size.y = n}
+            onInvalid={()=>setValidHeight(false)}
+            func={n=>{                
+                settings.size.y = n
+                setValidHeight(true)
+            }}
             defaultValue={settings.size.y}
             />
         </div>
         
-        <button onClick={()=> {
+        <div className={validWidth ? 'warning hidden' : 'warning'}>Width must be a number between {EMAP_MIN_SIZE} and {EMAP_MAX_SIZE}.</div>
+
+        <div className={validHeight ? 'warning hidden' : 'warning'}>Height must be a number between {EMAP_MIN_SIZE} and {EMAP_MAX_SIZE}.</div>
+
+        <button 
+            style={validWidth && validHeight ? {} : {display: 'none'}}
+            onClick={()=> {
             p5Flags.loadEmpty.raise(); 
             display.size = {...settings.size};
             display.refresh?.();

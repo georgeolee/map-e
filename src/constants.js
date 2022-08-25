@@ -3,13 +3,6 @@
 export const DEG_TO_RAD = Math.PI / 180;
 export const RAD_TO_DEG = 180 / Math.PI;
 
-export const ZOOM_MIN = 0.25;
-export const ZOOM_MAX = 10;
-export const ZOOM_SENSITIVITY = 0.005;
-
-export const CANVAS_DEFAULT_WIDTH = 600;
-export const CANVAS_DEFAULT_HEIGHT = 600;
-
 export const CHECKERBOARD_COUNT = 64;
 
 export const GRID_SPACING = 1;

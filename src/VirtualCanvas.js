@@ -2,7 +2,6 @@
 
 import { Transform } from "./Transform";
 
-import { clip, settings } from "./globals";
 
 
 export class VirtualCanvas{

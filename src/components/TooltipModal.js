@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { display } from "../refactor/globals";
+import { display } from "../globals";
 import { Tooltip } from "./Tooltip";
 
 export function TooltipModal(props){

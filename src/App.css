@@ -407,6 +407,16 @@ button.checkbox.checked:after, .radio input:checked::after{
   font-size: max(1rem, 16px);
 }
 
+.warning{
+  color: var(--red);
+  display: flex;
+  /* padding: 0 1em; */
+  /* text-align: center; */
+}
+.warning.hidden{
+  display: none;
+}
+
 #undo-button{background-image: url(./images/icons/undo-white.png);}
 #redo-button{background-image: url(./images/icons/redo-white.png);}
 #reset-view-button{background-image: url(./images/icons/reset-view-white.png);}
@@ -479,7 +489,7 @@ button.checkbox.checked:after, .radio input:checked::after{
 
 .modal-content{
 
-  --margin: min(4em, 10vw, 10vh);
+  --margin: min(2em, 5vw, 5vh);
   max-height: calc(100% - 2*var(--margin));
   display: flex;
   flex-direction: column;

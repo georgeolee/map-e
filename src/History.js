@@ -2,22 +2,22 @@ import { clip } from "./globals";
 
 export class History{
 
-    static MAX_LENGTH = 20;
+    MAX_LENGTH;
     steps;
     currentIndex;
     p5;
     image;
 
     /**
-     * instantiate an empty History object
      * 
-     * 
+     * Create a new History instance
      * @param {p5Image} pImage the p5 image for this history to track ; to assign a new image after initialization, use History.track
      */
     constructor(pImage){
         this.steps = [];
         this.currentIndex = 0;
         this.image = pImage;
+        this.MAX_LENGTH = 50;
     }
 
     //copy p5 pixels array to a normal js array
@@ -50,8 +50,6 @@ export class History{
         this.image.loadPixels();
         this.pixelArraySet(this.image.pixels, this.steps[this.currentIndex]);
         this.image.updatePixels();
-        
-        // recolor
     }
 
     /**
